@@ -1,0 +1,69 @@
+{
+  "files": [
+    "contracts/first_contract.tolk"
+  ],
+  "symbols": [
+    {
+      "file": "contracts/first_contract.tolk",
+      "name": "Storage",
+      "kind": "struct",
+      "line": 1,
+      "source": "counter: uint64"
+    },
+    {
+      "file": "contracts/first_contract.tolk",
+      "name": "load",
+      "kind": "method",
+      "line": 6,
+      "source": "fun Storage.load()"
+    },
+    {
+      "file": "contracts/first_contract.tolk",
+      "name": "save",
+      "kind": "method",
+      "line": 11,
+      "source": "self.toCell()"
+    },
+    {
+      "file": "contracts/first_contract.tolk",
+      "name": "currentCounter",
+      "kind": "function",
+      "line": 50,
+      "source": "return storage.counter"
+    }
+  ],
+  "calls": [
+    {
+      "fromFile": "contracts/first_contract.tolk",
+      "fromName": "currentCounter",
+      "toFile": "contracts/first_contract.tolk",
+      "toName": "load"
+    },
+    {
+      "fromFile": "contracts/first_contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/first_contract.tolk",
+      "toName": "load"
+    },
+    {
+      "fromFile": "contracts/first_contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/first_contract.tolk",
+      "toName": "save"
+    }
+  ],
+  "forbidden": [
+    {
+      "fromFile": "contracts/first_contract.tolk",
+      "toLanguage": "typescript"
+    }
+  ],
+  "language": "tolk",
+  "provenance": {
+    "url": "https://github.com/ton-org/docs-examples",
+    "commit": "9db211db732fd2288c4aec2d99b7896f40cd2cba",
+    "projectRoot": "guidebook/first-smart-contract/Example",
+    "testedCompiler": "1.5.0",
+    "license": "MIT"
+  }
+}

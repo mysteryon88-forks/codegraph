@@ -1,0 +1,66 @@
+{
+  "files": [
+    "contracts/JettonWallet.tolk",
+    "contracts/JettonMinter.tolk",
+    "contracts/storage.tolk",
+    "contracts/jetton-utils.tolk"
+  ],
+  "symbols": [
+    {
+      "file": "contracts/JettonWallet.tolk",
+      "name": "JettonWallet",
+      "kind": "class",
+      "line": 9,
+      "source": "storage: WalletStorage"
+    }
+  ],
+  "calls": [
+    {
+      "fromFile": "contracts/JettonWallet.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/jetton-utils.tolk",
+      "toName": "calcAddressOfJettonWallet"
+    },
+    {
+      "fromFile": "contracts/JettonWallet.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/fees-management.tolk",
+      "toName": "checkAmountIsEnoughToTransfer"
+    },
+    {
+      "fromFile": "contracts/JettonWallet.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/storage.tolk",
+      "toName": "load"
+    }
+  ],
+  "forbidden": [
+    {
+      "fromFile": "contracts/JettonWallet.tolk",
+      "toFile": "contracts/JettonMinter.tolk",
+      "toName": "onInternalMessage"
+    }
+  ],
+  "imports": [
+    {
+      "fromFile": "contracts/JettonWallet.tolk",
+      "toFile": "contracts/storage.tolk"
+    },
+    {
+      "fromFile": "contracts/JettonWallet.tolk",
+      "toFile": "contracts/messages.tolk"
+    },
+    {
+      "fromFile": "contracts/JettonWallet.tolk",
+      "toFile": "contracts/jetton-utils.tolk"
+    }
+  ],
+  "language": "tolk",
+  "provenance": {
+    "url": "https://github.com/ton-blockchain/acton-contracts",
+    "commit": "d721c3179696b453a9490fcfd2f30770f8c234b4",
+    "projectRoot": "jetton-v2.1",
+    "testedCompiler": "1.5.0",
+    "license": "MIT"
+  }
+}

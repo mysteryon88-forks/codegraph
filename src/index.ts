@@ -70,6 +70,7 @@ import { extractSegmentSearchWords, segmentLookupVariants, splitIdentifierSegmen
 import { createYielder } from './resolution/cooperative-yield';
 import { ESM_IMPORT_LANGUAGES } from './resolution/import-resolver';
 import { minRefsForPool } from './resolution/resolver-pool';
+import { tolkMappingFingerprint } from './resolution/tolk';
 
 // Re-export types for consumers
 export * from './types';
@@ -799,6 +800,8 @@ export class CodeGraph {
         // extraction stamp (the bulk would still be stale). See extraction-version.ts.
         if (result.success) this.stampPythonRootFingerprint();
         if (result.success) this.stampWorkspaceFingerprint();
+        if (result.success) this.queries.setMetadata('tolk_mapping_fingerprint',
+          tolkMappingFingerprint(this.queries.getAllFilePaths().filter(f => f.endsWith('.tolk')), this.resolver.getResolutionContext()));
 
         if (result.success && result.filesIndexed > 0) {
           try {
@@ -1115,6 +1118,18 @@ export class CodeGraph {
             }
           }
           if (before !== now) this.stampWorkspaceFingerprint(now);
+        }
+
+        // A Tolk receiver/return/import edit can change unchanged callers without changing any symbol name.
+        const tolkFiles = this.queries.getAllFilePaths().filter(f => f.endsWith('.tolk'));
+        if (tolkFiles.length > 0 || result.removedFilePaths?.some(f => f.endsWith('.tolk'))) {
+          this.resolver.clearCaches();
+          const fingerprint = tolkMappingFingerprint(tolkFiles, this.resolver.getResolutionContext());
+          if ([...(result.changedFilePaths ?? []), ...(result.removedFilePaths ?? [])].some(f => f.endsWith('.tolk')) ||
+              this.queries.getMetadata('tolk_mapping_fingerprint') !== fingerprint) {
+            this.orchestrator.resurrectResolutionEdgesForLanguage('tolk');
+          }
+          this.queries.setMetadata('tolk_mapping_fingerprint', fingerprint);
         }
 
         // Resolve references if files were updated

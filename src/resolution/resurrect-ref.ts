@@ -34,5 +34,7 @@ export function resurrectRefFromDroppedEdge(
     column: e.column ?? 0,
     filePath: e.sourceFilePath,
     language: e.sourceLanguage,
+    ...(e.sourceLanguage === 'tolk' && Array.isArray(e.metadata?.tolkCandidates)
+      ? { candidates: e.metadata.tolkCandidates.filter((c): c is string => typeof c === 'string') } : {}),
   };
 }

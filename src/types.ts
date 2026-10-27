@@ -126,6 +126,7 @@ export const LANGUAGES = [
   'erlang',
   'terraform',
   'unknown',
+  'tolk',
 ] as const;
 
 export type Language = (typeof LANGUAGES)[number];

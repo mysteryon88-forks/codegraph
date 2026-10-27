@@ -1052,11 +1052,12 @@ export class TreeSitterExtractor {
       // (A re-export's import of its module is none: a barrel whose other lines
       // failed to parse has lost what it passes on.)
       const symbolCount = this.nodes.filter((n) => n.kind !== 'file').length - this.reExportImports;
-      if (this.tree?.rootNode.hasError && symbolCount === 0) {
+      if (this.tree?.rootNode.hasError && (symbolCount === 0 || this.language === 'tolk')) {
         this.errors.push({
           message:
-            `${this.filePath}: parse produced no symbols (tree has errors) — ` +
-            `the file is indexed but contributes nothing to the graph`,
+            symbolCount === 0
+              ? `${this.filePath}: parse produced no symbols (tree has errors) — the file is indexed but contributes nothing to the graph`
+              : `${this.filePath}: parse has errors — recovered symbols may be incomplete`,
           severity: 'warning',
           code: 'parse_error',
         });

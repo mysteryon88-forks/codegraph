@@ -1,0 +1,57 @@
+[
+  {
+    "label": "Jetton file source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "contracts/JettonWallet.tolk"
+    },
+    "contains": [
+      "contract JettonWallet",
+      "calcAddressOfJettonWallet"
+    ]
+  },
+  {
+    "label": "Jetton helper",
+    "tool": "codegraph_node",
+    "arguments": {
+      "symbol": "calcAddressOfJettonWallet",
+      "includeCode": true
+    },
+    "contains": [
+      "jetton-utils.tolk"
+    ]
+  },
+  {
+    "label": "Jetton flow 1",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "JettonWallet.tolk onInternalMessage calcAddressOfJettonWallet"
+    },
+    "contains": [
+      "calcAddressOfJettonWallet",
+      "jetton-utils.tolk"
+    ]
+  },
+  {
+    "label": "Jetton flow 2",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "JettonWallet.tolk onInternalMessage checkAmountIsEnoughToTransfer"
+    },
+    "contains": [
+      "checkAmountIsEnoughToTransfer",
+      "fees-management.tolk"
+    ]
+  },
+  {
+    "label": "Jetton flow 3",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "JettonWallet.tolk onInternalMessage WalletStorage.load"
+    },
+    "contains": [
+      "WalletStorage",
+      "storage.tolk"
+    ]
+  }
+]

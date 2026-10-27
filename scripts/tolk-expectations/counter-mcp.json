@@ -1,0 +1,58 @@
+[
+  {
+    "label": "Counter file source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "contracts/first_contract.tolk"
+    },
+    "contains": [
+      "struct Storage",
+      "get fun currentCounter"
+    ]
+  },
+  {
+    "label": "Counter getter",
+    "tool": "codegraph_node",
+    "arguments": {
+      "symbol": "currentCounter",
+      "includeCode": true
+    },
+    "contains": [
+      "Storage.load()",
+      "contracts/first_contract.tolk"
+    ]
+  },
+  {
+    "label": "Counter flow 1",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "currentCounter Storage.load"
+    },
+    "contains": [
+      "currentCounter",
+      "load"
+    ]
+  },
+  {
+    "label": "Counter flow 2",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "onInternalMessage Storage.load"
+    },
+    "contains": [
+      "onInternalMessage",
+      "load"
+    ]
+  },
+  {
+    "label": "Counter flow 3",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "onInternalMessage Storage.save"
+    },
+    "contains": [
+      "onInternalMessage",
+      "save"
+    ]
+  }
+]

@@ -51,12 +51,14 @@ const WASM_GRAMMAR_FILES: Record<GrammarLanguage, string> = {
   terraform: 'tree-sitter-terraform.wasm',
   arkts: 'tree-sitter-arkts.wasm',
   nix: 'tree-sitter-nix.wasm',
+  tolk: 'tree-sitter-tolk.wasm',
 };
 
 /**
  * File extension to Language mapping
  */
 export const EXTENSION_MAP: Record<string, Language> = {
+  '.tolk': 'tolk',
   '.ts': 'typescript',
   '.tsx': 'tsx',
   // ESM/CJS TypeScript module extensions — parsed as TS (no JSX). (#366)
@@ -395,6 +397,7 @@ export async function initGrammars(): Promise<void> {
  * the vendored wasm together.
  */
 const VENDORED_WASM_LANGS: ReadonlySet<GrammarLanguage> = new Set([
+  'tolk',
   'pascal', 'scala', 'lua', 'luau', 'csharp', 'r', 'cfml', 'cfscript', 'cfquery',
   'cobol', 'vbnet', 'erlang', 'terraform', 'arkts', 'nix',
   'typescript', 'tsx', 'javascript', 'jsx', 'java', 'python', 'go',
@@ -932,6 +935,7 @@ export function getLanguageDisplayName(language: Language): string {
     objc: 'Objective-C',
     solidity: 'Solidity',
     nix: 'Nix',
+    tolk: 'Tolk',
     yaml: 'YAML',
     twig: 'Twig',
     xml: 'XML',
