@@ -46,7 +46,7 @@ CODEGRAPH_DIR=.codegraph-tolk node --liftoff-only scripts/verify-tolk.mjs \
 
 The verifier checks files, exact symbols, source/line information, import/call endpoints and forbidden edges; total node counts are insufficient. Any indexed Tolk parse diagnostic makes `success` false and the process exit nonzero, while retaining recovered symbols and `parseIssues` in the report. A malformed sibling cannot be hidden by a valid function. `--index` is opt-in. Keep private expectations and source out of Git. For a different build choose a different `CODEGRAPH_DIR` in every command and MCP process.
 
-For a proposed agent-efficiency comparison, see the [Tolk A/B protocol](benchmarks/tolk-agent-ab.md) and its separate evaluator key. It defines a 12-session pilot, medium/control extensions and budget gates; these model runs have not been executed.
+For agent-efficiency checks, see the [Tolk A/B protocol](benchmarks/tolk-agent-ab.md), its separate evaluator key and the [completed Codex subscription pilot](benchmarks/tolk-codex-pilot.md). The Codex pilot did not demonstrate an efficiency improvement; the original Sonnet, medium/control and large-corpus agent gates remain open.
 
 For the two public snapshots used during acceptance:
 

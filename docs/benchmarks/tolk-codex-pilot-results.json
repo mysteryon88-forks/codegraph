@@ -1,0 +1,958 @@
+{
+  "date_utc": "2026-10-27",
+  "host": "Ubuntu-24.04 WSL2 Linux x64",
+  "auth": "ChatGPT subscription; forced_login_method=chatgpt; API variables removed",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "cli_version": "0.164.0",
+  "model_revision_limit": "JSONL does not expose an immutable resolved backend model revision",
+  "codegraph_runtime_commit": "79cb5f4d99d37b97bbc5b66202bcbe14d8b5a711",
+  "upstream_base_commit": "69af19ace270f2e940444d514de6dde971df12df",
+  "corpus_commit": "187e0589f437fe398e3385f4a434e9755d1b4d87",
+  "protocol_commit": "037f989293fd6874f3b7613df7a66046d97b7d1a",
+  "controller_hash_scope": "Final reproducer after lifecycle fixes; measured model inputs and recorded timings unchanged",
+  "launches": 14,
+  "completed_answers": 12,
+  "infrastructure_invalid_launches": 2,
+  "recovery": "Original W1-r1 failures retained; appended W1-r3 A/B before unblinding; no answer-driven retry",
+  "summary": {
+    "A": {
+      "completed": 6,
+      "score": 28,
+      "max_score": 30,
+      "full_score_answers": 4,
+      "median_seconds_all_completed": 31.994,
+      "median_tool_items": 4.5,
+      "read_commands": 16,
+      "search_commands": 4,
+      "listing_commands": 6,
+      "mcp_adopting_sessions": 0,
+      "input_tokens": 398387,
+      "cached_input_tokens": 255744,
+      "output_tokens": 5485
+    },
+    "B": {
+      "completed": 6,
+      "score": 28,
+      "max_score": 30,
+      "full_score_answers": 4,
+      "median_seconds_all_completed": 32.435,
+      "median_tool_items": 5.0,
+      "read_commands": 20,
+      "search_commands": 4,
+      "listing_commands": 6,
+      "mcp_adopting_sessions": 2,
+      "input_tokens": 463269,
+      "cached_input_tokens": 309504,
+      "output_tokens": 6200
+    }
+  },
+  "pairs": [
+    {
+      "task": "W1",
+      "repeat": 2,
+      "paired_correct": true,
+      "without_seconds": 31.73,
+      "with_seconds": 30.572,
+      "ratio_with_over_without": 0.9635045698077529
+    },
+    {
+      "task": "W1",
+      "repeat": 3,
+      "paired_correct": true,
+      "without_seconds": 32.258,
+      "with_seconds": 41.781,
+      "ratio_with_over_without": 1.2952135904271806
+    },
+    {
+      "task": "W2",
+      "repeat": 1,
+      "paired_correct": true,
+      "without_seconds": 31.257,
+      "with_seconds": 27.57,
+      "ratio_with_over_without": 0.8820424224973605
+    },
+    {
+      "task": "W2",
+      "repeat": 2,
+      "paired_correct": true,
+      "without_seconds": 29.665,
+      "with_seconds": 30.607,
+      "ratio_with_over_without": 1.0317545929546603
+    },
+    {
+      "task": "W3",
+      "repeat": 1,
+      "paired_correct": false,
+      "without_seconds": 33.119,
+      "with_seconds": 34.263,
+      "ratio_with_over_without": null
+    },
+    {
+      "task": "W3",
+      "repeat": 2,
+      "paired_correct": false,
+      "without_seconds": 37.933,
+      "with_seconds": 39.533,
+      "ratio_with_over_without": null
+    }
+  ],
+  "median_paired_correct_ratio": 0.9976295813812066,
+  "attempts": [
+    {
+      "label": "W1-r1-A",
+      "status": "failed",
+      "seconds": 33.821,
+      "tool_items": 0,
+      "read_commands": 0,
+      "search_commands": 0,
+      "listing_commands": 0,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {},
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "593edf462a12cc90f7dab341e0bc1d5718a4ecafa178cd04fe0b295ecbf80ce3",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "error": 1
+      },
+      "commands": []
+    },
+    {
+      "label": "W1-r1-B",
+      "status": "failed",
+      "seconds": 24.003,
+      "tool_items": 0,
+      "read_commands": 0,
+      "search_commands": 0,
+      "listing_commands": 0,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {},
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "70f2fc4ccd128af0cef9305dc318fc4c4c6fa3be26ddcb597d4c088281a51782",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "error": 1
+      },
+      "commands": []
+    },
+    {
+      "label": "W1-r2-A",
+      "status": "completed",
+      "seconds": 31.73,
+      "tool_items": 4,
+      "read_commands": 2,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 76481,
+        "cached_input_tokens": 40064,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 979,
+        "reasoning_output_tokens": 113
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "70f2fc4ccd128af0cef9305dc318fc4c4c6fa3be26ddcb597d4c088281a51782",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 4
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g AGENTS.md -g 'contract.tolk' -g '*.tolk' -g '.codegraph'\"",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/contract.tolk; nl -ba contracts/marketplace/message_handlers.tolk; nl -ba contracts/marketplace/utils.tolk; nl -ba contracts/imports/gas.tolk'",
+        "/bin/bash -lc \"rg -n 'OP_OWNERSHIP_ASSIGNED|transformSliceToContinuation|fun getGasConsumedAtTheMoment|fun checkEnoughGas|fun handleNftOwnershipAssigned' contracts/marketplace contracts/imports\"",
+        "/bin/bash -lc \"nl -ba contracts/imports/utils.tolk | sed -n '1,100p'\""
+      ],
+      "grading": {
+        "id": "answer-01",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "adfdd9739339616e00af1af0663bcb504c6f1fad90298a274e25c861d8d2b61b"
+    },
+    {
+      "label": "W1-r2-B",
+      "status": "completed",
+      "seconds": 30.572,
+      "tool_items": 6,
+      "read_commands": 5,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 76238,
+        "cached_input_tokens": 43520,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 858,
+        "reasoning_output_tokens": 49
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "70f2fc4ccd128af0cef9305dc318fc4c4c6fa3be26ddcb597d4c088281a51782",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 6
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g '*.tolk' -g '\"'!**/.codegraph/**'\"' -g '\"'!**/node_modules/**'\"' -g '\"'!**/vendor/**'\"' contracts\"",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/utils.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/message_handlers.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/imports/gas.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/contract.tolk'",
+        "/bin/bash -lc \"rg -n 'OP_OWNERSHIP_ASSIGNED|transformSliceToContinuation|fun forceSameWorkchain' contracts/imports/constants.tolk contracts/imports/utils.tolk contracts/marketplace/constants.tolk && nl -ba contracts/imports/utils.tolk | sed -n '1,85p'\""
+      ],
+      "grading": {
+        "id": "answer-09",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "6760c6bdfffabcb2570b2e0279065a8def7b7620372de337c63fac70887d25f7"
+    },
+    {
+      "label": "W1-r3-A",
+      "status": "completed",
+      "seconds": 32.258,
+      "tool_items": 5,
+      "read_commands": 4,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 75983,
+        "cached_input_tokens": 49920,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 843,
+        "reasoning_output_tokens": 98
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "70f2fc4ccd128af0cef9305dc318fc4c4c6fa3be26ddcb597d4c088281a51782",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 5
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g 'contract.tolk' -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/message_handlers.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/utils.tolk; nl -ba contracts/imports/gas.tolk'",
+        "/bin/bash -lc \"rg -n 'OP_OWNERSHIP_ASSIGNED|transformSliceToContinuation|fun getGasConsumedAtTheMoment' contracts/imports/constants.tolk contracts/imports/utils.tolk contracts/marketplace/constants.tolk; nl -ba contracts/imports/utils.tolk | sed -n '1,65p'\""
+      ],
+      "grading": {
+        "id": "answer-11",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "47fa179aea2a58f9966be7093758b280c1e10018e9d3eb2fde6d423739b7bfc6"
+    },
+    {
+      "label": "W1-r3-B",
+      "status": "completed",
+      "seconds": 41.781,
+      "tool_items": 7,
+      "read_commands": 5,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 77049,
+        "cached_input_tokens": 49408,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1293,
+        "reasoning_output_tokens": 328
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "70f2fc4ccd128af0cef9305dc318fc4c4c6fa3be26ddcb597d4c088281a51782",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 7
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/message_handlers.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/utils.tolk'",
+        "/bin/bash -lc \"nl -ba contracts/imports/gas.tolk | sed -n '1,100p'\"",
+        "/bin/bash -lc \"nl -ba contracts/imports/utils.tolk | sed -n '1,100p'\"",
+        "/bin/bash -lc \"rg -n 'OP_OWNERSHIP_ASSIGNED|fun getGasConsumedAtTheMoment|fun transformSliceToContinuation|EXC_OUT_OF_GAS|TONS_MIN_EXCESS|WORKCHAIN' contracts/imports/constants.tolk contracts/marketplace/constants.tolk contracts/imports/utils.tolk contracts/imports/gas.tolk\""
+      ],
+      "grading": {
+        "id": "answer-04",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "e97345a24abca5d7ecdab5a1b1229191d51d45db6fad27f7862ee8c14e573115"
+    },
+    {
+      "label": "W2-r1-A",
+      "status": "completed",
+      "seconds": 31.257,
+      "tool_items": 5,
+      "read_commands": 3,
+      "search_commands": 0,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 45735,
+        "cached_input_tokens": 24960,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 871,
+        "reasoning_output_tokens": 216
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "04ea8b7b99a8446a9ce13506f8f4f5e6375993ade6a2a2863bcf757f4b32c4b0",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 5
+      },
+      "commands": [
+        "/bin/bash -lc pwd",
+        "/bin/bash -lc \"rg --files -g 'AGENTS.md' -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/utils.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/storage.tolk'"
+      ],
+      "grading": {
+        "id": "answer-10",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "cf150bfefdbeab4303eb99381228a775626e1cd8a0c1af17306c6353e83a4de1"
+    },
+    {
+      "label": "W2-r1-B",
+      "status": "completed",
+      "seconds": 27.57,
+      "tool_items": 4,
+      "read_commands": 0,
+      "search_commands": 0,
+      "listing_commands": 1,
+      "mcp_tools": [
+        "codegraph_explore",
+        "codegraph_explore"
+      ],
+      "mcp_errors": 0,
+      "after_explore": [
+        "codegraph_explore",
+        "final"
+      ],
+      "usage": {
+        "input_tokens": 90104,
+        "cached_input_tokens": 66688,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 979,
+        "reasoning_output_tokens": 277
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "04ea8b7b99a8446a9ce13506f8f4f5e6375993ade6a2a2863bcf757f4b32c4b0",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 2,
+        "mcp_tool_call": 2
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'test -d .codegraph'"
+      ],
+      "grading": {
+        "id": "answer-05",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "93649361b7532873a72268d4573e7f81a4a0123615667b9e87829383302ed039"
+    },
+    {
+      "label": "W2-r2-A",
+      "status": "completed",
+      "seconds": 29.665,
+      "tool_items": 3,
+      "read_commands": 2,
+      "search_commands": 0,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 46191,
+        "cached_input_tokens": 28416,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 831,
+        "reasoning_output_tokens": 173
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "04ea8b7b99a8446a9ce13506f8f4f5e6375993ade6a2a2863bcf757f4b32c4b0",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 3
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g '*.tolk' -g '*.fc' -g '*.func' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/utils.tolk && nl -ba contracts/domain_swap/storage.tolk && nl -ba contracts/domain_swap/messages.tolk'"
+      ],
+      "grading": {
+        "id": "answer-06",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "28afe5eb8fc4aafd7e856dac04fa31884bfa639d8a73d7807d768dbc7f9cbeda"
+    },
+    {
+      "label": "W2-r2-B",
+      "status": "completed",
+      "seconds": 30.607,
+      "tool_items": 4,
+      "read_commands": 3,
+      "search_commands": 0,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 45630,
+        "cached_input_tokens": 25088,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 791,
+        "reasoning_output_tokens": 184
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "04ea8b7b99a8446a9ce13506f8f4f5e6375993ade6a2a2863bcf757f4b32c4b0",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 4
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/storage.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/utils.tolk'"
+      ],
+      "grading": {
+        "id": "answer-08",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "a659a04de27364b8c25cfdee6f681b87691f2fc5c5d49a91442bbd57a5223fe0"
+    },
+    {
+      "label": "W3-r1-A",
+      "status": "completed",
+      "seconds": 33.119,
+      "tool_items": 5,
+      "read_commands": 3,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 89955,
+        "cached_input_tokens": 69248,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 988,
+        "reasoning_output_tokens": 17
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "a091f4392aa2a20b286759e73b26181e661e8d9e9813812dab5c8f95e643037a",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 5
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g 'contract.tolk' -g '*const*' -g '*reserve*' -g '*config*' contracts/fix_price_sales\"",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/storage.tolk && nl -ba contracts/fix_price_sales/ton_simple_sale/constants.tolk && nl -ba contracts/imports/gas.tolk'",
+        "/bin/bash -lc \"rg -n 'saleStorageReserve|autoRenewLockPerIter|fun nftTransferFee|fun renewDomainFee|ONE_YEAR|fun gasFee|fun loadOpAndQueryId|OP_TRIGGER_AUTORENEW' contracts/imports contracts/fix_price_sales/ton_simple_sale contracts/fix_price_sales/constants.tolk\"",
+        "/bin/bash -lc \"nl -ba contracts/imports/utils.tolk | sed -n '167,185p'\nnl -ba contracts/imports/constants.tolk | sed -n '43,52p;128,137p'\""
+      ],
+      "grading": {
+        "id": "answer-03",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "5160eb460c4f8cb120d6ca2bad3a22d78d37c2a5285a5f0556b95ca5cf4010c3"
+    },
+    {
+      "label": "W3-r1-B",
+      "status": "completed",
+      "seconds": 34.263,
+      "tool_items": 8,
+      "read_commands": 6,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 77326,
+        "cached_input_tokens": 50688,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1123,
+        "reasoning_output_tokens": 203
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "a091f4392aa2a20b286759e73b26181e661e8d9e9813812dab5c8f95e643037a",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 8
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g '*ton_simple_sale*' -g '*.tolk' -g '\"'!**/node_modules/**'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/imports/gas.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/storage.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/constants.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/imports/constants.tolk'",
+        "/bin/bash -lc \"rg -n -A 10 -B 3 'fun loadOpAndQueryId' contracts/imports/utils.tolk\"",
+        "/bin/bash -lc \"nl -ba contracts/fix_price_sales/ton_simple_sale/contract.tolk | sed -n '344,391p'\""
+      ],
+      "grading": {
+        "id": "answer-07",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "33f674f9da0ebb4a93f67f43f3365648c0b66e4696d91944e676df96e177a788"
+    },
+    {
+      "label": "W3-r2-A",
+      "status": "completed",
+      "seconds": 37.933,
+      "tool_items": 3,
+      "read_commands": 2,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 64042,
+        "cached_input_tokens": 43136,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 973,
+        "reasoning_output_tokens": 177
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "a091f4392aa2a20b286759e73b26181e661e8d9e9813812dab5c8f95e643037a",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 3
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g AGENTS.md -g 'contract.tolk' -g '*.tolk' -g '*.fc' -g '*.func' -g '\"'!node_modules'\"' -g '\"'!vendor'\"' contracts/fix_price_sales/ton_simple_sale\"",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/contract.tolk\nnl -ba contracts/fix_price_sales/ton_simple_sale/constants.tolk\nnl -ba contracts/fix_price_sales/ton_simple_sale/storage.tolk'",
+        "/bin/bash -lc \"nl -ba contracts/imports/gas.tolk\nrg -n 'ONE_YEAR|ONE_DAY|OP_TRIGGER_AUTORENEW|fun loadOpAndQueryId' contracts/imports/constants.tolk contracts/imports/utils.tolk contracts/fix_price_sales/constants.tolk\""
+      ],
+      "grading": {
+        "id": "answer-02",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "60b41eb5272f6b19905efbcbf9296d0495d5ba2b04196914f422313c7133e84b"
+    },
+    {
+      "label": "W3-r2-B",
+      "status": "completed",
+      "seconds": 39.533,
+      "tool_items": 4,
+      "read_commands": 1,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [
+        "codegraph_explore",
+        "codegraph_explore"
+      ],
+      "mcp_errors": 0,
+      "after_explore": [
+        "codegraph_explore",
+        "command_execution"
+      ],
+      "usage": {
+        "input_tokens": 96922,
+        "cached_input_tokens": 74112,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1156,
+        "reasoning_output_tokens": 235
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "a091f4392aa2a20b286759e73b26181e661e8d9e9813812dab5c8f95e643037a",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 2,
+        "mcp_tool_call": 2
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g 'contract.tolk' -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"' contracts/fix_price_sales\"",
+        "/bin/bash -lc \"sed -n '1,47p' contracts/fix_price_sales/ton_simple_sale/contract.tolk\nrg -n 'ONE_YEAR|WORKCHAIN' contracts/imports/constants.tolk\nnl -ba contracts/fix_price_sales/ton_simple_sale/storage.tolk\""
+      ],
+      "grading": {
+        "id": "answer-12",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      "answer_sha256": "80e2f19b380869413fe82d0197ab95d5d2216741ceac607d069d0bc6b0093b10"
+    }
+  ],
+  "hashes": {
+    "scripts/agent-eval/tolk-codex-pilot.py": "c093f525eabcf652e290742ff55453a66f1e695107a2a1b5d3a9f42404929261",
+    "docs/benchmarks/tolk-agent-ab.md": "5ef473703b26f46f8d76d45e9bcbe5076634bc1036f1f1b4922843ae3ad9e591",
+    "docs/benchmarks/tolk-agent-ab-answers.md": "523384706764fdb25ff3e37397763a6c24a15736eb195fe8a2815d0ac5712a81",
+    "release/codegraph-tolk-pr-linux-x64.tar.gz": "dab7de527ee8f967cb645b8023bd400daed8d6c355bc33a817463f969952307f",
+    "bundle/tree-sitter-tolk.wasm": "663a425723b0b71bcb990136149b9cb7be83fee80825fe321b15583ef6ebc921",
+    "cli-wrapper": "61b0194f3bb6534439c8d26a3ed57d0805f84b884588b761795323eeb92fcf70",
+    "cli-native": "b93f6811d3f653f0fb83be4050d857fb9abbb111dfa2ce160563327daff7f306"
+  },
+  "grading": {
+    "grading_mode": "independent_model_blind",
+    "reviewer": "/root/pr_critic",
+    "grades": [
+      {
+        "id": "answer-01",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      {
+        "id": "answer-02",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      {
+        "id": "answer-03",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      {
+        "id": "answer-04",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      {
+        "id": "answer-05",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      {
+        "id": "answer-06",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      {
+        "id": "answer-07",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      {
+        "id": "answer-08",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      {
+        "id": "answer-09",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      {
+        "id": "answer-10",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      {
+        "id": "answer-11",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_false_target": false,
+        "citations_ok": true
+      },
+      {
+        "id": "answer-12",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_false_target": false,
+        "citations_ok": true
+      }
+    ],
+    "findings": [
+      {
+        "type": "omission",
+        "task": "W3",
+        "affected_answers": [
+          "answer-02",
+          "answer-03",
+          "answer-07",
+          "answer-12"
+        ],
+        "fact": 5,
+        "reason": "All omit import \"constants\" at contracts/fix_price_sales/ton_simple_sale/contract.tolk:13. Correct helper declarations alone do not earn the frozen conjunctive fact.",
+        "critical_false_target": false
+      }
+    ],
+    "material_wrong_source_claims": [],
+    "total_score": 56,
+    "maximum_score": 60,
+    "scope_limit": "Independent model grading, not human review; only anonymous answers, frozen key and pinned source were read, without arm map/timing."
+  },
+  "raw_evidence": ".tmp-tolk/codex-pilot/evidence (ignored; contains public source excerpts)"
+}

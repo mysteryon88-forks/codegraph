@@ -1,6 +1,6 @@
 # Tolk agent A/B: proposed test protocol
 
-**Status: designed, not run.** No model sessions or paid judging were launched to prepare this document. Static graph/CLI/MCP checks in [the validation record](../tolk-validation.md) are separate evidence. This protocol measures whether an agent obtains correct answers more efficiently; it does not establish that every extracted edge is correct.
+**Status: original Sonnet protocol designed, not run.** A separately requested [Codex subscription pilot](tolk-codex-pilot.md) has now run with explicit model/host and infrastructure-recovery amendments; it did not demonstrate an efficiency improvement. Static graph/CLI/MCP checks in [the validation record](../tolk-validation.md) are separate evidence. This protocol measures whether an agent obtains correct answers more efficiently; it does not establish that every extracted edge is correct.
 
 ## Experiment and scope
 

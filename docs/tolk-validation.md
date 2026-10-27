@@ -89,9 +89,9 @@ The old deployed fork remains `/home/ssobolev/.local/opt/codegraph-tolk-6e44463b
 
 ## Remaining merge gates
 
-Paid agent A/B was not run: the user requires a separately agreed budget, and authenticated Claude CLI was unavailable. Upstream requires Sonnet/high, at least 2 runs/arm, duration/tool/Read/Grep and feedback metrics, CLI-contamination checks and a control repository without regression. A local preparation recipe is retained. No token-saving, agent-speed or zero-Read claim is made.
+The user subsequently requested Codex on the ChatGPT subscription, explicitly replacing Claude. The [Codex pilot report](benchmarks/tolk-codex-pilot.md) records twelve completed answers plus two retained infrastructure failures: 28/30 in both arms, CodeGraph adoption 2/6 enabled sessions, and no demonstrated speed improvement. Both arms omitted one required local import in the sale-reserve task. It is not the upstream Sonnet/high benchmark: medium/large agent packs, baseline/new control and missing feedback metrics remain open. No token-saving or general agent-speed claim is made.
 
-A source-grounded [A/B protocol and evaluator key](benchmarks/tolk-agent-ab.md) now document the proposed pilot, medium extension and baseline/new JavaScript control. This is preparation, not a benchmark result or spending authorization.
+A source-grounded [A/B protocol and evaluator key](benchmarks/tolk-agent-ab.md) document the original Sonnet pilot, medium extension and baseline/new JavaScript control. Only the separately documented Codex pilot was executed; the other packs remain preparation.
 
 The largest genuinely indexed corpus here has 2,936 files (Acton), a medium tier. Raw 6,891 tracked Acton files do not establish large-index coverage. A real large corpus and its 3 flow probes/A-B remain unverified; none was fabricated by padding. These small/medium deterministic results therefore do not establish all upstream merge gates.
 
