@@ -1,0 +1,239 @@
+{
+  "provenance": {
+    "url": "https://github.com/ton-blockchain/tg-wallet-contract",
+    "commit": "1a29ae5d90e03c3d585d3e42e6ecef691d727a3c",
+    "oracle": "Independent source-only review frozen before new graph output",
+    "toolchain": "Acton1.2.0; Tolk release unspecified",
+    "license": "MIT"
+  },
+  "files": [
+    "contracts/WalletTg/WalletTg.tolk",
+    "contracts/WalletTg/storage.tolk",
+    "contracts/WalletTg/migration.tolk",
+    "contracts/WalletTg/revisions.tolk",
+    "contracts/WalletTg/send-to-c5.tolk",
+    "contracts/WalletTg/messages.tolk",
+    "contracts/WalletTg/errors.tolk"
+  ],
+  "symbols": [
+    {
+      "file": "contracts/WalletTg/WalletTg.tolk",
+      "name": "onInternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/WalletTg/WalletTg.tolk",
+      "name": "onExternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/WalletTg/WalletTg.tolk",
+      "name": "checkRotationProof",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/WalletTg/WalletTg.tolk",
+      "name": "sendOnKeyChangedEvent",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/WalletTg/storage.tolk",
+      "name": "getC4Revision",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/WalletTg/storage.tolk",
+      "name": "load",
+      "kind": "method"
+    },
+    {
+      "file": "contracts/WalletTg/storage.tolk",
+      "name": "save",
+      "kind": "method"
+    },
+    {
+      "file": "contracts/WalletTg/migration.tolk",
+      "name": "runMigrationAndUpdateC4",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/WalletTg/send-to-c5.tolk",
+      "name": "validateAndSend",
+      "kind": "method"
+    },
+    {
+      "file": "contracts/WalletTg/send-to-c5.tolk",
+      "name": "parseArrayAndSend",
+      "kind": "method"
+    },
+    {
+      "file": "contracts/WalletTg/WalletTg.tolk",
+      "name": "validateRequest",
+      "kind": "method"
+    }
+  ],
+  "calls": [
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/WalletTg/storage.tolk",
+      "toName": "load",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/WalletTg/WalletTg.tolk",
+      "toName": "validateRequest",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/WalletTg/WalletTg.tolk",
+      "toName": "checkRotationProof",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/WalletTg/WalletTg.tolk",
+      "toName": "sendOnKeyChangedEvent",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/WalletTg/send-to-c5.tolk",
+      "toName": "parseArrayAndSend",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/send-to-c5.tolk",
+      "fromName": "parseArrayAndSend",
+      "toFile": "contracts/WalletTg/send-to-c5.tolk",
+      "toName": "validateAndSend",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/storage.tolk",
+      "fromName": "load",
+      "toFile": "contracts/WalletTg/storage.tolk",
+      "toName": "getC4Revision",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/storage.tolk",
+      "fromName": "load",
+      "toFile": "contracts/WalletTg/migration.tolk",
+      "toName": "runMigrationAndUpdateC4",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "contracts/WalletTg/WalletTg.tolk",
+      "toName": "checkRotationProof",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "contracts/WalletTg/WalletTg.tolk",
+      "toName": "sendOnKeyChangedEvent",
+      "toLanguage": "tolk"
+    }
+  ],
+  "imports": [
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "toFile": "contracts/WalletTg/send-to-c5.tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "toFile": "contracts/WalletTg/revisions.tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "toFile": "contracts/WalletTg/errors.tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "toFile": "contracts/WalletTg/messages.tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "toFile": "contracts/WalletTg/storage.tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/storage.tolk",
+      "toFile": "contracts/WalletTg/migration.tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/storage.tolk",
+      "toFile": "contracts/WalletTg/revisions.tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/migration.tolk",
+      "toFile": "contracts/WalletTg/storage.tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/send-to-c5.tolk",
+      "toFile": "contracts/WalletTg/errors.tolk"
+    },
+    {
+      "fromFile": "contracts/WalletTg/send-to-c5.tolk",
+      "toFile": "contracts/WalletTg/messages.tolk"
+    }
+  ],
+  "forbidden": [
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/WalletTg/migration.tolk",
+      "toName": "runMigrationAndUpdateC4",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/WalletTg/storage.tolk",
+      "toName": "getC4Revision",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/WalletTg/WalletTg.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "contracts/WalletTg/migration.tolk",
+      "toName": "runMigrationAndUpdateC4",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/WalletTg/storage.tolk",
+      "fromName": "load",
+      "toFile": "contracts/WalletTg/storage.tolk",
+      "toName": "save",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/WalletTg/migration.tolk",
+      "fromName": "runMigrationAndUpdateC4",
+      "toFile": "contracts/WalletTg/storage.tolk",
+      "toName": "save",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/WalletTg/send-to-c5.tolk",
+      "fromName": "parseArrayAndSend",
+      "toFile": "contracts/WalletTg/storage.tolk",
+      "toName": "load",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    }
+  ]
+}

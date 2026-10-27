@@ -1,0 +1,272 @@
+{
+  "provenance": {
+    "url": "https://github.com/ton-blockchain/ton",
+    "commit": "857b8a57a178e6ae0fe7fa86e7d81c5233de8560",
+    "oracle": "Independent source-only review frozen before new graph output",
+    "compiler": "Tolk1.5.0",
+    "license": "LGPLv2-or-later",
+    "indexConfig": {
+      "exclude": [
+        "tolk-tester/tests/invalid-*/"
+      ]
+    },
+    "knownUnsupported": [
+      "@stdlib remains external even though compiler source vendors its stdlib",
+      "@custom-folder mapping in compiler-test @path_mapping comment is unsupported; someAdd stays unresolved in imports-tests"
+    ]
+  },
+  "files": [
+    "crypto/smartcont/validator-registry.tolk",
+    "tolk-tester/tests/calls-tests.tolk",
+    "tolk-tester/tests/imports-tests.tolk",
+    "tolk-tester/tests/imports/use-dicts.ext.tolk",
+    "tolk-tester/tests/imports/some-math.tolk"
+  ],
+  "symbols": [
+    {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "name": "onExternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "name": "cleanupRegistry",
+      "kind": "function"
+    },
+    {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "name": "getValidatorKeys",
+      "kind": "function"
+    },
+    {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "name": "validateEntry",
+      "kind": "function"
+    },
+    {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "name": "getRegistryConfigCell",
+      "kind": "function"
+    },
+    {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "name": "updateCode",
+      "kind": "function"
+    },
+    {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "name": "getLastKeyBlockSeqno",
+      "kind": "function"
+    },
+    {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "name": "getValidatorPublicKey",
+      "kind": "function"
+    },
+    {
+      "file": "tolk-tester/tests/imports-tests.tolk",
+      "name": "main",
+      "kind": "function"
+    },
+    {
+      "file": "tolk-tester/tests/imports/some-math.tolk",
+      "name": "someAdd",
+      "kind": "function"
+    },
+    {
+      "file": "tolk-tester/tests/imports/use-dicts.ext.tolk",
+      "name": "prepareDict_3_30_4_40_5_x",
+      "kind": "function"
+    },
+    {
+      "file": "tolk-tester/tests/calls-tests.tolk",
+      "name": "test2",
+      "kind": "function"
+    },
+    {
+      "file": "tolk-tester/tests/calls-tests.tolk",
+      "name": "getAOrB",
+      "kind": "function"
+    },
+    {
+      "file": "tolk-tester/tests/calls-tests.tolk",
+      "name": "sumADef1BDef2",
+      "kind": "function"
+    },
+    {
+      "file": "tolk-tester/tests/calls-tests.tolk",
+      "name": "test3",
+      "kind": "function"
+    },
+    {
+      "file": "tolk-tester/tests/calls-tests.tolk",
+      "name": "create",
+      "kind": "method"
+    },
+    {
+      "file": "tolk-tester/tests/calls-tests.tolk",
+      "name": "incrementX",
+      "kind": "method"
+    }
+  ],
+  "calls": [
+    {
+      "fromFile": "crypto/smartcont/validator-registry.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "crypto/smartcont/validator-registry.tolk",
+      "toName": "cleanupRegistry",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "crypto/smartcont/validator-registry.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "crypto/smartcont/validator-registry.tolk",
+      "toName": "updateCode",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "crypto/smartcont/validator-registry.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "crypto/smartcont/validator-registry.tolk",
+      "toName": "getLastKeyBlockSeqno",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "crypto/smartcont/validator-registry.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "crypto/smartcont/validator-registry.tolk",
+      "toName": "getValidatorPublicKey",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "crypto/smartcont/validator-registry.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "crypto/smartcont/validator-registry.tolk",
+      "toName": "validateEntry",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "crypto/smartcont/validator-registry.tolk",
+      "fromName": "cleanupRegistry",
+      "toFile": "crypto/smartcont/validator-registry.tolk",
+      "toName": "getLastKeyBlockSeqno",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "crypto/smartcont/validator-registry.tolk",
+      "fromName": "cleanupRegistry",
+      "toFile": "crypto/smartcont/validator-registry.tolk",
+      "toName": "getValidatorKeys",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "crypto/smartcont/validator-registry.tolk",
+      "fromName": "validateEntry",
+      "toFile": "crypto/smartcont/validator-registry.tolk",
+      "toName": "getRegistryConfigCell",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "crypto/smartcont/validator-registry.tolk",
+      "fromName": "updateCode",
+      "toFile": "crypto/smartcont/validator-registry.tolk",
+      "toName": "getRegistryConfigCell",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "tolk-tester/tests/imports-tests.tolk",
+      "fromName": "main",
+      "toFile": "tolk-tester/tests/imports/use-dicts.ext.tolk",
+      "toName": "prepareDict_3_30_4_40_5_x",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "tolk-tester/tests/calls-tests.tolk",
+      "fromName": "test2",
+      "toFile": "tolk-tester/tests/calls-tests.tolk",
+      "toName": "getAOrB",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "tolk-tester/tests/calls-tests.tolk",
+      "fromName": "test2",
+      "toFile": "tolk-tester/tests/calls-tests.tolk",
+      "toName": "sumADef1BDef2",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "tolk-tester/tests/calls-tests.tolk",
+      "fromName": "test3",
+      "toFile": "tolk-tester/tests/calls-tests.tolk",
+      "toName": "create",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "tolk-tester/tests/calls-tests.tolk",
+      "fromName": "test3",
+      "toFile": "tolk-tester/tests/calls-tests.tolk",
+      "toName": "incrementX",
+      "toLanguage": "tolk"
+    }
+  ],
+  "imports": [
+    {
+      "fromFile": "tolk-tester/tests/imports-tests.tolk",
+      "toFile": "tolk-tester/tests/imports/use-dicts.ext.tolk"
+    },
+    {
+      "fromFile": "tolk-tester/tests/logical-operators.tolk",
+      "toFile": "tolk-tester/tests/imports/use-dicts.ext.tolk"
+    },
+    {
+      "fromFile": "tolk-tester/tests/imports/imports-ext-method.tolk",
+      "toFile": "tolk-tester/tests/imports/has-ext-method.tolk"
+    },
+    {
+      "fromFile": "tolk-tester/tests/imports/some-helpers.tolk",
+      "toFile": "tolk-tester/tests/imports/some-storage.tolk"
+    }
+  ],
+  "forbidden": [
+    {
+      "fromFile": "crypto/smartcont/validator-registry.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "tolk-tester/tests/handle-msg-1.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "tolk-tester/tests/handle-msg-1.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "crypto/smartcont/validator-registry.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "crypto/smartcont/validator-registry.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "tolk-tester/tests/handle-msg-1.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "tolk-tester/tests/imports-tests.tolk",
+      "fromName": "main",
+      "toFile": "tolk-tester/tests/calls-tests.tolk",
+      "toName": "test1",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "tolk-tester/tests/calls-tests.tolk",
+      "fromName": "test1",
+      "toFile": "tolk-tester/tests/imports-tests.tolk",
+      "toName": "main",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    }
+  ]
+}

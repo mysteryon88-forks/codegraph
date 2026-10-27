@@ -91,6 +91,33 @@ describe('Tolk resolution boundaries', () => {
     expect(calls('main.tolk', 'run')).toEqual(['main.tolk:load', 'main.tolk:save']);
   });
 
+  it('binds typed and inferred declarations after initializers and keeps destructured receivers unknown', async () => {
+    await index({ 'main.tolk': [
+      'struct Storage { x: int }', 'fun Storage.save(self) {}', 'fun int.save(self) {}',
+      'fun Storage.load(): Storage { return Storage { x: 0 }; }',
+      'fun typed() { val s: Storage = Storage.load(); s.save(); }',
+      'fun inferred() { val first = Storage.load(); var second = lazy Storage.load(); first.save(); second.save(); }',
+      'fun initializer(s: Storage) { { val s = s.save(); s.save(); } s.save(); }',
+      'fun destructured() { val (s, t) = (Storage.load(), Storage.load()); s.save(); t.save(); val [a, b] = [Storage.load(), Storage.load()]; a.save(); b.save(); }',
+      'fun shadow(s: Storage) { { val s: int = 7; s.save(); } s.save(); }',
+      'fun reassigned() { var s = Storage.load(); { s = unknown(); } s.save(); }',
+      'fun declarationOnly() { var s: Storage; s.save(); }',
+    ].join('\n') });
+    for (const name of ['typed', 'inferred']) expect(calls('main.tolk', name)).toEqual(['main.tolk:load', 'main.tolk:save']);
+    expect(calls('main.tolk', 'destructured')).toEqual(['main.tolk:load']);
+    expect(calls('main.tolk', 'reassigned')).toEqual(['main.tolk:load']);
+    expect(calls('main.tolk', 'declarationOnly')).toEqual(['main.tolk:save']);
+    const storageSave = cg!.getNodesInFile('main.tolk').find(n => n.qualifiedName === 'main.tolk::Storage::save')!;
+    const intSave = cg!.getNodesInFile('main.tolk').find(n => n.qualifiedName === 'main.tolk::int::save')!;
+    const edges = (name: string) => {
+      const node = cg!.getNodesInFile('main.tolk').find(n => n.name === name)!;
+      return cg!.getOutgoingEdges(node.id).filter(e => e.kind === 'calls').sort((a, b) => a.column! - b.column!).map(e => e.target);
+    };
+    expect(edges('initializer')).toEqual([storageSave.id, storageSave.id]);
+    expect(edges('shadow')).toEqual([intSave.id, storageSave.id]);
+    expect(cg!.getFiles().find(f => f.path === 'main.tolk')!.errors ?? []).toEqual([]);
+  });
+
   it('does not leak bare or typed receiver names through lambda parameters', async () => {
     await index({
       'main.tolk': ['struct Storage { count: int }', 'fun helper() {}', 'fun Storage.save(self) {}',
@@ -146,6 +173,166 @@ describe('Tolk resolution boundaries', () => {
     expect(calls('main.tolk', 'generic')).toEqual([]);
     expect(calls('main.tolk', 'local')).toEqual([]);
     expect(calls('main.tolk', 'run')).toEqual(['main.tolk:explicit', 'main.tolk:generic', 'main.tolk:inferred']);
+  });
+
+  it('narrows imported message types only within their matching arms', async () => {
+    await index({
+      'main.tolk': [
+        'import "request"', 'import "reply"', 'type Incoming = Request | Reply;',
+        'fun run(raw: slice) {', '  val msg = lazy Incoming.fromSlice(raw);', '  match (msg) {',
+        '    Request => { msg.header.validateRequest(); msg.items.parseArrayAndSend(); msg.other.parseArrayAndSend(); msg.handle(); }',
+        '    Reply => { msg.other.parseArrayAndSend(); msg.header.validateRequest(); msg.handle(); }',
+        '    else => { msg.handle(); msg.header.validateRequest(); }',
+        '  }', '  msg.handle(); msg.header.validateRequest();', '}',
+      ].join('\n'),
+      'request.tolk': [
+        'struct Request { header: Header, items: Items }', 'struct Header { seqno: int }', 'struct Items { count: int }',
+        'fun Header.validateRequest(self) {}', 'fun Items.parseArrayAndSend(self) {}', 'fun Request.handle(self) {}',
+      ].join('\n'),
+      'reply.tolk': 'struct Reply { other: Other }\nstruct Other { count: int }\nfun Other.parseArrayAndSend(self) {}\nfun Reply.handle(self) {}',
+      'hidden.tolk': 'struct Header { seqno: int }\nfun Header.validateRequest(self) {}',
+    });
+    const run = cg!.getNodesInFile('main.tolk').find(n => n.name === 'run')!;
+    const targets = cg!.getOutgoingEdges(run.id).filter(e => e.kind === 'calls')
+      .sort((a, b) => a.line! - b.line! || a.column! - b.column!)
+      .map(e => [e.line, cg!.getNode(e.target)!.qualifiedName]);
+    expect(targets).toEqual([
+      [7, 'request.tolk::Header::validateRequest'], [7, 'request.tolk::Items::parseArrayAndSend'], [7, 'request.tolk::Request::handle'],
+      [8, 'reply.tolk::Other::parseArrayAndSend'], [8, 'reply.tolk::Reply::handle'],
+    ]);
+    expect(cg!.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
+  });
+
+  it('does not guess match receivers from unsupported patterns, subjects, types or generic intrinsics', async () => {
+    await index({ 'main.tolk': [
+      'struct A { x: int }', 'struct B { x: int }', 'fun A.handle(self) {}', 'fun B.handle(self) {}',
+      'fun patterns(msg: A | B) { match (msg) { 1 => { msg.handle(); } A<int> => { msg.handle(); } (A | B) => { msg.handle(); } Missing => { msg.handle(); } else => { msg.handle(); } } msg.handle(); }',
+      'fun subject(msg: A | B) { match (msg.x) { A => { msg.handle(); } } }',
+      'fun generic<A>(msg: A | B) { match (msg) { A => { msg.handle(); } } }',
+      'fun intrinsic(s: slice) { val msg = s.loadAny<A>(); msg.handle(); }',
+    ].join('\n') });
+    for (const name of ['patterns', 'subject', 'generic', 'intrinsic']) expect(calls('main.tolk', name)).toEqual([]);
+    expect(cg!.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
+  });
+
+  it('invalidates narrowed binding origins through nested matches and captured assignments without touching local shadows', async () => {
+    await index({ 'main.tolk': [
+      'struct A { x: int }', 'struct B { x: int }', 'fun A.handle(self) {}', 'fun B.handle(self) {}',
+      'fun nested(msg: A) { match (msg) { B => { msg.handle(); match (msg) { A => { msg = unknown(); msg.handle(); } } msg.handle(); } } msg.handle(); }',
+      'fun captured(msg: A) { match (msg) { B => { val cb = fun() { msg = unknown(); }; msg.handle(); } } msg.handle(); }',
+      'fun shadow(msg: A | B) { match (msg) { A => { { val msg = msg; msg = unknown(); msg.handle(); } msg.handle(); val cb = fun(msg: B) { match (msg) { A => { msg = unknown(); msg.handle(); } } }; msg.handle(); } } msg.handle(); }',
+    ].join('\n') });
+    const targets = (name: string) => {
+      const node = cg!.getNodesInFile('main.tolk').find(n => n.name === name)!;
+      return cg!.getOutgoingEdges(node.id).filter(e => e.kind === 'calls').sort((a, b) => a.column! - b.column!)
+        .map(e => cg!.getNode(e.target)!.qualifiedName);
+    };
+    expect(targets('nested')).toEqual(['main.tolk::B::handle']);
+    expect(targets('captured')).toEqual([]);
+    expect(targets('shadow')).toEqual(['main.tolk::A::handle', 'main.tolk::A::handle']);
+    expect(cg!.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
+  });
+
+  it('keeps reassigned unknown shadows distinct when both bindings are subsequently narrowed', async () => {
+    await index({ 'main.tolk': [
+      'struct A { x: int }', 'struct B { x: int }', 'fun A.handle(self) {}', 'fun B.handle(self) {}',
+      'fun run(msg: A | B) { msg = unknown(); match (msg) { A => { { var msg = unknown(); msg = unknown(); match (msg) { B => { msg = unknown(); msg.handle(); } } } msg.handle(); } } msg.handle(); }',
+    ].join('\n') });
+    const run = cg!.getNodesInFile('main.tolk').find(n => n.name === 'run')!;
+    expect(cg!.getOutgoingEdges(run.id).filter(e => e.kind === 'calls').map(e => cg!.getNode(e.target)!.qualifiedName))
+      .toEqual(['main.tolk::A::handle']);
+    expect(cg!.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
+  });
+
+  it.each(['value', '((value))', '(value)!'])('drops an active guard after passing mutate %s', async (lvalue) => {
+    await index({ 'main.tolk': [
+      'struct A { x: int }', 'struct B { y: int }', 'type U = A | B;',
+      'fun A.run(self): int { return self.x; }', 'fun U.run(self): int { return 0; }',
+      'fun replace(mutate value: U) { value = B { y: 2 }; }',
+      `fun probe(value: U) { match (value) { A => { value.run(); replace(mutate ${lvalue}); value.run(); } } value.run(); }`,
+    ].join('\n') });
+    const probe = cg!.getNodesInFile('main.tolk').find(n => n.name === 'probe')!;
+    const runs = cg!.getOutgoingEdges(probe.id).filter(e => e.kind === 'calls' && cg!.getNode(e.target)!.name === 'run');
+    expect(runs.map(e => cg!.getNode(e.target)!.qualifiedName)).toEqual(['main.tolk::A::run']);
+    expect(cg!.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
+  });
+
+  it('evaluates mutate arguments before clearing guards and clears nested calls before later outer arguments', async () => {
+    await index({ 'main.tolk': [
+      'struct A { x: int }', 'struct B { y: int }', 'type U = A | B;', 'fun A.run(self): int { return self.x; }',
+      'fun replace(mutate value: U): int { value = B { y: 2 }; return 0; }', 'fun consume(mutate a: U, b: int) {}', 'fun combine(a: int, b: int) {}',
+      'fun ordered(value: U) { match (value) { A => { consume(mutate value, value.run()); value.run(); } } }',
+      'fun nested(value: U) { match (value) { A => { combine(replace(mutate value), value.run()); value.run(); } } }',
+      'fun scopes(value: U) { match (value) { A => { match (value) { A => { replace(mutate value); } } value.run(); } } value.run(); }',
+    ].join('\n') });
+    const runs = (name: string) => {
+      const node = cg!.getNodesInFile('main.tolk').find(n => n.name === name)!;
+      return cg!.getOutgoingEdges(node.id).filter(e => e.kind === 'calls' && cg!.getNode(e.target)!.name === 'run')
+        .map(e => cg!.getNode(e.target)!.qualifiedName);
+    };
+    expect(runs('ordered')).toEqual(['main.tolk::A::run']);
+    expect(runs('nested')).toEqual([]);
+    expect(runs('scopes')).toEqual([]);
+    expect(cg!.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
+  });
+
+  it('preserves normal typed receivers and owner guards for member mutation or mutate text', async () => {
+    await index({ 'main.tolk': [
+      'struct A { x: int }', 'struct B { y: int }', 'type U = A | B;',
+      'fun A.run(self): int { return self.x; }', 'fun A.mutate(self) {}',
+      'fun touch(mutate value: A) {}', 'fun edit(mutate value: int) {}', 'fun consume(value: U, text: slice) {}',
+      'fun ordinary(storage: A) { touch(mutate storage); storage.run(); }',
+      'fun member(value: U) { match (value) { A => { edit(mutate value.x); value.run(); } } }',
+      'fun literal(value: U) { match (value) { A => { consume(/* mutate value */ value, "mutate value"); value.mutate(); value.run(); } } }',
+    ].join('\n') });
+    for (const name of ['ordinary', 'member', 'literal']) {
+      expect(calls('main.tolk', name)).toContain('main.tolk:run');
+    }
+    expect(cg!.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
+  });
+
+  it('does not establish guards for globals whose writes through calls are untracked', async () => {
+    await index({ 'main.tolk': [
+      'struct A { x: int }', 'struct B { y: int }', 'type U = A | B;', 'global value: U;',
+      'fun A.run(self): int { return self.x; }', 'fun U.run(self): int { return 0; }',
+      'fun replaceGlobal() { value = B { y: 2 }; }',
+      'fun probe() { match (value) { A => { replaceGlobal(); value.run(); } } }',
+    ].join('\n') });
+    expect(calls('main.tolk', 'probe')).toEqual(['main.tolk:replaceGlobal']);
+    expect(cg!.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
+  });
+
+  it('does not turn assignment to a global into a lexical binding eligible for narrowing', async () => {
+    await index({ 'main.tolk': [
+      'struct A { x: int }', 'struct B { y: int }', 'type U = A | B;', 'global value: U;',
+      'fun A.run(self): int { return self.x; }', 'fun U.run(self): int { return 0; }',
+      'fun replaceGlobal() { value = B { y: 2 }; }',
+      'fun probe() { value = A { x: 1 }; match (value) { A => { replaceGlobal(); value.run(); } } }',
+    ].join('\n') });
+    expect(calls('main.tolk', 'probe')).toEqual(['main.tolk:replaceGlobal']);
+    expect(cg!.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
+  });
+
+  it.each(['(value) = B { y: 2 };', '(value, other) = (B { y: 2 }, 0);', '[value, other] = [B { y: 2 }, 0];'])(
+    'discards guarded receivers assigned through the lvalue pattern %s', async (assignment) => {
+    await index({ 'main.tolk': [
+      'struct A { x: int }', 'struct B { y: int }', 'type U = A | B;',
+      'fun A.run(self): int { return self.x; }', 'fun U.run(self): int { return 0; }',
+      `fun probe(value: U) { var other = 0; match (value) { A => { { ${assignment} } value.run(); } } }`,
+    ].join('\n') });
+    expect(calls('main.tolk', 'probe')).toEqual([]);
+    expect(cg!.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
+  });
+
+  it('preserves guarded owners and unrelated shadows in wrapped and multiple assignments', async () => {
+    await index({ 'main.tolk': [
+      'struct A { x: int }', 'struct B { y: int }', 'type U = A | B;', 'fun A.run(self): int { return self.x; }',
+      'fun member(value: U) { var other = 0; match (value) { A => { (value.x, other) = (7, 0); value.run(); } } }',
+      'fun shadow(value: U) { match (value) { A => { { var value: U = A { x: 1 }; (value) = B { y: 2 }; } value.run(); } } }',
+    ].join('\n') });
+    expect(calls('main.tolk', 'member')).toEqual(['main.tolk:run']);
+    expect(calls('main.tolk', 'shadow')).toEqual(['main.tolk:run']);
+    expect(cg!.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
   });
 
   it('bounds recursive return inference while retaining repeated acyclic factories', async () => {

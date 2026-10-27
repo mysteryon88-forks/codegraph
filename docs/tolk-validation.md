@@ -1,78 +1,96 @@
 # Tolk validation record
 
-Validation date: 2026-10-27. Tests used isolated project copies and indices; the installed CLI, original project indices and agent configuration were preserved. No private source, private expectation body or raw private graph report is committed.
+Date: 2026-10-27. This supersedes the initial `6e44463b` acceptance for the amended implementation. Tests used isolated copies and indices. The live installation, original project index and Codex configuration were preserved. Private source and raw private responses are not committed. Upstream merge readiness still needs agent benchmarks and large-repository coverage.
 
 ## Identity and environment
 
-- Starting upstream: `69af19ace270f2e940444d514de6dde971df12df`, package `1.6.2`; no Tolk registration was present. Both before/after arms use this exact base.
-- Windows x64: Node `v24.22.1`, Python 3.12. Linux: real WSL2 Ubuntu 24.04, x64, `/usr/bin/node` `v24.22.1`, built-in `node:sqlite` available (SQLite 3.53.4). Test projects and build live under `/tmp/codegraph-tolk-20261027`, in the Linux filesystem.
-- Existing WSL executable discovered here: `/home/ssobolev/.codegraph/bundles/linux-x64-1.6.2/bin/codegraph`; Windows/npm shims were preserved. The initially reported historical 1.6.0 installation was not found, so it is not claimed as the tested baseline or rollback target.
-- Grammar origin, MIT license, patch, pinned generator/compiler and SHA-256 are recorded in [grammar provenance](../src/extraction/wasm/tree-sitter-tolk.PROVENANCE.md). Shipped grammar hash: `4829ff208e5fa1c45ea2b546b608d331bd3fcc7671692edd6f3a250630f1cb8f`.
+- Immutable upstream base: `69af19ace270f2e940444d514de6dde971df12df`, package `1.6.2`. Remote main was checked again during this amendment and still matched. The original implementation was `6e44463b84f5ef0dfcbe36cab177c5e122dd3110`; package version alone does not identify either build.
+- Windows x64 focused tests; actual WSL2 Ubuntu 24.04 Linux x64 acceptance. Linux Node `/home/ssobolev/.nvm/versions/node/v24.22.1/bin/node`, version `24.22.1`, built-in `node:sqlite`. Builds and corpus copies are on Linux ext4. The bundle carries its own Linux Node of the same version.
+- Official grammar: [Acton](https://github.com/ton-blockchain/acton/tree/b8407f0e628860311d391eff85d003ec9c2cfb2c/crates/tree-sitter-tolk), commit `b8407f0e628860311d391eff85d003ec9c2cfb2c`, MIT, no local patches. Its package still says `0.4.5`, despite different syntax/AST coverage. Tested compiler: Tolk 1.5.0.
+- WASM SHA-256: `663a425723b0b71bcb990136149b9cb7be83fee80825fe321b15583ef6ebc921`. Tree-sitter CLI 0.26.3, ABI15, Emscripten 4.0.16. A task-local SDK at commit `526ceebf902920582fc6979fcb65c50f1648aaeb` enabled repeated native builds and the complete rebuild recipe without starting Docker or changing global tooling. See [provenance](../src/extraction/wasm/tree-sitter-tolk.PROVENANCE.md).
+- All 525 nominated application/build inputs were verified against the Linux overlay, normalizing text line endings. Manifest SHA-256: `a09b0cff06011740355a5300bba043c7fd175ef69e7e1e546733cd1c930d9851`. The manifest accompanies the archive and identifies application inputs independently of later documentation edits.
 
-## Independent source expectations and corpora
+## Repairs and automated checks
 
-Named declarations, line/source assertions, positive call/import endpoints and forbidden targets were written from source before querying the changed graph. Public expectations and MCP queries are in [scripts/tolk-expectations](../scripts/tolk-expectations); private expectations were kept only in system TEMP during execution. The private snapshot was not compiled anew; its compiler identity comes from the local lockfile and existing ABI compiler metadata. Both public contract examples were compiled with Tolk 1.5.0 separately from graph extraction.
+The grammar accepts compiler-valid tensor/tuple trailing commas, numeric separators and contract declarations. The adapter follows the actual local-declaration AST. Receiver inference preserves lexical shadows, generic type erasure and direct-import/Tolk-only boundaries. Simple named match arms supply local type evidence; assignments and mutation discard stale facts. Compiler-backed regressions cover implicit union `mutate self`, explicit mutate argument timing, assigned globals and parenthesized/tensor/tuple reassignment. Known same-type chains remain resolved. Immutable bounded proof data survives reference retries, inferred returns and sync.
 
-| Corpus | Exact origin | Compiler evidence | Raw .tolk | Indexed .tolk | Excluded | Parse issues |
-|---|---|---|---:|---:|---:|---:|
-| MasterCTF working snapshot | private local copy, base `5e69583856878f3d1f92ee1f75924e195bba309c` plus working changes; Tolk-file manifest SHA-256 `003ee9e49e87bc3ef657fd7f787807e31c40c582a03b7dc71133cc143929573f` | 1.5.0, Acton 1.2.1-trunk | 116 | 94 | 22 generated `gen/` files ignored by project configuration | 0 |
-| Counter | [ton-org/docs-examples](https://github.com/ton-org/docs-examples/tree/9db211db732fd2288c4aec2d99b7896f40cd2cba/guidebook/first-smart-contract/Example) `9db211db732fd2288c4aec2d99b7896f40cd2cba` | project requests tolk-js >=1.0.0; verified with 1.5.0 | 1 | 1 | 0 | 0 |
-| Jetton | [ton-blockchain/acton-contracts](https://github.com/ton-blockchain/acton-contracts/tree/d721c3179696b453a9490fcfd2f30770f8c234b4/jetton-v2.1) `d721c3179696b453a9490fcfd2f30770f8c234b4` | Acton 1.2.0; verified with Tolk 1.5.0 | 29 | 29 | 0 | 0 |
+The verifier fails on every indexed Tolk parse diagnostic even when other declarations recover. Explore prioritizes a path-pinned caller and its actual direct static neighbors before candidate caps; a 64-contract Tolk/TypeScript regression verifies the correct same-name body beyond the 50-hit full-text cutoff. Explore budgets and graph edges are unchanged by that rendering fix.
 
-Raw inventory deliberately includes ignored Tolk source; exclusion is reported separately from parse failure. A separate raw parser sweep covered all 146 files with zero ERROR/MISSING nodes, including the 22 ignored generated files. The original unpatched official grammar rejected numeric separators in two private helper scripts; Tolk 1.5.0 accepted that syntax. The shipped one-line numeric-literal patch corrected this discrepancy.
-
-The before arm indexed zero Tolk files in all three projects. It still reported 101 files / 1,230 nodes in the private copy and found mainly TypeScript wrappers for MasterCTF: those totals were not accepted as Tolk evidence. The changed source arm indexed 195 total files / 3,667 nodes / 5,719 edges in the same private copy, of which 94 files are Tolk.
-
-MasterCTF acceptance checked `contracts/core/MasterCTF.tolk`, its exact file source, contract descriptor, `load`, `takeRequestId`, `dispatchStatistics`, `onInternalMessage` and `statistic_address`. Four local imports and three known call pairs passed, including the statistics helper in another file. Forbidden edges to TypeScript and other contracts' entrypoints were absent. Counter checked three getter/entrypoint-to-Storage calls; Jetton checked three wallet-to-helper/storage calls and three imports. Three deterministic flow prompts per corpus were also exercised through MCP. Direct call edges are checked in the graph and symbol trails: the existing explore renderer suppresses its Flow section for two-node paths, so a direct call need not produce that heading. Its shared path finder was independently checked on Counter and returned the correct getter-to-load edge.
-
-Resolved/unresolved totals below include all reference kinds, not just function calls. Unresolved entries carry diagnostics; they are not silently bound to a same-named project symbol.
-
-| Corpus | Resolved references | Unresolved references | Named graph assertions |
-|---|---:|---:|---|
-| MasterCTF | 1,060 | 3,970 | PASS |
-| Counter | 5 | 6 | PASS |
-| Jetton | 572 | 1,441 | PASS |
-
-## Automated checks
-
-| Check | Result |
+| Check | Final result |
 |---|---|
-| Baseline npm ci/build and relevant existing tests | PASS; 1,020 tests in four existing files |
-| Grammar health via existing check-grammar.mjs with explicit WASM/sample | PASS; ABI15, 20 repeat parses, 29 companion grammars, ~1 MiB sample, clean exit |
-| Reproducible grammar compilation | Same final SHA-256 across repeated pinned Emscripten builds; generation ran in WSL and compilation through Windows Docker |
-| Windows final TypeScript + focused integration | PASS; tsc and 43 tests in nine files |
-| WSL final npm ci/build + focused integration | PASS; 43 tests in nine files, including real POSIX symlink containment |
-| Sync versus independently fresh index | PASS; exact normalized nodes/edges after return/receiver/mapping/import changes, addition, rename and deletion |
-| Verifier negative checks | Wrong symbol expectations fail; escaping source/config links are refused |
-| Real source CLI | Explicit build init/status/files/query/node/explore PASS; three named graph verifiers PASS |
-| Native Linux watcher in extracted bundle | PASS; a synthetic .tolk edit replaced the exact old symbol with the new one through CodeGraph.watch |
-| MCP client error paths | Wrong expectation fails and leaves no server PID; non-executable command reports EACCES without signaling an undefined PID |
+| Grammar health, explicit WASM/sample | PASS: 20 clean repeat parses, 29 companion grammars, approximately 1 MiB sample, normal exit |
+| Grammar reproducibility | PASS: identical pinned SHA across native builds and complete rebuild recipe |
+| Windows focused | PASS: 75 tests in 9 files, including 12 call-proof tests |
+| WSL npm ci/build/assets | PASS: Linux dependencies, TypeScript/viewer build, 30 engine grammars |
+| WSL focused extraction/resolution/sync/explore | PASS: 1,111 tests in 15 files |
+| Final full npm test | PASS: 8,622 tests in 755 files; 401 tests / 17 files skipped; exit 0, 759.58 seconds |
+| Sync versus genuinely new DB | PASS: exact normalized nodes/edges after add/edit/rename/delete, imports/mappings, receiver/return changes, match edits and imported-method mutation |
+| Negative safeguards | PASS: no guessed TS/legacy/transitive-import targets; shadows, unknown/ambiguous receivers, generic limits, proof overflow, malformed source and containment |
 
-Baseline full `npm test` exited 1: 3 failing / 745 passing / 17 skipped files; 3 failing / 8,558 passing / 401 skipped tests. Failures were the successor/candidate wait in `daemon-older-version.test.ts`, PPID shutdown in `mcp-ppid-watchdog.test.ts`, and second direct writer exit in `mcp-writer-lock.test.ts`.
+The final full command was `npm test -- --maxWorkers=4 --minWorkers=1 --reporter=default --reporter=json`, with no concurrent indexing/build. It runs the complete suite with a worker cap, without changing assertions. Regression-first failing receipts remain. A new multi-rebuild sync test exceeded the default 5 seconds on Windows; its assertions remain intact and it uses the repository's 30-second heavy-sync allowance. Compiler-rejected postfix assignment and mutate tuple/tensor forms are not claimed as valid syntax coverage.
 
-The initial source full run exited 1 with 2 failing / 750 passing / 17 skipped files and 2 failing / 8,579 passing / 401 skipped tests: the same daemon-version and writer-lock failures, while PPID passed. The final post-repair full run exited 1 with 4 failing / 749 passing / 17 skipped files and 6 failing / 8,581 passing / 401 skipped tests. Its additional three failures were daemon shutdown/idle/paired-lock timing cases in `mcp-daemon.test.ts`. Sequential focused comparison reproduced the socket/idle failures on baseline (2 failed / 20 passed); source had these plus the paired-lock timeout (3 failed / 19 passed). An isolated run of the exact paired-lock test then failed on baseline (5-second timeout) and passed on source. Thus every observed failure was reproduced on the unchanged base, though their occurrence is timing-sensitive. No Tolk test failed and no existing assertion was weakened. Full-suite results remain FAIL, not green. The final full run overlapped lightweight MCP checks; the focused and isolated comparisons ran sequentially without other checks.
+## Real source acceptance
 
-## MCP and distribution
+Expectations were prepared independently from pinned source before graph output. Public fixtures contain facts/endpoints; Webdom contract bodies are not vendored because no project license was declared. Every source run used an explicit build, fresh `CODEGRAPH_DIR`, CLI version/init/status/files/query/node/explore, and an actual stdio JSON-RPC client.
 
-Acceptance uses actual newline-delimited JSON-RPC clients, not a server launched without traffic. Each corpus checks initialize, tools/list, file source, named symbol, and three flow queries. `CODEGRAPH_MCP_TOOLS=explore,node` is explicit because this upstream version defaults to exposing only explore. `CODEGRAPH_DIR` selects the corresponding index in every CLI/client invocation; daemon sharing and prompt hooks are disabled for isolation.
+| Corpus | Pin and compiler evidence | Raw→indexed Tolk | All indexed files | Exclusions | Parse issues |
+|---|---|---:|---:|---|---:|
+| [Webdom](https://github.com/webdom-market/webdom-contracts), main | `187e0589f437fe398e3385f4a434e9755d1b4d87`; tolk-js 1.4.1 |78→78|203|none|0|
+| [Acton contracts](https://github.com/ton-blockchain/acton-contracts), default master, never skills | `d721c3179696b453a9490fcfd2f30770f8c234b4`; Acton 1.2.0, separate compiler pin unspecified |215→215|216|none|0|
+| [Acton](https://github.com/ton-blockchain/acton), master | `b8407f0e628860311d391eff85d003ec9c2cfb2c`; Acton 1.2.1, bundled Tolk 1.5.0, compiler `9334027d63528da1a78b2efbe898bc586d4e6cec` |181→178|2,936|3 intentional compilation-error fixtures|0|
+| [TON](https://github.com/ton-blockchain/ton), master | `857b8a57a178e6ae0fe7fa86e7d81c5233de8560`; Tolk 1.5.0 |681→120|1,692|561 intentional invalid compiler fixtures|0|
+| [TG Wallet](https://github.com/ton-blockchain/tg-wallet-contract), master | `1a29ae5d90e03c3d585d3e42e6ecef691d727a3c`; Acton 1.2.0, separate compiler pin unspecified |18→18|19|none|0|
+| MasterCTF private working snapshot | base `2beed2936ef85c6001e152a6230f0e5a86c9acf4` plus working files; manifest `0524f89a549bfd7a5d5c1843fa7e222dec767adf26112b037a789ad4149384d0`; local Tolk 1.5.0 evidence |138→138|239|none|0|
 
-Online EOF-only teardown intermittently hangs on the immutable baseline and on changed source. The client requests the supported graceful SIGTERM handler and requires exit code 0; a forced SIGKILL is a failure. Some source probes still required forced cleanup; they remain recorded rather than being presented as passes. A bounded diagnostic found engine shutdown settled before the stall, with TLS sockets still present; the exact native cause was not established. Disabling network update checks produced three consecutive clean Counter exits. Final acceptance therefore explicitly sets `CODEGRAPH_NO_UPDATE_CHECK=1`, in addition to the same no-daemon/query-pool isolation used by the documented configuration. No old MCP server supplied these responses: each client's exact executable, argv, PID, index name and exit are captured.
+Acton/TON exclusions were specified from source before indexing in disposable copies' `codegraph.json`, with configurations in expectation provenance. They are not waived parser errors. `@stdlib` stays external; TON's comment-based compiler-test `@custom-folder` mapping is outside Acton mapping coverage. The private snapshot was not recompiled; its compiler identity comes from local toolchain metadata. The current private snapshot differs from the earlier 94-file snapshot; totals are not a before/after performance or coverage comparison.
 
-The self-contained archive was built using `bash scripts/build-bundle.sh linux-x64 v24.22.1` (33 seconds), with npm 11.19.1. It contains the official verified Node v24.22.1 runtime, 30 engine grammar assets (69 WASM files including dependencies), schema, viewer, Tolk license/provenance/patch and no native kernel. Archive size: 61,152,514 bytes. SHA-256: `6e68deccd7531546856af701c7390c3cd85a68771fe08e330936cad3bde16087`.
+| Corpus | Symbols | Expected calls | Local imports | Forbidden pairs | Actual MCP |
+|---|---:|---:|---:|---:|---|
+| Webdom |22 PASS|20/20|13/13|15 absent|11 checks PASS, 3 numbered flows and 3 incoming trails|
+| Acton contracts |30 PASS|31/31|72/72|12 absent|21 checks PASS: 10 contract-group files, source/node checks, queries, incoming trails and 2 numbered flows|
+| Acton |14 PASS|11/11|11/11|6 absent|11 checks PASS, 3 numbered flows and 3 incoming trails|
+| TON |17 PASS|14/14|4/4|5 absent|12 checks PASS, 3 numbered flows and shortcut-branch incoming evidence|
+| TG Wallet |11 PASS|**9/10, partial**|10/10|6 absent|10 checks pass; third numbered flow fails at the same unsupported generic-dependent hop|
+| MasterCTF |12 PASS|11/11|4/4|2 absent|10 checks PASS: exact file/entrypoint source, 3 queries and 3 incoming trails|
 
-The archive was extracted into `/tmp/codegraph-tolk-20261027/bundle-check-final`, outside both checkouts. During acceptance, source and baseline checkout paths were temporarily unavailable; acceptance scripts were copied to a separate temporary kit. The bundled launcher and Node were used, with fresh `.codegraph-bundle-final` indices and isolated HOME. Grammar hash and all three sidecars matched the source assets; schema/viewer were present. All 19 CLI/verifier/MCP commands passed:
+Acton contracts also passed all 31 receiver-qualified call-site assertions from the original independent oracle. Counter explore returns `Storage.load` from `counter/contracts/types.tolk`. MasterCTF acceptance returns `contracts/core/MasterCTF.tolk:26`, actual `onInternalMessage` source and all 11 user-supplied targets, without TS-wrapper or foreign-entrypoint calls. A TVM entrypoint need not have static incoming calls; message delivery is outside this model.
 
-| Extracted-bundle check | MasterCTF | Counter | Jetton |
-|---|---|---|---|
-| Fresh init, status, .tolk files, named graph verifier | PASS | PASS | PASS |
-| File/symbol source and three MCP query cases | 7 checks PASS | 7 checks PASS | 7 checks PASS |
-| MCP graceful SIGTERM | exit 0, no forced stop | exit 0, no forced stop | exit 0, no forced stop |
-| Parse issues / indexed Tolk files | 0 / 94 | 0 / 1 | 0 / 29 |
+Counts below are diagnostics, not correctness proofs. Specific endpoints and forbidden targets are checked above. Unresolved references retain diagnostics rather than arbitrary same-name links.
 
-Bundle MasterCTF query/node/explore and --version also passed. Init wall times were approximately 14 / 1 / 3 seconds respectively; these are local observations, not a performance benchmark. The three verifier inventories and reference totals matched the source results above. All 436 app build input files were also compared between the Linux build overlay and this branch (text line endings normalized): manifest SHA-256 `4750de33a13848a69346b60f4d5d6fe847bc055f9dabbf9c72ae888b6d531dfd`. The manifest accompanies the local archive, binding its application inputs to the committed source even though final validation prose was written after packaging. A deliberately wrong MCP expectation failed and its server PID was absent afterward; all positive server PIDs were also absent. Both checkouts were restored. The local release directory contains the archive, SHA256SUMS and build manifest. Windows global config/npm shim hashes still matched the pre-test snapshots. The isolated actual MCP configuration is retained in the Windows workspace at `.tmp-tolk/mcp-bundle-test-config.json`; it was never activated globally. After acceptance, WSL restarted and cleared `/tmp`, so the raw Linux logs, temporary indices and private corpus/expectation copies are no longer available. The archive, checksum, build-input manifest, 19-command result ledger, runtime receipt and agent-written aggregate reports had already been copied to the Windows workspace. The observations above describe executed runs, not the current existence of those temporary paths; public snapshot checks remain reproducible from the committed expectations.
+| Corpus | Resolved/unresolved calls | Resolved/unresolved imports | Init wall seconds |
+|---|---:|---:|---:|
+| Webdom |686/1,893|348/42|3.86|
+| Acton contracts |4,329/11,968|642/624|45.12|
+| Acton |1,373/4,390|228/396|72.33|
+| TON |2,222/8,389|5/31|63.14|
+| TG Wallet |420/1,152|48/48|2.65|
+| MasterCTF |1,758/4,798|412/345|24.23|
 
-## Limits and reproducibility
+Times are local observations, not agent benchmarks. Complete found/indexed inventories, exclusions, parse diagnostics, returned source, references and PID/exit receipts remain locally in `.tmp-tolk/pr-readiness/acceptance/`. Reproduce public cases with [committed expectations](../scripts/tolk-expectations) and the [explicit-build verifier](../scripts/verify-tolk.mjs).
 
-See [support and connection instructions](tolk-support.md) for commands, exact public snapshots, independent expectation files, extraction/version behavior, MCP configuration and concrete rollback executable. `@stdlib` bodies, composite/generic receiver substitution, arbitrary dynamic calls, TVM/message behavior and TS-to-Tolk ABI bridges are deliberately outside this static coverage. Mapping edits require explicit sync. The grammar rebuild script's default Docker path could not run end-to-end inside this WSL because its Docker socket was unavailable; equivalent pinned generation/compilation and repeated hash checks were performed without changing global Docker configuration.
+## Non-green results and corrected oracles
 
-Paid agent A/B runs were not authorized or run. No token-saving or agent-speed claim is made. No npm publication, upstream PR, global install replacement, or agent-configuration activation was performed.
+- TG Wallet's strict verifier still exits1: `parseArrayAndSend` invokes `validateAndSend` on `s.loadAny<MessageToSend>()` output. Generic stdlib return substitution is outside declared receiver coverage. Two match-dependent missing calls are fixed; the generic expectation remains. The third MCP flow also fails, with normal server exit 0. This corpus is partial, not PASS.
+- An initial stronger TON oracle required `onExternalMessage→cleanupRegistry→getLastKeyBlockSeqno` as three Flow nodes, although source/graph also has the direct first→last edge. Unchanged upstream BFS keeps one shortest route per reached node, then selects a deepest retained destination; two-node Flow headings are omitted. Independent review classified the oracle as overstrict. All three edge assertions remain; a node trail checks both callers, and three other already-frozen chains without that shortcut pass numbered checks. Failed oracle/receipt retained. Named mode does not guarantee the globally longest route or every named intermediate.
+- Initial private oracle construction omitted generic parameters in two signature prefixes and assumed a caller would occur within a capped incoming trail. Actual source/graph were correct. Headers now come directly from the pinned AST; additional MCP checks use three source-known leaf targets. All 11 original call assertions remain and first receipts are retained. `codegraph_node` trails cap each direction at 12; absence from that prefix does not prove an absent edge (the shared private helper has 44 callers).
+- Historical full runs on the initial implementation and immutable base had timing-dependent daemon/writer-lock/PPID failures; every observed failure was reproduced on the base. An intermediate amendment full run passed 8,592 tests but predates later repairs and is not final evidence. The final full result is separate above.
+
+## Extracted archive and MCP
+
+`release/codegraph-tolk-pr-linux-x64.tar.gz`, 61,164,430 bytes, Linux x64/Node 24.22.1. Archive SHA-256: `dab7de527ee8f967cb645b8023bd400daed8d6c355bc33a817463f969952307f`. Built with `bash scripts/build-bundle.sh linux-x64 v24.22.1`; the downloaded Node archive matched Node.js SHASUMS256. Adjacent files carry checksum, build-input manifest and receipt. This local archive is not published to npm or GitHub Releases.
+
+The archive was extracted outside source. Grammar/license/provenance hashes matched, the obsolete patch was absent, schema/viewer existed, and bundled Node reported Linux/x64 with `node:sqlite`. During acceptance the Linux development checkout was unavailable; verifier/client scripts were copied to a separate kit. The bundled launcher/Node created independent fresh indices for Webdom, full Acton contracts and MasterCTF. All CLI/verifier/MCP checks passed, including 31 qualified Acton call sites. The Linux native watcher replaced an exact `.tolk` symbol after an edit. The checkout was restored.
+
+For all three copies, source and bundle had equal indexed Tolk sets, selected symbol/source records, resolved/unresolved references, diagnostics and failures after removing only node `updatedAt` timestamps. Independent fresh-index sync tests compare normalized nodes/edges separately.
+
+The actual client checks initialize/tools-list, source and graph-backed trails/flows. Query-echoed paths alone are not flow proof. Every process uses the selected index, absolute executable and fresh PID. Update checks, shared daemons, query pools and prompt hooks are disabled for isolation. Graceful SIGTERM must exit 0; a forced stop fails acceptance. All final positive servers exited0, as did the intentionally failing TG flow's server.
+
+The old deployed fork remains `/home/ssobolev/.local/opt/codegraph-tolk-6e44463b/bin/codegraph`, index `.codegraph-tolk-6e44463b`, with the earlier upstream bundle also preserved. The previous 61,152,514-byte archive remains separate, hash `6e68deccd7531546856af701c7390c3cd85a68771fe08e330936cad3bde16087`. This amendment does not activate a replacement MCP configuration. See [connection and rollback instructions](tolk-support.md).
+
+## Remaining merge gates
+
+Paid agent A/B was not run: the user requires a separately agreed budget, and authenticated Claude CLI was unavailable. Upstream requires Sonnet/high, at least 2 runs/arm, duration/tool/Read/Grep and feedback metrics, CLI-contamination checks and a control repository without regression. A local preparation recipe is retained. No token-saving, agent-speed or zero-Read claim is made.
+
+The largest genuinely indexed corpus here has 2,936 files (Acton), a medium tier. Raw 6,891 tracked Acton files do not establish large-index coverage. A real large corpus and its 3 flow probes/A-B remain unverified; none was fabricated by padding. These small/medium deterministic results therefore do not establish all upstream merge gates.
+
+Other limits: generic/composite receiver substitution, unindexed stdlib bodies, dynamic callbacks, arbitrary import systems, TVM/messages, TS↔Tolk ABI bridges and native Rust Tolk extraction. Mapping edits require explicit sync. Fresh indices are required across grammar/fork revisions sharing extraction version 29. No npm publication or upstream PR submission occurred.

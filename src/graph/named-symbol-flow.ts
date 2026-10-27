@@ -36,7 +36,7 @@ import type CodeGraph from '../index';
 import type { Node, Edge } from '../types';
 import { isTestFile } from '../search/query-utils';
 
-import { qualifiedSymbolMatches } from './symbol-lookup';
+import { qualifiedSymbolMatches, lastQualifierPart, matchesSymbol } from './symbol-lookup';
 import { goPackageReaderFor } from './go-package';
 
 // Preserve the existing imports while sharing the matcher with the CLI and MCP.
@@ -204,6 +204,8 @@ export interface NamedSymbolFlowOptions {
   maxBridge?: number;
   /** Distinct chains to return. Explore only ever looks at the first. */
   maxChains?: number;
+  /** Files explicitly named by explore; their named callables disambiguate direct neighbors. */
+  preferredFiles?: readonly string[];
 }
 
 export interface NamedSymbolFlow {
@@ -309,8 +311,27 @@ export function resolveNamedTokens(
       (e) => e.provenance === 'heuristic'
     );
 
+  const preferredFiles = new Set(directed ? [] : opts.preferredFiles ?? []);
+  // FTS can omit a pinned caller or its actual callee below its 50-hit cut.
+  const exactTokenHits = new Map(preferredFiles.size > 0 ? tokens.map(t => [t,
+    cg.getNodesByName(lastQualifierPart(t)).filter(n => matchesSymbol(n, t, goPackageReaderFor(cg))),
+  ]) : []);
+  const pinnedIds = new Set([...exactTokenHits.values()].flat()
+    .filter(n => FLOW_CALLABLE_KINDS.has(n.kind) && preferredFiles.has(n.filePath))
+    .slice(0, MAX_NAMED).map(n => n.id));
+  const connectedIds = new Set<string>();
+  for (const id of pinnedIds) {
+    for (const e of [...cg.getIncomingEdges(id), ...cg.getOutgoingEdges(id)]) {
+      if (FLOW_EDGE_KINDS.has(e.kind) && e.provenance !== 'heuristic') connectedIds.add(e.source === id ? e.target : e.source);
+    }
+  }
+  const pinRank = (n: Node): number => pinnedIds.has(n.id) ? 2 : connectedIds.has(n.id) ? 1 : 0;
+
   for (const t of tokens) {
     const hits = findAllSymbols(cg, t).nodes;
+    for (const n of exactTokenHits.get(t) ?? []) {
+      if ((pinnedIds.has(n.id) || connectedIds.has(n.id)) && !hits.some(hit => hit.id === n.id)) hits.push(n);
+    }
     const cands = hits.filter((n) => FLOW_CALLABLE_KINDS.has(n.kind));
     out.tokenFamily.set(t, cands);
     // A qualified or otherwise-specific name (<=3 hits) keeps all of them.
@@ -318,14 +339,18 @@ export function resolveNamedTokens(
     // In directed mode every candidate is kept and the search decides: the pair
     // of overloads that actually connects IS the disambiguation, and co-naming
     // has nothing to work with when the whole query is two words.
-    const pick =
+    let pick =
       specific || directed
         ? cands
         : cands.filter((n) => {
             const segs = (n.qualifiedName || '').toLowerCase().split(/::|\./).filter(Boolean);
             const container = segs.length >= 2 ? segs[segs.length - 2] : '';
-            return !!container && segPool.has(container);
+            return pinRank(n) > 0 || !!container && segPool.has(container);
           });
+    if (pinnedIds.size > 0 && !directed) {
+      const pinned = pick.filter(n => pinnedIds.has(n.id));
+      pick = pinned.length > 0 ? pinned : [...pick].sort((a, b) => pinRank(b) - pinRank(a));
+    }
     const kept = directed
       ? rankForDirected(pick).slice(0, MAX_CANDIDATES_DIRECTED)
       : pick.slice(0, MAX_CANDIDATES_PER_TOKEN);

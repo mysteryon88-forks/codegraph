@@ -100,7 +100,12 @@ interface ReturnInference {
 
 function resultType(expr: TolkExpression, file: string, context: ResolutionContext, depth: number, inference: ReturnInference): string | null {
   if (depth > 24 || --inference.remaining < 0) return null;
-  if ('type' in expr) return typeIdentity(expr.type, file, context);
+  if ('type' in expr) {
+    for (const proof of expr.afterMethods ?? []) {
+      if (!target({ name: proof.name, receiver: { type: proof.type } }, file, context, depth + 1, inference)) return null;
+    }
+    return typeIdentity(expr.type, file, context);
+  }
   if ('call' in expr) {
     const fn = target(expr.call, file, context, depth + 1, inference);
     if (fn?.returnType) return fn.typeParameters?.includes(fn.returnType) ? null : typeIdentity(fn.returnType, fn.filePath, context);

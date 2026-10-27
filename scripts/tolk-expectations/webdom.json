@@ -1,0 +1,512 @@
+{
+  "provenance": {
+    "url": "https://github.com/webdom-market/webdom-contracts",
+    "branch": "main",
+    "commit": "187e0589f437fe398e3385f4a434e9755d1b4d87",
+    "compiler": "@ton/tolk-js 1.4.1",
+    "sourceLicense": "No root LICENSE or package license field; no contract bodies vendored",
+    "oracle": "Independent source-only review before graph output; annotation-bearing symbols intentionally omit exact start line"
+  },
+  "files": [
+    "contracts/auctions/constants.tolk",
+    "contracts/auctions/jetton_multiple_auction/contract.tolk",
+    "contracts/auctions/jetton_multiple_auction/deploy_function.tolk",
+    "contracts/auctions/jetton_multiple_auction/messages.tolk",
+    "contracts/auctions/jetton_multiple_auction/storage.tolk",
+    "contracts/auctions/jetton_simple_auction/contract.tolk",
+    "contracts/auctions/jetton_simple_auction/deploy_function.tolk",
+    "contracts/auctions/jetton_simple_auction/messages.tolk",
+    "contracts/auctions/jetton_simple_auction/storage.tolk",
+    "contracts/auctions/messages.tolk",
+    "contracts/auctions/ton_multiple_auction/contract.tolk",
+    "contracts/auctions/ton_multiple_auction/deploy_function.tolk",
+    "contracts/auctions/ton_multiple_auction/messages.tolk",
+    "contracts/auctions/ton_multiple_auction/storage.tolk",
+    "contracts/auctions/ton_simple_auction/contract.tolk",
+    "contracts/auctions/ton_simple_auction/deploy_function.tolk",
+    "contracts/auctions/ton_simple_auction/messages.tolk",
+    "contracts/auctions/ton_simple_auction/storage.tolk",
+    "contracts/domain_swap/constants.tolk",
+    "contracts/domain_swap/contract.tolk",
+    "contracts/domain_swap/deploy_function.tolk",
+    "contracts/domain_swap/messages.tolk",
+    "contracts/domain_swap/storage.tolk",
+    "contracts/domain_swap/utils.tolk",
+    "contracts/fix_price_sales/constants.tolk",
+    "contracts/fix_price_sales/jetton_multiple_sale/constants.tolk",
+    "contracts/fix_price_sales/jetton_multiple_sale/contract.tolk",
+    "contracts/fix_price_sales/jetton_multiple_sale/deploy_function.tolk",
+    "contracts/fix_price_sales/jetton_multiple_sale/messages.tolk",
+    "contracts/fix_price_sales/jetton_multiple_sale/storage.tolk",
+    "contracts/fix_price_sales/jetton_simple_sale/constants.tolk",
+    "contracts/fix_price_sales/jetton_simple_sale/contract.tolk",
+    "contracts/fix_price_sales/jetton_simple_sale/deploy_function.tolk",
+    "contracts/fix_price_sales/jetton_simple_sale/messages.tolk",
+    "contracts/fix_price_sales/jetton_simple_sale/storage.tolk",
+    "contracts/fix_price_sales/messages.tolk",
+    "contracts/fix_price_sales/ton_multiple_sale/constants.tolk",
+    "contracts/fix_price_sales/ton_multiple_sale/contract.tolk",
+    "contracts/fix_price_sales/ton_multiple_sale/deploy_function.tolk",
+    "contracts/fix_price_sales/ton_multiple_sale/messages.tolk",
+    "contracts/fix_price_sales/ton_multiple_sale/storage.tolk",
+    "contracts/fix_price_sales/ton_simple_sale/constants.tolk",
+    "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+    "contracts/fix_price_sales/ton_simple_sale/deploy_function.tolk",
+    "contracts/fix_price_sales/ton_simple_sale/messages.tolk",
+    "contracts/fix_price_sales/ton_simple_sale/storage.tolk",
+    "contracts/gas_probe.tolk",
+    "contracts/get_deploy_functions.tolk",
+    "contracts/imports/admin_message.tolk",
+    "contracts/imports/constants.tolk",
+    "contracts/imports/dns.tolk",
+    "contracts/imports/gas.tolk",
+    "contracts/imports/handle_promotion.tolk",
+    "contracts/imports/messages.tolk",
+    "contracts/imports/types.tolk",
+    "contracts/imports/utils.tolk",
+    "contracts/marketplace/constants.tolk",
+    "contracts/marketplace/contract.tolk",
+    "contracts/marketplace/message_handlers.tolk",
+    "contracts/marketplace/storage.tolk",
+    "contracts/marketplace/types.tolk",
+    "contracts/marketplace/utils.tolk",
+    "contracts/purchase_offers/constants.tolk",
+    "contracts/purchase_offers/jetton_simple_offer/contract.tolk",
+    "contracts/purchase_offers/jetton_simple_offer/deploy_function.tolk",
+    "contracts/purchase_offers/jetton_simple_offer/messages.tolk",
+    "contracts/purchase_offers/jetton_simple_offer/storage.tolk",
+    "contracts/purchase_offers/jetton_simple_offer/utils.tolk",
+    "contracts/purchase_offers/messages.tolk",
+    "contracts/purchase_offers/multiple_offer/contract.tolk",
+    "contracts/purchase_offers/multiple_offer/deploy_function.tolk",
+    "contracts/purchase_offers/multiple_offer/messages.tolk",
+    "contracts/purchase_offers/multiple_offer/storage.tolk",
+    "contracts/purchase_offers/ton_simple_offer/contract.tolk",
+    "contracts/purchase_offers/ton_simple_offer/deploy_function.tolk",
+    "contracts/purchase_offers/ton_simple_offer/messages.tolk",
+    "contracts/purchase_offers/ton_simple_offer/storage.tolk",
+    "contracts/purchase_offers/ton_simple_offer/utils.tolk"
+  ],
+  "exactFiles": true,
+  "symbols": [
+    {
+      "file": "contracts/marketplace/contract.tolk",
+      "name": "onInternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/marketplace/message_handlers.tolk",
+      "name": "handleNftOwnershipAssigned",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/marketplace/message_handlers.tolk",
+      "name": "handleJettonsTransferNotification",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/marketplace/message_handlers.tolk",
+      "name": "handleRenewalFee",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/marketplace/message_handlers.tolk",
+      "name": "handleAutoRenewPrepay",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/marketplace/message_handlers.tolk",
+      "name": "handleSimpleDeploy",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/marketplace/utils.tolk",
+      "name": "checkEnoughGas",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/domain_swap/contract.tolk",
+      "name": "onInternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/domain_swap/contract.tolk",
+      "name": "onExternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/domain_swap/utils.tolk",
+      "name": "completeLeftPart",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/domain_swap/utils.tolk",
+      "name": "completeDeal",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/domain_swap/utils.tolk",
+      "name": "returnDomains",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "name": "onInternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "name": "onExternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "name": "cancelDeal",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "name": "getRequiredReserve",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/fix_price_sales/ton_simple_sale/constants.tolk",
+      "name": "autoRenewLockPerIter",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/fix_price_sales/ton_simple_sale/constants.tolk",
+      "name": "saleStorageReserve",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/imports/gas.tolk",
+      "name": "renewDomainFee",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/marketplace/contract.tolk",
+      "name": "get_storage_data",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/domain_swap/contract.tolk",
+      "name": "get_storage_data",
+      "kind": "function"
+    },
+    {
+      "file": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "name": "get_storage_data",
+      "kind": "function"
+    }
+  ],
+  "calls": [
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/marketplace/message_handlers.tolk",
+      "toName": "handleNftOwnershipAssigned",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/marketplace/message_handlers.tolk",
+      "toName": "handleJettonsTransferNotification",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/marketplace/message_handlers.tolk",
+      "toName": "handleRenewalFee",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/marketplace/message_handlers.tolk",
+      "toName": "handleAutoRenewPrepay",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/marketplace/message_handlers.tolk",
+      "toName": "handleSimpleDeploy",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/message_handlers.tolk",
+      "fromName": "handleNftOwnershipAssigned",
+      "toFile": "contracts/marketplace/utils.tolk",
+      "toName": "checkEnoughGas",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/message_handlers.tolk",
+      "fromName": "handleJettonsTransferNotification",
+      "toFile": "contracts/marketplace/utils.tolk",
+      "toName": "checkEnoughGas",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/domain_swap/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/domain_swap/utils.tolk",
+      "toName": "completeLeftPart",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/domain_swap/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/domain_swap/utils.tolk",
+      "toName": "completeDeal",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/domain_swap/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/domain_swap/utils.tolk",
+      "toName": "returnDomains",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/domain_swap/contract.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "contracts/domain_swap/utils.tolk",
+      "toName": "returnDomains",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toName": "getRequiredReserve",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toName": "cancelDeal",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toName": "getRequiredReserve",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toName": "cancelDeal",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/constants.tolk",
+      "toName": "tonSimplePurchaseFee",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "fromName": "getRequiredReserve",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/constants.tolk",
+      "toName": "saleStorageReserve",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "fromName": "getRequiredReserve",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/constants.tolk",
+      "toName": "autoRenewLockPerIter",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/constants.tolk",
+      "fromName": "autoRenewLockPerIter",
+      "toFile": "contracts/imports/gas.tolk",
+      "toName": "renewDomainFee",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/constants.tolk",
+      "fromName": "saleStorageReserve",
+      "toFile": "contracts/imports/gas.tolk",
+      "toName": "storageFee",
+      "toLanguage": "tolk"
+    }
+  ],
+  "imports": [
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "toFile": "contracts/imports/types.tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "toFile": "contracts/imports/constants.tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "toFile": "contracts/imports/admin_message.tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "toFile": "contracts/imports/utils.tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "toFile": "contracts/marketplace/storage.tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "toFile": "contracts/marketplace/types.tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "toFile": "contracts/marketplace/constants.tolk"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "toFile": "contracts/marketplace/message_handlers.tolk"
+    },
+    {
+      "fromFile": "contracts/domain_swap/contract.tolk",
+      "toFile": "contracts/domain_swap/utils.tolk"
+    },
+    {
+      "fromFile": "contracts/domain_swap/contract.tolk",
+      "toFile": "contracts/domain_swap/messages.tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/storage.tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/messages.tolk"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/constants.tolk"
+    }
+  ],
+  "forbidden": [
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/domain_swap/contract.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/domain_swap/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/marketplace/contract.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/domain_swap/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/marketplace/contract.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "contracts/domain_swap/contract.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "fromName": "get_storage_data",
+      "toFile": "contracts/domain_swap/contract.tolk",
+      "toName": "get_storage_data",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "fromName": "get_storage_data",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toName": "get_storage_data",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/domain_swap/contract.tolk",
+      "fromName": "get_storage_data",
+      "toFile": "contracts/marketplace/contract.tolk",
+      "toName": "get_storage_data",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/domain_swap/contract.tolk",
+      "fromName": "get_storage_data",
+      "toFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toName": "get_storage_data",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "fromName": "get_storage_data",
+      "toFile": "contracts/marketplace/contract.tolk",
+      "toName": "get_storage_data",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "fromName": "get_storage_data",
+      "toFile": "contracts/domain_swap/contract.tolk",
+      "toName": "get_storage_data",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/marketplace/contract.tolk",
+      "toLanguage": "typescript",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/domain_swap/contract.tolk",
+      "toLanguage": "typescript",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "toLanguage": "typescript",
+      "kind": "calls"
+    }
+  ]
+}

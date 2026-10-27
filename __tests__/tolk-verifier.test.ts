@@ -12,6 +12,22 @@ afterEach(() => {
   if (outside) fs.rmSync(outside, { recursive: true, force: true });
   outside = undefined;
 });
+it('fails on parse diagnostics while retaining valid siblings and every diagnostic', async () => {
+  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'codegraph-tolk-verify-'));
+  fs.writeFileSync(path.join(dir, 'main.tolk'), 'fun good(): int { return 1; }\nfun broken( {');
+  const cg = CodeGraph.initSync(dir); await cg.indexAll(); cg.close();
+  const expectFile = path.join(dir, 'expected.json');
+  fs.writeFileSync(expectFile, JSON.stringify({ files: ['main.tolk'], symbols: [{ file: 'main.tolk', name: 'good' }] }));
+  const result = spawnSync(process.execPath, [path.resolve('scripts/verify-tolk.mjs'), '--build', path.resolve('dist'), '--project', dir,
+    '--expect', expectFile], { encoding: 'utf8', timeout: 30000 });
+  const report = JSON.parse(result.stdout);
+  expect(report.symbols.map((n: { name: string }) => n.name)).toContain('good');
+  expect(report.parseIssues).toEqual([expect.objectContaining({ file: 'main.tolk', errors: expect.any(Array) })]);
+  expect(report.parseIssues[0].errors.length).toBeGreaterThan(0);
+  expect(report.success).toBe(false);
+  expect(report.failures.join('\n')).toContain('main.tolk');
+  expect(result.status, result.stderr).toBe(1);
+});
 it('verifies the nominated build/index and rejects seeded incorrect expectations', async () => {
   dir = fs.mkdtempSync(path.join(os.tmpdir(), 'codegraph-tolk-verify-'));
   fs.writeFileSync(path.join(dir, 'main.tolk'), 'fun helper(): int { return 1; }\nfun run(): int { return helper(); }');

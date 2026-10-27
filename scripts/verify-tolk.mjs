@@ -40,6 +40,8 @@ try {
   const failures = [];
   const files = graph.getFiles();
   const indexed = files.filter(f => f.language === 'tolk').map(f => f.path).sort();
+  const parseIssues = files.filter(f => f.language === 'tolk' && f.errors?.length).map(f => ({ file: f.path, errors: f.errors }));
+  for (const issue of parseIssues) failures.push(`Tolk parse diagnostics: ${issue.file}: ${issue.errors.map(e => e.message ?? String(e)).join('; ')}`);
   const discovered = [];
   const pending = [''];
   while (pending.length) {
@@ -103,7 +105,7 @@ try {
     discovered, scanScope, indexed, missing, missingReasons: missing.map(file => ({ file, reason: files.find(f => f.path === file)?.errors ??
       (!scanScope.includes(file) ? 'Outside scan scope (ignore/default exclusion); symlinks, node_modules, .git and index directories are not traversed'
         : 'Not indexed; inspect configured includes/excludes, indexResult and file limits') })),
-    parseIssues: files.filter(f => f.language === 'tolk' && f.errors?.length).map(f => ({ file: f.path, errors: f.errors })),
+    parseIssues,
     symbols, resolved, unresolved, failures, indexDurationMs, indexResult, verificationDurationMs: performance.now() - started };
 } finally { graph?.close(); }
 const output = JSON.stringify(report, null, 2) + '\n';

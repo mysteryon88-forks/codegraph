@@ -1,0 +1,1015 @@
+{
+  "provenance": {
+    "url": "https://github.com/ton-blockchain/acton-contracts",
+    "branch": "master",
+    "commit": "d721c3179696b453a9490fcfd2f30770f8c234b4",
+    "oracle": "Independent source-only master oracle frozen before original graph audit; receiver-qualified endpoints also checked separately"
+  },
+  "files": [
+    "config/contracts/Config.tolk",
+    "config/contracts/config-helpers.tolk",
+    "config/contracts/errors.tolk",
+    "config/contracts/messages.tolk",
+    "config/contracts/storage.tolk",
+    "config/scripts/deploy.tolk",
+    "config/scripts/info.tolk",
+    "config/scripts/propose.tolk",
+    "config/scripts/set-custom-param.tolk",
+    "config/scripts/utils/common.tolk",
+    "config/scripts/vote.tolk",
+    "config/tests/custom-params.test.tolk",
+    "config/tests/e2e-happy-paths.test.tolk",
+    "config/tests/external-messages.test.tolk",
+    "config/tests/external-voting-extended.test.tolk",
+    "config/tests/internal-voting-extended.test.tolk",
+    "config/tests/proposals-creation-extended.test.tolk",
+    "config/tests/proposals-creation.test.tolk",
+    "config/tests/special-params.test.tolk",
+    "config/tests/test-utils.tolk",
+    "config/tests/validator-set-and-ticktock.test.tolk",
+    "config/tests/voting-execution.test.tolk",
+    "config/wrappers/Config.gen.tolk",
+    "counter/contracts/Counter.tolk",
+    "counter/contracts/types.tolk",
+    "counter/scripts/deploy.tolk",
+    "counter/scripts/increase.tolk",
+    "counter/scripts/info.tolk",
+    "counter/scripts/reset.tolk",
+    "counter/tests/counter.test.tolk",
+    "counter/wrappers/Counter.gen.tolk",
+    "dns/contracts/DnsCollection.tolk",
+    "dns/contracts/DnsItem.tolk",
+    "dns/contracts/RootDns.tolk",
+    "dns/contracts/auction.tolk",
+    "dns/contracts/dns-utils.tolk",
+    "dns/contracts/errors.tolk",
+    "dns/contracts/messages.tolk",
+    "dns/contracts/storage.tolk",
+    "dns/scripts/deploy-dns.tolk",
+    "dns/scripts/deploy-root.tolk",
+    "dns/scripts/info.tolk",
+    "dns/scripts/manage.tolk",
+    "dns/tests/collection.test.tolk",
+    "dns/tests/dns-utils-unit.test.tolk",
+    "dns/tests/e2e-happy-paths.test.tolk",
+    "dns/tests/item-auction.test.tolk",
+    "dns/tests/item-management.test.tolk",
+    "dns/tests/root.test.tolk",
+    "dns/tests/test-utils.tolk",
+    "dns/wrappers/DnsCollection.gen.tolk",
+    "dns/wrappers/DnsItem.gen.tolk",
+    "dns/wrappers/RootDns.gen.tolk",
+    "dns/wrappers/utils.tolk",
+    "elector/contracts/Elector.tolk",
+    "elector/contracts/complaints.tolk",
+    "elector/contracts/credits.tolk",
+    "elector/contracts/messages.tolk",
+    "elector/contracts/types.tolk",
+    "elector/contracts/utils.tolk",
+    "elector/scripts/deploy.tolk",
+    "elector/scripts/info.tolk",
+    "elector/scripts/recover-stake.tolk",
+    "elector/scripts/simple-transfer.tolk",
+    "elector/scripts/utils/common.tolk",
+    "elector/tests/complaint-vote.test.tolk",
+    "elector/tests/complaint.test.tolk",
+    "elector/tests/e2e-happy-paths.test.tolk",
+    "elector/tests/election-announce.test.tolk",
+    "elector/tests/election-conduct.test.tolk",
+    "elector/tests/multi-round-stake.test.tolk",
+    "elector/tests/new-stake.test.tolk",
+    "elector/tests/recover-stake.test.tolk",
+    "elector/tests/test-utils.tolk",
+    "elector/tests/upgrade-code.test.tolk",
+    "elector/tests/vset-confirm.test.tolk",
+    "elector/tests/vset-update.test.tolk",
+    "elector/wrappers/Elector.gen.tolk",
+    "elector/wrappers/utils.tolk",
+    "highload-v3.1/contracts/HighloadWalletV3.tolk",
+    "highload-v3.1/contracts/bitmap.tolk",
+    "highload-v3.1/contracts/errors.tolk",
+    "highload-v3.1/contracts/messages.tolk",
+    "highload-v3.1/contracts/storage.tolk",
+    "highload-v3.1/contracts/validate-c5.tolk",
+    "highload-v3.1/scripts/deploy.tolk",
+    "highload-v3.1/scripts/info.tolk",
+    "highload-v3.1/scripts/send-transfer.tolk",
+    "highload-v3.1/tests/action-dispatch-and-batching.test.tolk",
+    "highload-v3.1/tests/basic-validation.test.tolk",
+    "highload-v3.1/tests/e2e-happy-paths.test.tolk",
+    "highload-v3.1/tests/internal-filters-and-payload-validation.test.tolk",
+    "highload-v3.1/tests/query-cleanup-and-storage-limits.test.tolk",
+    "highload-v3.1/tests/test-utils.tolk",
+    "highload-v3.1/tests/timeout-replay-attack.test.tolk",
+    "highload-v3.1/wrappers/HighloadWalletV3.gen.tolk",
+    "highload-v3.1/wrappers/utils.tolk",
+    "jetton-v1.3/contracts/NotcoinMinter.tolk",
+    "jetton-v1.3/contracts/NotcoinWallet.tolk",
+    "jetton-v1.3/contracts/errors.tolk",
+    "jetton-v1.3/contracts/fees-management.tolk",
+    "jetton-v1.3/contracts/jetton-utils.tolk",
+    "jetton-v1.3/contracts/messages.tolk",
+    "jetton-v1.3/contracts/storage.tolk",
+    "jetton-v1.3/contracts/types.tolk",
+    "jetton-v1.3/scripts/change-admin.tolk",
+    "jetton-v1.3/scripts/change-metadata.tolk",
+    "jetton-v1.3/scripts/claim-admin.tolk",
+    "jetton-v1.3/scripts/common.tolk",
+    "jetton-v1.3/scripts/deploy.tolk",
+    "jetton-v1.3/scripts/info.tolk",
+    "jetton-v1.3/scripts/mint.tolk",
+    "jetton-v1.3/scripts/transfer.tolk",
+    "jetton-v1.3/tests/admin-and-governance.test.tolk",
+    "jetton-v1.3/tests/bounce-handling.test.tolk",
+    "jetton-v1.3/tests/gas.test.tolk",
+    "jetton-v1.3/tests/mutation-regressions.test.tolk",
+    "jetton-v1.3/tests/protocol-validation.test.tolk",
+    "jetton-v1.3/tests/test-utils.tolk",
+    "jetton-v1.3/tests/wallet-behavior.test.tolk",
+    "jetton-v1.3/wrappers/NotcoinMinter.gen.tolk",
+    "jetton-v1.3/wrappers/NotcoinWallet.gen.tolk",
+    "jetton-v1.3/wrappers/utils.tolk",
+    "jetton-v2.1/contracts/JettonMinter.tolk",
+    "jetton-v2.1/contracts/JettonWallet.tolk",
+    "jetton-v2.1/contracts/errors.tolk",
+    "jetton-v2.1/contracts/fees-management.tolk",
+    "jetton-v2.1/contracts/jetton-utils.tolk",
+    "jetton-v2.1/contracts/messages.tolk",
+    "jetton-v2.1/contracts/sharding.tolk",
+    "jetton-v2.1/contracts/storage.tolk",
+    "jetton-v2.1/contracts/types.tolk",
+    "jetton-v2.1/scripts/change-admin.tolk",
+    "jetton-v2.1/scripts/change-metadata.tolk",
+    "jetton-v2.1/scripts/claim-admin.tolk",
+    "jetton-v2.1/scripts/deploy.tolk",
+    "jetton-v2.1/scripts/info.tolk",
+    "jetton-v2.1/scripts/mint.tolk",
+    "jetton-v2.1/scripts/transfer.tolk",
+    "jetton-v2.1/scripts/utils/common.tolk",
+    "jetton-v2.1/tests/admin-and-governance.test.tolk",
+    "jetton-v2.1/tests/bounce-handling.test.tolk",
+    "jetton-v2.1/tests/e2e-happy-paths.test.tolk",
+    "jetton-v2.1/tests/gas.test.tolk",
+    "jetton-v2.1/tests/mutation-regressions.test.tolk",
+    "jetton-v2.1/tests/protocol-validation.test.tolk",
+    "jetton-v2.1/tests/state-init.test.tolk",
+    "jetton-v2.1/tests/test-utils.tolk",
+    "jetton-v2.1/tests/wallet-behavior.test.tolk",
+    "jetton-v2.1/wrappers/JettonMinter.gen.tolk",
+    "jetton-v2.1/wrappers/JettonWallet.gen.tolk",
+    "jetton-v2.1/wrappers/utils.tolk",
+    "multisig-v2.1/contracts/Multisig.tolk",
+    "multisig-v2.1/contracts/Order.tolk",
+    "multisig-v2.1/contracts/errors.tolk",
+    "multisig-v2.1/contracts/messages.tolk",
+    "multisig-v2.1/contracts/order-helpers.tolk",
+    "multisig-v2.1/contracts/order-state.tolk",
+    "multisig-v2.1/contracts/storage.tolk",
+    "multisig-v2.1/contracts/types.tolk",
+    "multisig-v2.1/scripts/deploy.tolk",
+    "multisig-v2.1/scripts/info.tolk",
+    "multisig-v2.1/scripts/new-order.tolk",
+    "multisig-v2.1/scripts/update-params.tolk",
+    "multisig-v2.1/tests/additional-invariants.test.tolk",
+    "multisig-v2.1/tests/e2e-happy-paths.test.tolk",
+    "multisig-v2.1/tests/fees-and-costs.test.tolk",
+    "multisig-v2.1/tests/multisig-core-behavior.test.tolk",
+    "multisig-v2.1/tests/multisig-seqno-modes.test.tolk",
+    "multisig-v2.1/tests/order-fee-constants.test.tolk",
+    "multisig-v2.1/tests/order-helpers-unit.test.tolk",
+    "multisig-v2.1/tests/order-lifecycle.test.tolk",
+    "multisig-v2.1/tests/test-utils.tolk",
+    "multisig-v2.1/wrappers/Multisig.gen.tolk",
+    "multisig-v2.1/wrappers/Order.gen.tolk",
+    "multisig-v2.1/wrappers/utils.tolk",
+    "nft-v1.1/contracts/NftCollection.tolk",
+    "nft-v1.1/contracts/NftItem.tolk",
+    "nft-v1.1/contracts/errors.tolk",
+    "nft-v1.1/contracts/fees-management.tolk",
+    "nft-v1.1/contracts/messages.tolk",
+    "nft-v1.1/contracts/types.tolk",
+    "nft-v1.1/scripts/changeAdmin.tolk",
+    "nft-v1.1/scripts/deployBatch.tolk",
+    "nft-v1.1/scripts/deployCollection.tolk",
+    "nft-v1.1/scripts/deployItem.tolk",
+    "nft-v1.1/scripts/transferItem.tolk",
+    "nft-v1.1/scripts/utils/common.tolk",
+    "nft-v1.1/tests/e2e-happy-paths.test.tolk",
+    "nft-v1.1/tests/mutation-regressions.test.tolk",
+    "nft-v1.1/tests/nft-collection.test.tolk",
+    "nft-v1.1/tests/nft-item.test.tolk",
+    "nft-v1.1/wrappers/NftCollection.gen.tolk",
+    "nft-v1.1/wrappers/NftItem.gen.tolk",
+    "nft-v1.1/wrappers/utils.tolk",
+    "w5.2/contracts/WalletV5.tolk",
+    "w5.2/contracts/c5-register-validation.tolk",
+    "w5.2/contracts/errors.tolk",
+    "w5.2/contracts/messages.tolk",
+    "w5.2/contracts/storage.tolk",
+    "w5.2/scripts/add-extension.tolk",
+    "w5.2/scripts/deploy.tolk",
+    "w5.2/scripts/info.tolk",
+    "w5.2/scripts/remove-extension.tolk",
+    "w5.2/scripts/send-transfer.tolk",
+    "w5.2/scripts/set-signature.tolk",
+    "w5.2/scripts/utils/common.tolk",
+    "w5.2/tests/e2e-happy-paths.test.tolk",
+    "w5.2/tests/wallet-v5-extensions.test.tolk",
+    "w5.2/tests/wallet-v5-external.test.tolk",
+    "w5.2/tests/wallet-v5-get.test.tolk",
+    "w5.2/tests/wallet-v5-internal.test.tolk",
+    "w5.2/tests/wallet-w5.test.tolk",
+    "w5.2/wrappers/WalletV5.gen.tolk",
+    "w5.2/wrappers/utils.tolk"
+  ],
+  "exactFiles": true,
+  "symbols": [
+    {
+      "file": "counter/contracts/Counter.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "counter/contracts/Counter.tolk",
+      "name": "currentCounter",
+      "kind": "function",
+      "source": "get fun currentCounter(): int {"
+    },
+    {
+      "file": "counter/contracts/types.tolk",
+      "name": "save",
+      "kind": "method",
+      "source": "fun Storage.save(self) {"
+    },
+    {
+      "file": "config/contracts/Config.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "config/contracts/Config.tolk",
+      "name": "onExternalMessage",
+      "kind": "function",
+      "source": "fun onExternalMessage(inMsgBody: slice) {"
+    },
+    {
+      "file": "config/contracts/Config.tolk",
+      "name": "seqno",
+      "kind": "function",
+      "source": "get fun seqno(): int {"
+    },
+    {
+      "file": "dns/contracts/DnsCollection.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "dns/contracts/DnsItem.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "dns/contracts/RootDns.tolk",
+      "name": "dnsresolve",
+      "kind": "function",
+      "source": "get fun dnsresolve(subdomain: slice, _category: int): DnsResolveResponse {"
+    },
+    {
+      "file": "elector/contracts/Elector.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "elector/contracts/Elector.tolk",
+      "name": "processNewStake",
+      "kind": "function",
+      "source": "fun processNewStake(msg: NewStakeMessage): void {"
+    },
+    {
+      "file": "elector/contracts/Elector.tolk",
+      "name": "recoverStake",
+      "kind": "function",
+      "source": "fun recoverStake(queryId: uint64) {"
+    },
+    {
+      "file": "highload-v3.1/contracts/HighloadWalletV3.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "highload-v3.1/contracts/HighloadWalletV3.tolk",
+      "name": "onExternalMessage",
+      "kind": "function",
+      "source": "fun onExternalMessage(inBody: slice) {"
+    },
+    {
+      "file": "highload-v3.1/contracts/HighloadWalletV3.tolk",
+      "name": "queryIdShift",
+      "kind": "function",
+      "source": "fun queryIdShift(queryId: int): uint13 {"
+    },
+    {
+      "file": "jetton-v1.3/contracts/NotcoinMinter.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "jetton-v1.3/contracts/NotcoinWallet.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "jetton-v1.3/contracts/NotcoinWallet.tolk",
+      "name": "get_wallet_data",
+      "kind": "function",
+      "source": "get fun get_wallet_data(): JettonWalletDataReply {"
+    },
+    {
+      "file": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "name": "get_wallet_data",
+      "kind": "function",
+      "source": "get fun get_wallet_data(): JettonWalletDataReply {"
+    },
+    {
+      "file": "multisig-v2.1/contracts/Multisig.tolk",
+      "name": "executeOrder",
+      "kind": "function",
+      "source": "fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsMap): bool {"
+    },
+    {
+      "file": "multisig-v2.1/contracts/Multisig.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "multisig-v2.1/contracts/Order.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "nft-v1.1/contracts/NftCollection.tolk",
+      "name": "deployNftItem",
+      "kind": "function",
+      "source": "fun deployNftItem("
+    },
+    {
+      "file": "nft-v1.1/contracts/NftCollection.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "nft-v1.1/contracts/NftItem.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    },
+    {
+      "file": "w5.2/contracts/WalletV5.tolk",
+      "name": "processActions",
+      "kind": "function",
+      "source": "fun processActions("
+    },
+    {
+      "file": "w5.2/contracts/WalletV5.tolk",
+      "name": "onExternalMessage",
+      "kind": "function",
+      "source": "fun onExternalMessage(inMsgBody: slice) {"
+    },
+    {
+      "file": "w5.2/contracts/WalletV5.tolk",
+      "name": "onInternalMessage",
+      "kind": "function",
+      "source": "fun onInternalMessage(in: InMessage) {"
+    }
+  ],
+  "calls": [
+    {
+      "fromFile": "counter/contracts/Counter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "counter/contracts/types.tolk",
+      "toName": "load",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "counter/contracts/Counter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "counter/contracts/types.tolk",
+      "toName": "save",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "config/contracts/Config.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "config/contracts/config-helpers.tolk",
+      "toName": "checkValidatorSet",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "config/contracts/Config.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "config/contracts/config-helpers.tolk",
+      "toName": "registerVotingProposal",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "config/contracts/Config.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "config/contracts/config-helpers.tolk",
+      "toName": "proceedRegisterVote",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsCollection.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "dns/contracts/dns-utils.tolk",
+      "toName": "readDomainFromComment",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsCollection.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "dns/contracts/dns-utils.tolk",
+      "toName": "getMinPrice",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsCollection.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "dns/contracts/storage.tolk",
+      "toName": "calcDeployedNftItem",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsItem.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "dns/contracts/storage.tolk",
+      "toName": "startLoadingDnsItemStorage",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsCollection.tolk",
+      "fromName": "dnsresolve",
+      "toFile": "dns/contracts/DnsCollection.tolk",
+      "toName": "get_nft_address_by_index",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "elector/contracts/Elector.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "elector/contracts/Elector.tolk",
+      "toName": "processNewStake",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "elector/contracts/Elector.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "elector/contracts/Elector.tolk",
+      "toName": "recoverStake",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "elector/contracts/Elector.tolk",
+      "fromName": "onRunTickTock",
+      "toFile": "elector/contracts/Elector.tolk",
+      "toName": "checkUnfreeze",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "highload-v3.1/contracts/HighloadWalletV3.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "highload-v3.1/contracts/storage.tolk",
+      "toName": "cleanupQueryWindows",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "highload-v3.1/contracts/HighloadWalletV3.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "highload-v3.1/contracts/bitmap.tolk",
+      "toName": "markProcessed",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinMinter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "jetton-v1.3/contracts/NotcoinMinter.tolk",
+      "toName": "assertSenderIsAdmin",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinMinter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "jetton-v1.3/contracts/fees-management.tolk",
+      "toName": "checkAmountIsEnoughToTransfer",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinWallet.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "jetton-v1.3/contracts/fees-management.tolk",
+      "toName": "calculateJettonWalletMinStorageFee",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinWallet.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "jetton-v1.3/contracts/jetton-utils.tolk",
+      "toName": "calcAddressOfJettonWallet",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "toName": "assertSenderIsAdmin",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "jetton-v2.1/contracts/fees-management.tolk",
+      "toName": "checkAmountIsEnoughToTransfer",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "jetton-v2.1/contracts/fees-management.tolk",
+      "toName": "calculateJettonWalletMinStorageFee",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "jetton-v2.1/contracts/jetton-utils.tolk",
+      "toName": "calcAddressOfJettonWallet",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Multisig.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "multisig-v2.1/contracts/order-state.tolk",
+      "toName": "calculateOrderAddress",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Multisig.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "multisig-v2.1/contracts/Multisig.tolk",
+      "toName": "executeOrder",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Order.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "multisig-v2.1/contracts/order-helpers.tolk",
+      "toName": "getTextComment",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "nft-v1.1/contracts/NftCollection.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "nft-v1.1/contracts/NftCollection.tolk",
+      "toName": "deployNftItem",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "nft-v1.1/contracts/NftCollection.tolk",
+      "fromName": "deployNftItem",
+      "toFile": "nft-v1.1/contracts/types.tolk",
+      "toName": "calcDeployedNftItem",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "nft-v1.1/contracts/NftItem.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "nft-v1.1/contracts/types.tolk",
+      "toName": "startLoading",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "w5.2/contracts/WalletV5.tolk",
+      "fromName": "processActions",
+      "toFile": "w5.2/contracts/WalletV5.tolk",
+      "toName": "processExtraActions",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "w5.2/contracts/WalletV5.tolk",
+      "fromName": "onExternalMessage",
+      "toFile": "w5.2/contracts/WalletV5.tolk",
+      "toName": "processActions",
+      "toLanguage": "tolk"
+    }
+  ],
+  "imports": [
+    {
+      "fromFile": "counter/contracts/Counter.tolk",
+      "toFile": "counter/contracts/types.tolk"
+    },
+    {
+      "fromFile": "config/contracts/Config.tolk",
+      "toFile": "config/contracts/config-helpers.tolk"
+    },
+    {
+      "fromFile": "config/contracts/Config.tolk",
+      "toFile": "config/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "config/contracts/Config.tolk",
+      "toFile": "config/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "config/contracts/Config.tolk",
+      "toFile": "config/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsCollection.tolk",
+      "toFile": "dns/contracts/dns-utils.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsCollection.tolk",
+      "toFile": "dns/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsCollection.tolk",
+      "toFile": "dns/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsCollection.tolk",
+      "toFile": "dns/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsItem.tolk",
+      "toFile": "dns/contracts/auction.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsItem.tolk",
+      "toFile": "dns/contracts/dns-utils.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsItem.tolk",
+      "toFile": "dns/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsItem.tolk",
+      "toFile": "dns/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsItem.tolk",
+      "toFile": "dns/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/RootDns.tolk",
+      "toFile": "dns/contracts/dns-utils.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/RootDns.tolk",
+      "toFile": "dns/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "dns/contracts/RootDns.tolk",
+      "toFile": "dns/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "elector/contracts/Elector.tolk",
+      "toFile": "elector/contracts/complaints.tolk"
+    },
+    {
+      "fromFile": "elector/contracts/Elector.tolk",
+      "toFile": "elector/contracts/credits.tolk"
+    },
+    {
+      "fromFile": "elector/contracts/Elector.tolk",
+      "toFile": "elector/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "elector/contracts/Elector.tolk",
+      "toFile": "elector/contracts/types.tolk"
+    },
+    {
+      "fromFile": "elector/contracts/Elector.tolk",
+      "toFile": "elector/contracts/utils.tolk"
+    },
+    {
+      "fromFile": "highload-v3.1/contracts/HighloadWalletV3.tolk",
+      "toFile": "highload-v3.1/contracts/bitmap.tolk"
+    },
+    {
+      "fromFile": "highload-v3.1/contracts/HighloadWalletV3.tolk",
+      "toFile": "highload-v3.1/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "highload-v3.1/contracts/HighloadWalletV3.tolk",
+      "toFile": "highload-v3.1/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "highload-v3.1/contracts/HighloadWalletV3.tolk",
+      "toFile": "highload-v3.1/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "highload-v3.1/contracts/HighloadWalletV3.tolk",
+      "toFile": "highload-v3.1/contracts/validate-c5.tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinMinter.tolk",
+      "toFile": "jetton-v1.3/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinMinter.tolk",
+      "toFile": "jetton-v1.3/contracts/fees-management.tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinMinter.tolk",
+      "toFile": "jetton-v1.3/contracts/jetton-utils.tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinMinter.tolk",
+      "toFile": "jetton-v1.3/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinMinter.tolk",
+      "toFile": "jetton-v1.3/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinWallet.tolk",
+      "toFile": "jetton-v1.3/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinWallet.tolk",
+      "toFile": "jetton-v1.3/contracts/fees-management.tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinWallet.tolk",
+      "toFile": "jetton-v1.3/contracts/jetton-utils.tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinWallet.tolk",
+      "toFile": "jetton-v1.3/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinWallet.tolk",
+      "toFile": "jetton-v1.3/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "toFile": "jetton-v2.1/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "toFile": "jetton-v2.1/contracts/fees-management.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "toFile": "jetton-v2.1/contracts/jetton-utils.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "toFile": "jetton-v2.1/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "toFile": "jetton-v2.1/contracts/sharding.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "toFile": "jetton-v2.1/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "toFile": "jetton-v2.1/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "toFile": "jetton-v2.1/contracts/fees-management.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "toFile": "jetton-v2.1/contracts/jetton-utils.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "toFile": "jetton-v2.1/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "toFile": "jetton-v2.1/contracts/sharding.tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "toFile": "jetton-v2.1/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Multisig.tolk",
+      "toFile": "multisig-v2.1/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Multisig.tolk",
+      "toFile": "multisig-v2.1/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Multisig.tolk",
+      "toFile": "multisig-v2.1/contracts/order-helpers.tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Multisig.tolk",
+      "toFile": "multisig-v2.1/contracts/order-state.tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Multisig.tolk",
+      "toFile": "multisig-v2.1/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Multisig.tolk",
+      "toFile": "multisig-v2.1/contracts/types.tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Order.tolk",
+      "toFile": "multisig-v2.1/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Order.tolk",
+      "toFile": "multisig-v2.1/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Order.tolk",
+      "toFile": "multisig-v2.1/contracts/order-helpers.tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Order.tolk",
+      "toFile": "multisig-v2.1/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Order.tolk",
+      "toFile": "multisig-v2.1/contracts/types.tolk"
+    },
+    {
+      "fromFile": "nft-v1.1/contracts/NftCollection.tolk",
+      "toFile": "nft-v1.1/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "nft-v1.1/contracts/NftCollection.tolk",
+      "toFile": "nft-v1.1/contracts/fees-management.tolk"
+    },
+    {
+      "fromFile": "nft-v1.1/contracts/NftCollection.tolk",
+      "toFile": "nft-v1.1/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "nft-v1.1/contracts/NftCollection.tolk",
+      "toFile": "nft-v1.1/contracts/types.tolk"
+    },
+    {
+      "fromFile": "nft-v1.1/contracts/NftItem.tolk",
+      "toFile": "nft-v1.1/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "nft-v1.1/contracts/NftItem.tolk",
+      "toFile": "nft-v1.1/contracts/fees-management.tolk"
+    },
+    {
+      "fromFile": "nft-v1.1/contracts/NftItem.tolk",
+      "toFile": "nft-v1.1/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "nft-v1.1/contracts/NftItem.tolk",
+      "toFile": "nft-v1.1/contracts/types.tolk"
+    },
+    {
+      "fromFile": "w5.2/contracts/WalletV5.tolk",
+      "toFile": "w5.2/contracts/c5-register-validation.tolk"
+    },
+    {
+      "fromFile": "w5.2/contracts/WalletV5.tolk",
+      "toFile": "w5.2/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "w5.2/contracts/WalletV5.tolk",
+      "toFile": "w5.2/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "w5.2/contracts/WalletV5.tolk",
+      "toFile": "w5.2/contracts/storage.tolk"
+    }
+  ],
+  "forbidden": [
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinMinter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "toName": "onInternalMessage",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinWallet.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "toName": "onInternalMessage",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinMinter.tolk",
+      "fromName": "get_wallet_address",
+      "toFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "toName": "get_wallet_address",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v1.3/contracts/NotcoinWallet.tolk",
+      "fromName": "get_wallet_data",
+      "toFile": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "toName": "get_wallet_data",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsCollection.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "nft-v1.1/contracts/NftCollection.tolk",
+      "toName": "onInternalMessage",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsItem.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "nft-v1.1/contracts/NftItem.tolk",
+      "toName": "onInternalMessage",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "dns/contracts/DnsCollection.tolk",
+      "fromName": "get_nft_address_by_index",
+      "toFile": "nft-v1.1/contracts/NftCollection.tolk",
+      "toName": "get_nft_address_by_index",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "multisig-v2.1/contracts/Multisig.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "multisig-v2.1/contracts/Order.tolk",
+      "toName": "onInternalMessage",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "config/contracts/Config.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "elector/contracts/Elector.tolk",
+      "toName": "onInternalMessage",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "highload-v3.1/contracts/HighloadWalletV3.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "w5.2/contracts/WalletV5.tolk",
+      "toName": "onInternalMessage",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "counter/contracts/Counter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "config/contracts/Config.tolk",
+      "toName": "onInternalMessage",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "jetton-v2.1/contracts/JettonMinter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "jetton-v2.1/contracts/JettonWallet.tolk",
+      "toName": "onInternalMessage",
+      "kind": "calls",
+      "toLanguage": "tolk"
+    }
+  ]
+}

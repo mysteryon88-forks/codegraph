@@ -1,0 +1,115 @@
+[
+  {
+    "label": "Marketplace ownership handler reaches gas check",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/marketplace/contract.tolk onInternalMessage contracts/marketplace/message_handlers.tolk handleNftOwnershipAssigned contracts/marketplace/utils.tolk checkEnoughGas"
+    },
+    "contains": [
+      "contracts/marketplace/contract.tolk",
+      "contracts/marketplace/message_handlers.tolk",
+      "contracts/marketplace/utils.tolk"
+    ]
+  },
+  {
+    "label": "Domain swap final payment reaches completion",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/domain_swap/contract.tolk onInternalMessage contracts/domain_swap/utils.tolk completeDeal"
+    },
+    "contains": [
+      "contracts/domain_swap/contract.tolk",
+      "contracts/domain_swap/utils.tolk"
+    ]
+  },
+  {
+    "label": "TON simple sale auto-renew reserve calculation",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/fix_price_sales/ton_simple_sale/contract.tolk onInternalMessage getRequiredReserve contracts/fix_price_sales/ton_simple_sale/constants.tolk autoRenewLockPerIter contracts/imports/gas.tolk renewDomainFee domainStorageYear"
+    },
+    "contains": [
+      "contracts/fix_price_sales/ton_simple_sale/contract.tolk",
+      "contracts/fix_price_sales/ton_simple_sale/constants.tolk",
+      "contracts/imports/gas.tolk"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onInternalMessage -> handleNftOwnershipAssigned",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "contracts/marketplace/message_handlers.tolk",
+      "symbol": "handleNftOwnershipAssigned",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onInternalMessage (contracts/marketplace/contract.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onInternalMessage -> handleJettonsTransferNotification",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "contracts/marketplace/message_handlers.tolk",
+      "symbol": "handleJettonsTransferNotification",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onInternalMessage (contracts/marketplace/contract.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onInternalMessage -> handleRenewalFee",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "contracts/marketplace/message_handlers.tolk",
+      "symbol": "handleRenewalFee",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onInternalMessage (contracts/marketplace/contract.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onInternalMessage -> handleNftOwnershipAssigned -> checkEnoughGas",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/marketplace/contract.tolk onInternalMessage contracts/marketplace/message_handlers.tolk handleNftOwnershipAssigned contracts/marketplace/utils.tolk checkEnoughGas"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onInternalMessage (contracts/marketplace/contract.tolk:",
+      "2. handleNftOwnershipAssigned (contracts/marketplace/message_handlers.tolk:",
+      "3. checkEnoughGas (contracts/marketplace/utils.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onInternalMessage -> getRequiredReserve -> saleStorageReserve",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/fix_price_sales/ton_simple_sale/contract.tolk onInternalMessage contracts/fix_price_sales/ton_simple_sale/contract.tolk getRequiredReserve contracts/fix_price_sales/ton_simple_sale/constants.tolk saleStorageReserve"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onInternalMessage (contracts/fix_price_sales/ton_simple_sale/contract.tolk:",
+      "2. getRequiredReserve (contracts/fix_price_sales/ton_simple_sale/contract.tolk:",
+      "3. saleStorageReserve (contracts/fix_price_sales/ton_simple_sale/constants.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onExternalMessage -> getRequiredReserve -> saleStorageReserve",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/fix_price_sales/ton_simple_sale/contract.tolk onExternalMessage contracts/fix_price_sales/ton_simple_sale/contract.tolk getRequiredReserve contracts/fix_price_sales/ton_simple_sale/constants.tolk saleStorageReserve"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onExternalMessage (contracts/fix_price_sales/ton_simple_sale/contract.tolk:",
+      "2. getRequiredReserve (contracts/fix_price_sales/ton_simple_sale/contract.tolk:",
+      "3. saleStorageReserve (contracts/fix_price_sales/ton_simple_sale/constants.tolk:"
+    ]
+  }
+]

@@ -62,6 +62,7 @@ import {
   findAllSymbols,
   resolveNamedSymbolFlow,
   type FlowStep,
+  type NamedSymbolFlow,
 } from '../graph/named-symbol-flow';
 import { getUpdateNotice } from '../upgrade/update-check';
 import { measurePendingChanges } from './index-freshness';
@@ -3502,7 +3503,7 @@ export class ToolHandler {
    * whose qualifiedName contains another named token (`PmsProductServiceImpl::list`),
    * dropping unrelated `OmsOrderService::list`.
    */
-  private buildFlowFromNamedSymbols(cg: CodeGraph, query: string): { text: string; pathNodeIds: Set<string>; namedNodeIds: Set<string>; uniqueNamedNodeIds: Set<string>; spineCallSites: Map<string, number> } {
+  private buildFlowFromNamedSymbols(cg: CodeGraph, query: string, resolvedFlow?: NamedSymbolFlow): { text: string; pathNodeIds: Set<string>; namedNodeIds: Set<string>; uniqueNamedNodeIds: Set<string>; spineCallSites: Map<string, number> } {
     // spineCallSites: for each spine node, the line where it CALLS the next hop —
     // lets the source assembler window an oversize spine method (e.g. n8n's 962-line
     // processRunExecutionData) to the call site instead of dumping the whole body.
@@ -3511,7 +3512,7 @@ export class ToolHandler {
       // Token resolution — parsing, overload disambiguation, the CONSTANT/
       // VARIABLE synth endpoints — is shared with `/api/flow`, so a name written
       // in the viewer's search box resolves to the same nodes it does here.
-      const flow = resolveNamedSymbolFlow(cg, query);
+      const flow = resolvedFlow ?? resolveNamedSymbolFlow(cg, query);
       const { named, dynNamed, tokenNodes, tokenFamily, uniqueNamedNodeIds, preciseNamedIds } =
         flow;
       if (flow.tokens.length < 2) return EMPTY;
@@ -4512,6 +4513,9 @@ export class ToolHandler {
       return owned;
     };
 
+    const resolvedFlow = resolveNamedSymbolFlow(cg, matchQuery, { preferredFiles: pinnedFiles });
+    const pinnedFlowIds = new Set(pinnedFiles.length > 0
+      ? resolvedFlow.chains.flatMap(chain => chain.steps.map(step => step.node.id)) : []);
     const namedSeedIds = new Set<string>();
     // The subset of named seeds that earns the named-FIRST sort tier. We still
     // SEED every ≤3-def name (so RWR / flow ranking is unchanged), but only the
@@ -4604,6 +4608,11 @@ export class ToolHandler {
         // codegraph_node's findSymbolMatches.) Qualified tokens keep findAllSymbols.
         const isQual = /[.\/]|::/.test(t);
         const raw = isQual ? this.findAllSymbols(cg, t).nodes : cg.getNodesByName(t);
+        for (const id of resolvedFlow.tokenNodes.get(t) ?? []) {
+          if (!pinnedFlowIds.has(id) || raw.some(n => n.id === id)) continue;
+          const node = resolvedFlow.named.get(id);
+          if (node) raw.push(node);
+        }
         // A query that NAMES a declared type is a question ABOUT that type, and
         // must still reach its declaration file at full weight — so record the
         // files those declarations live in and exempt them from the
@@ -4666,7 +4675,11 @@ export class ToolHandler {
         // explore-side mirror of codegraph_node's overload disambiguation.
         let picks: Node[];
         let tierPicks: Node[]; // subset that earns the named-first tier (#1064)
-        if (cands.length <= 3) {
+        const pinnedPicks = cands.filter(n => pinnedFlowIds.has(n.id));
+        if (pinnedPicks.length > 0) {
+          picks = pinnedPicks.slice(0, 4);
+          tierPicks = picks;
+        } else if (cands.length <= 3) {
           picks = cands;
           // Centrality de-noise: tier the most-substantive def PLUS any co-named
           // def of comparable centrality (a real overload/wrapper — excalidraw's
@@ -5289,7 +5302,7 @@ export class ToolHandler {
     // The Flow section labels each hop with its branch conditions; that read
     // is synchronous, so the grammars it needs are loaded here, once.
     await warmBranchGuardGrammars();
-    const flow = this.buildFlowFromNamedSymbols(cg, matchQuery);
+    const flow = this.buildFlowFromNamedSymbols(cg, matchQuery, resolvedFlow);
 
     // The symbols the question is about: exact targets, the named ones, the spine.
     const questionIds = new Set([...exactNodeIds, ...flow.pathNodeIds, ...flow.namedNodeIds]);

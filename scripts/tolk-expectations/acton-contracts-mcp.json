@@ -1,0 +1,216 @@
+[
+  {
+    "label": "counter exact source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "counter/contracts/Counter.tolk"
+    },
+    "contains": [
+      "fun onInternalMessage(in: InMessage) {"
+    ]
+  },
+  {
+    "label": "config exact source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "config/contracts/Config.tolk"
+    },
+    "contains": [
+      "fun onInternalMessage(in: InMessage) {"
+    ]
+  },
+  {
+    "label": "dns exact source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "dns/contracts/DnsCollection.tolk"
+    },
+    "contains": [
+      "fun onInternalMessage(in: InMessage) {"
+    ]
+  },
+  {
+    "label": "elector exact source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "elector/contracts/Elector.tolk"
+    },
+    "contains": [
+      "fun onInternalMessage(in: InMessage) {"
+    ]
+  },
+  {
+    "label": "highload-v3.1 exact source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "highload-v3.1/contracts/HighloadWalletV3.tolk"
+    },
+    "contains": [
+      "fun onInternalMessage(in: InMessage) {"
+    ]
+  },
+  {
+    "label": "jetton-v1.3 exact source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "jetton-v1.3/contracts/NotcoinMinter.tolk"
+    },
+    "contains": [
+      "fun onInternalMessage(in: InMessage) {"
+    ]
+  },
+  {
+    "label": "jetton-v2.1 exact source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "jetton-v2.1/contracts/JettonMinter.tolk"
+    },
+    "contains": [
+      "fun onInternalMessage(in: InMessage) {"
+    ]
+  },
+  {
+    "label": "multisig-v2.1 exact source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "multisig-v2.1/contracts/Multisig.tolk"
+    },
+    "contains": [
+      "fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsMap): bool {"
+    ]
+  },
+  {
+    "label": "nft-v1.1 exact source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "nft-v1.1/contracts/NftCollection.tolk"
+    },
+    "contains": [
+      "fun deployNftItem("
+    ]
+  },
+  {
+    "label": "w5.2 exact source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "w5.2/contracts/WalletV5.tolk"
+    },
+    "contains": [
+      "fun processActions("
+    ]
+  },
+  {
+    "label": "counter flow query",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "counter/contracts/Counter.tolk onInternalMessage Storage.load"
+    },
+    "contains": [
+      "counter/contracts/Counter.tolk",
+      "counter/contracts/types.tolk",
+      "load"
+    ]
+  },
+  {
+    "label": "dns flow query",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "dns/contracts/DnsItem.tolk onInternalMessage startLoadingDnsItemStorage"
+    },
+    "contains": [
+      "dns/contracts/DnsItem.tolk",
+      "dns/contracts/storage.tolk",
+      "startLoadingDnsItemStorage"
+    ]
+  },
+  {
+    "label": "elector flow query",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "elector/contracts/Elector.tolk onRunTickTock checkUnfreeze"
+    },
+    "contains": [
+      "elector/contracts/Elector.tolk",
+      "elector/contracts/Elector.tolk",
+      "checkUnfreeze"
+    ]
+  },
+  {
+    "label": "Counter exact Storage.load source",
+    "tool": "codegraph_node",
+    "arguments": {
+      "symbol": "load",
+      "file": "counter/contracts/types.tolk",
+      "includeCode": true
+    },
+    "contains": [
+      "counter/contracts/types.tolk",
+      "fun Storage.load(): Storage"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onInternalMessage -> load",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "counter/contracts/types.tolk",
+      "symbol": "load",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onInternalMessage (counter/contracts/Counter.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onInternalMessage -> save",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "counter/contracts/types.tolk",
+      "symbol": "save",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onInternalMessage (counter/contracts/Counter.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onInternalMessage -> checkValidatorSet",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "config/contracts/config-helpers.tolk",
+      "symbol": "checkValidatorSet",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onInternalMessage (config/contracts/Config.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onInternalMessage -> deployNftItem -> calcDeployedNftItem",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "nft-v1.1/contracts/NftCollection.tolk onInternalMessage nft-v1.1/contracts/NftCollection.tolk deployNftItem nft-v1.1/contracts/types.tolk calcDeployedNftItem"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onInternalMessage (nft-v1.1/contracts/NftCollection.tolk:",
+      "2. deployNftItem (nft-v1.1/contracts/NftCollection.tolk:",
+      "3. calcDeployedNftItem (nft-v1.1/contracts/types.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onExternalMessage -> processActions -> processExtraActions",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "w5.2/contracts/WalletV5.tolk onExternalMessage w5.2/contracts/WalletV5.tolk processActions w5.2/contracts/WalletV5.tolk processExtraActions"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onExternalMessage (w5.2/contracts/WalletV5.tolk:",
+      "2. processActions (w5.2/contracts/WalletV5.tolk:",
+      "3. processExtraActions (w5.2/contracts/WalletV5.tolk:"
+    ]
+  }
+]

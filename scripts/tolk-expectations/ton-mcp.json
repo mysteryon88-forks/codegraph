@@ -1,0 +1,124 @@
+[
+  {
+    "label": "Registry cleanup",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "crypto/smartcont/validator-registry.tolk onExternalMessage cleanupRegistry getValidatorKeys"
+    },
+    "contains": [
+      "crypto/smartcont/validator-registry.tolk"
+    ]
+  },
+  {
+    "label": "Registry code update",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "crypto/smartcont/validator-registry.tolk onExternalMessage updateCode getRegistryConfigCell"
+    },
+    "contains": [
+      "crypto/smartcont/validator-registry.tolk"
+    ]
+  },
+  {
+    "label": "Default-argument and generic direct calls",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "tolk-tester/tests/calls-tests.tolk test2 getAOrB sumADef1BDef2"
+    },
+    "contains": [
+      "tolk-tester/tests/calls-tests.tolk"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onExternalMessage -> cleanupRegistry",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "symbol": "cleanupRegistry",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onExternalMessage (crypto/smartcont/validator-registry.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onExternalMessage -> updateCode",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "symbol": "updateCode",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onExternalMessage (crypto/smartcont/validator-registry.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onExternalMessage -> getLastKeyBlockSeqno",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "symbol": "getLastKeyBlockSeqno",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onExternalMessage (crypto/smartcont/validator-registry.tolk:"
+    ]
+  },
+  {
+    "label": "Shortcut case: cleanupRegistry still calls getLastKeyBlockSeqno",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "crypto/smartcont/validator-registry.tolk",
+      "symbol": "getLastKeyBlockSeqno",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "cleanupRegistry (crypto/smartcont/validator-registry.tolk:",
+      "onExternalMessage (crypto/smartcont/validator-registry.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onExternalMessage -> cleanupRegistry -> getValidatorKeys",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "crypto/smartcont/validator-registry.tolk onExternalMessage cleanupRegistry getValidatorKeys"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onExternalMessage (crypto/smartcont/validator-registry.tolk:",
+      "2. cleanupRegistry (crypto/smartcont/validator-registry.tolk:",
+      "3. getValidatorKeys (crypto/smartcont/validator-registry.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onExternalMessage -> updateCode -> getRegistryConfigCell",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "crypto/smartcont/validator-registry.tolk onExternalMessage updateCode getRegistryConfigCell"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onExternalMessage (crypto/smartcont/validator-registry.tolk:",
+      "2. updateCode (crypto/smartcont/validator-registry.tolk:",
+      "3. getRegistryConfigCell (crypto/smartcont/validator-registry.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onExternalMessage -> validateEntry -> getRegistryConfigCell",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "crypto/smartcont/validator-registry.tolk onExternalMessage validateEntry getRegistryConfigCell"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onExternalMessage (crypto/smartcont/validator-registry.tolk:",
+      "2. validateEntry (crypto/smartcont/validator-registry.tolk:",
+      "3. getRegistryConfigCell (crypto/smartcont/validator-registry.tolk:"
+    ]
+  }
+]

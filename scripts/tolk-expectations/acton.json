@@ -1,0 +1,270 @@
+{
+  "provenance": {
+    "url": "https://github.com/ton-blockchain/acton",
+    "commit": "b8407f0e628860311d391eff85d003ec9c2cfb2c",
+    "oracle": "Independent source-only review frozen before new graph output",
+    "compiler": "Tolk1.5.0; Acton1.2.1",
+    "indexConfig": {
+      "exclude": [
+        "tests/projects/with_compilation_error/"
+      ]
+    }
+  },
+  "files": [
+    "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+    "apps/localton/load-test/contracts/types.tolk",
+    "src/commands/new/templates/counter/contracts/Counter.tolk",
+    "src/commands/new/templates/counter/contracts/types.tolk",
+    "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+    "src/commands/new/templates/jetton/contracts/JettonWallet.tolk",
+    "src/commands/new/templates/jetton/contracts/fees-management.tolk",
+    "src/commands/new/templates/jetton/contracts/jetton-utils.tolk"
+  ],
+  "symbols": [
+    {
+      "file": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "name": "onInternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "name": "expandOnce",
+      "kind": "function"
+    },
+    {
+      "file": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "name": "deployChild",
+      "kind": "function"
+    },
+    {
+      "file": "apps/localton/load-test/contracts/types.tolk",
+      "name": "load",
+      "kind": "method"
+    },
+    {
+      "file": "apps/localton/load-test/contracts/types.tolk",
+      "name": "save",
+      "kind": "method"
+    },
+    {
+      "file": "src/commands/new/templates/counter/contracts/types.tolk",
+      "name": "load",
+      "kind": "method"
+    },
+    {
+      "file": "src/commands/new/templates/counter/contracts/types.tolk",
+      "name": "save",
+      "kind": "method"
+    },
+    {
+      "file": "src/commands/new/templates/counter/contracts/Counter.tolk",
+      "name": "onInternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "name": "onInternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "src/commands/new/templates/jetton/contracts/JettonWallet.tolk",
+      "name": "onInternalMessage",
+      "kind": "function"
+    },
+    {
+      "file": "src/commands/new/templates/jetton/contracts/fees-management.tolk",
+      "name": "checkAmountIsEnoughToTransfer",
+      "kind": "function"
+    },
+    {
+      "file": "src/commands/new/templates/jetton/contracts/fees-management.tolk",
+      "name": "calcMinimalTransferAmount",
+      "kind": "function"
+    },
+    {
+      "file": "src/commands/new/templates/jetton/contracts/jetton-utils.tolk",
+      "name": "calcAddressOfJettonWallet",
+      "kind": "function"
+    },
+    {
+      "file": "src/commands/new/templates/jetton/contracts/jetton-utils.tolk",
+      "name": "calcDeployedJettonWallet",
+      "kind": "function"
+    }
+  ],
+  "calls": [
+    {
+      "fromFile": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "toName": "expandOnce",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "fromName": "expandOnce",
+      "toFile": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "toName": "deployChild",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "fromName": "expandOnce",
+      "toFile": "apps/localton/load-test/contracts/types.tolk",
+      "toName": "load",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/counter/contracts/Counter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "src/commands/new/templates/counter/contracts/types.tolk",
+      "toName": "load",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "fromName": "expandOnce",
+      "toFile": "apps/localton/load-test/contracts/types.tolk",
+      "toName": "save",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/counter/contracts/Counter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "src/commands/new/templates/counter/contracts/types.tolk",
+      "toName": "save",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "src/commands/new/templates/jetton/contracts/fees-management.tolk",
+      "toName": "checkAmountIsEnoughToTransfer",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonWallet.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "src/commands/new/templates/jetton/contracts/fees-management.tolk",
+      "toName": "checkAmountIsEnoughToTransfer",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/fees-management.tolk",
+      "fromName": "checkAmountIsEnoughToTransfer",
+      "toFile": "src/commands/new/templates/jetton/contracts/fees-management.tolk",
+      "toName": "calcMinimalTransferAmount",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "src/commands/new/templates/jetton/contracts/jetton-utils.tolk",
+      "toName": "calcAddressOfJettonWallet",
+      "toLanguage": "tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/jetton-utils.tolk",
+      "fromName": "calcAddressOfJettonWallet",
+      "toFile": "src/commands/new/templates/jetton/contracts/jetton-utils.tolk",
+      "toName": "calcDeployedJettonWallet",
+      "toLanguage": "tolk"
+    }
+  ],
+  "imports": [
+    {
+      "fromFile": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "toFile": "apps/localton/load-test/contracts/types.tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/counter/contracts/Counter.tolk",
+      "toFile": "src/commands/new/templates/counter/contracts/types.tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "toFile": "src/commands/new/templates/jetton/contracts/errors.tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "toFile": "src/commands/new/templates/jetton/contracts/fees-management.tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "toFile": "src/commands/new/templates/jetton/contracts/jetton-utils.tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "toFile": "src/commands/new/templates/jetton/contracts/messages.tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "toFile": "src/commands/new/templates/jetton/contracts/sharding.tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "toFile": "src/commands/new/templates/jetton/contracts/storage.tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonWallet.tolk",
+      "toFile": "src/commands/new/templates/jetton/contracts/fees-management.tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/jetton-utils.tolk",
+      "toFile": "src/commands/new/templates/jetton/contracts/sharding.tolk"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/jetton-utils.tolk",
+      "toFile": "src/commands/new/templates/jetton/contracts/storage.tolk"
+    }
+  ],
+  "forbidden": [
+    {
+      "fromFile": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "src/commands/new/templates/counter/contracts/Counter.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "src/commands/new/templates/counter/contracts/Counter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "src/commands/new/templates/counter/contracts/Counter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "src/commands/new/templates/jetton/contracts/JettonWallet.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    },
+    {
+      "fromFile": "src/commands/new/templates/jetton/contracts/JettonWallet.tolk",
+      "fromName": "onInternalMessage",
+      "toFile": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "toName": "onInternalMessage",
+      "toLanguage": "tolk",
+      "kind": "calls"
+    }
+  ]
+}

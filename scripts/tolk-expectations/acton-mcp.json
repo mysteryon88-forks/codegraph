@@ -1,0 +1,112 @@
+[
+  {
+    "label": "Localton recursive deployment",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "apps/localton/load-test/contracts/RecursiveDeployer.tolk onInternalMessage expandOnce deployChild"
+    },
+    "contains": [
+      "apps/localton/load-test/contracts/RecursiveDeployer.tolk"
+    ]
+  },
+  {
+    "label": "Counter owner-gated update",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "src/commands/new/templates/counter/contracts/Counter.tolk onInternalMessage src/commands/new/templates/counter/contracts/types.tolk Storage.load Storage.save"
+    },
+    "contains": [
+      "src/commands/new/templates/counter/contracts/Counter.tolk",
+      "src/commands/new/templates/counter/contracts/types.tolk"
+    ]
+  },
+  {
+    "label": "Jetton transfer amount validation",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk onInternalMessage src/commands/new/templates/jetton/contracts/fees-management.tolk checkAmountIsEnoughToTransfer calcMinimalTransferAmount"
+    },
+    "contains": [
+      "src/commands/new/templates/jetton/contracts/JettonMinter.tolk",
+      "src/commands/new/templates/jetton/contracts/fees-management.tolk"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onInternalMessage -> expandOnce",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "symbol": "expandOnce",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onInternalMessage (apps/localton/load-test/contracts/RecursiveDeployer.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call expandOnce -> deployChild",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "apps/localton/load-test/contracts/RecursiveDeployer.tolk",
+      "symbol": "deployChild",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "expandOnce (apps/localton/load-test/contracts/RecursiveDeployer.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call expandOnce -> load",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "apps/localton/load-test/contracts/types.tolk",
+      "symbol": "load",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "expandOnce (apps/localton/load-test/contracts/RecursiveDeployer.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onInternalMessage -> expandOnce -> deployChild",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "apps/localton/load-test/contracts/RecursiveDeployer.tolk onInternalMessage apps/localton/load-test/contracts/RecursiveDeployer.tolk expandOnce apps/localton/load-test/contracts/RecursiveDeployer.tolk deployChild"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onInternalMessage (apps/localton/load-test/contracts/RecursiveDeployer.tolk:",
+      "2. expandOnce (apps/localton/load-test/contracts/RecursiveDeployer.tolk:",
+      "3. deployChild (apps/localton/load-test/contracts/RecursiveDeployer.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onInternalMessage -> checkAmountIsEnoughToTransfer -> calcMinimalTransferAmount",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "src/commands/new/templates/jetton/contracts/JettonMinter.tolk onInternalMessage src/commands/new/templates/jetton/contracts/fees-management.tolk checkAmountIsEnoughToTransfer src/commands/new/templates/jetton/contracts/fees-management.tolk calcMinimalTransferAmount"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onInternalMessage (src/commands/new/templates/jetton/contracts/JettonMinter.tolk:",
+      "2. checkAmountIsEnoughToTransfer (src/commands/new/templates/jetton/contracts/fees-management.tolk:",
+      "3. calcMinimalTransferAmount (src/commands/new/templates/jetton/contracts/fees-management.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onInternalMessage -> checkAmountIsEnoughToTransfer -> calcMinimalTransferAmount",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "src/commands/new/templates/jetton/contracts/JettonWallet.tolk onInternalMessage src/commands/new/templates/jetton/contracts/fees-management.tolk checkAmountIsEnoughToTransfer src/commands/new/templates/jetton/contracts/fees-management.tolk calcMinimalTransferAmount"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onInternalMessage (src/commands/new/templates/jetton/contracts/JettonWallet.tolk:",
+      "2. checkAmountIsEnoughToTransfer (src/commands/new/templates/jetton/contracts/fees-management.tolk:",
+      "3. calcMinimalTransferAmount (src/commands/new/templates/jetton/contracts/fees-management.tolk:"
+    ]
+  }
+]

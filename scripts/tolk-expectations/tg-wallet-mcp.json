@@ -1,0 +1,113 @@
+[
+  {
+    "label": "Storage migration hook",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/WalletTg/WalletTg.tolk onInternalMessage contracts/WalletTg/storage.tolk Storage.load contracts/WalletTg/migration.tolk runMigrationAndUpdateC4"
+    },
+    "contains": [
+      "contracts/WalletTg/WalletTg.tolk",
+      "contracts/WalletTg/storage.tolk",
+      "contracts/WalletTg/migration.tolk"
+    ]
+  },
+  {
+    "label": "Bulk message validation",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/WalletTg/WalletTg.tolk onInternalMessage contracts/WalletTg/send-to-c5.tolk RawArrayOfMessagesToSend.parseArrayAndSend MessageToSend.validateAndSend"
+    },
+    "contains": [
+      "contracts/WalletTg/WalletTg.tolk",
+      "contracts/WalletTg/send-to-c5.tolk"
+    ]
+  },
+  {
+    "label": "External key rotation",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/WalletTg/WalletTg.tolk onExternalMessage checkRotationProof sendOnKeyChangedEvent"
+    },
+    "contains": [
+      "contracts/WalletTg/WalletTg.tolk"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onInternalMessage -> load",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "contracts/WalletTg/storage.tolk",
+      "symbol": "load",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onInternalMessage (contracts/WalletTg/WalletTg.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onInternalMessage -> validateRequest",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "contracts/WalletTg/WalletTg.tolk",
+      "symbol": "validateRequest",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onInternalMessage (contracts/WalletTg/WalletTg.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen incoming call onInternalMessage -> checkRotationProof",
+    "tool": "codegraph_node",
+    "arguments": {
+      "file": "contracts/WalletTg/WalletTg.tolk",
+      "symbol": "checkRotationProof",
+      "includeCode": true
+    },
+    "contains": [
+      "**Called by \u2190**",
+      "onInternalMessage (contracts/WalletTg/WalletTg.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onInternalMessage -> load -> getC4Revision",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/WalletTg/WalletTg.tolk onInternalMessage contracts/WalletTg/storage.tolk load contracts/WalletTg/storage.tolk getC4Revision"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onInternalMessage (contracts/WalletTg/WalletTg.tolk:",
+      "2. load (contracts/WalletTg/storage.tolk:",
+      "3. getC4Revision (contracts/WalletTg/storage.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onInternalMessage -> load -> runMigrationAndUpdateC4",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/WalletTg/WalletTg.tolk onInternalMessage contracts/WalletTg/storage.tolk load contracts/WalletTg/migration.tolk runMigrationAndUpdateC4"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onInternalMessage (contracts/WalletTg/WalletTg.tolk:",
+      "2. load (contracts/WalletTg/storage.tolk:",
+      "3. runMigrationAndUpdateC4 (contracts/WalletTg/migration.tolk:"
+    ]
+  },
+  {
+    "label": "Source-frozen flow onInternalMessage -> parseArrayAndSend -> validateAndSend",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/WalletTg/WalletTg.tolk onInternalMessage contracts/WalletTg/send-to-c5.tolk parseArrayAndSend contracts/WalletTg/send-to-c5.tolk validateAndSend"
+    },
+    "contains": [
+      "**Flow (call path among the symbols you queried)**",
+      "1. onInternalMessage (contracts/WalletTg/WalletTg.tolk:",
+      "2. parseArrayAndSend (contracts/WalletTg/send-to-c5.tolk:",
+      "3. validateAndSend (contracts/WalletTg/send-to-c5.tolk:"
+    ]
+  }
+]

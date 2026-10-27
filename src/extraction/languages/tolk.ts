@@ -4,7 +4,7 @@ import type { ExtractorContext, LanguageExtractor } from '../tree-sitter-types';
 
 /** Persisted in ref candidates, so retries and resolver workers see the same lexical evidence. */
 export type TolkExpression =
-  | { type: string }
+  | { type: string; afterMethods?: readonly { readonly type: string; readonly name: string }[] }
   | { name: string; receiver?: TolkExpression; blocked?: boolean }
   | { call: TolkExpression }
   | { field: string; receiver: TolkExpression }
@@ -28,7 +28,7 @@ function expression(node: SyntaxNode | null, bindings: Map<string, TolkExpressio
   if (node.type === 'object_literal') return field(node, 'type') ? { type: text(field(node, 'type')) } : UNKNOWN;
   if (node.type === 'function_call') return { call: callee(field(node, 'callee'), bindings, depth + 1) };
   if (node.type === 'dot_access') return { field: text(field(node, 'field')), receiver: expression(field(node, 'obj'), bindings, depth + 1) };
-  if (node.type === 'parenthesized_expression') return expression(node.namedChild(0), bindings, depth + 1);
+  if (node.type === 'parenthesized_expression' || node.type === 'not_null_operator') return expression(field(node, 'inner'), bindings, depth + 1);
   if (node.type === 'lazy_expression') return expression(field(node, 'argument'), bindings, depth + 1);
   return UNKNOWN;
 }
@@ -48,7 +48,7 @@ function callName(node: SyntaxNode | null): string {
 }
 
 function eraseTypeParameters(expr: TolkExpression, names: ReadonlySet<string>): TolkExpression {
-  if ('type' in expr) return names.has(expr.type) ? UNKNOWN : expr;
+  if ('type' in expr) return names.has(expr.type) || expr.afterMethods?.some(p => names.has(p.type)) ? UNKNOWN : expr;
   if ('name' in expr) return !expr.receiver && names.has(expr.name) ? UNKNOWN
     : { ...expr, ...(expr.receiver ? { receiver: eraseTypeParameters(expr.receiver, names) } : {}) };
   if ('call' in expr) return { call: eraseTypeParameters(expr.call, names) };
@@ -56,23 +56,86 @@ function eraseTypeParameters(expr: TolkExpression, names: ReadonlySet<string>): 
   return expr;
 }
 
-function walkBody(node: SyntaxNode, ctx: ExtractorContext, owner: string, bindings: Map<string, TolkExpression>, returns: TolkExpression[] = [], parents: Map<string, TolkExpression>[] = [], typeParameters: ReadonlySet<string> = new Set()): void {
+function invalidateBinding(name: string, scope: Map<string, TolkExpression>, ancestors: Map<string, TolkExpression>[], narrowingOrigins: WeakMap<TolkExpression, TolkExpression>): void {
+  const previous = scope.get(name);
+  if (!previous) return;
+  const invalidated = { ...UNKNOWN };
+  scope.set(name, invalidated);
+  const origin = previous && (narrowingOrigins.get(previous) ?? previous);
+  for (const parent of ancestors) {
+    const inherited = parent.get(name);
+    if (inherited && (narrowingOrigins.get(inherited) ?? inherited) === origin) parent.set(name, invalidated);
+  }
+}
+
+function lvalueNames(node: SyntaxNode | null): Set<string> {
+  const names = new Set<string>();
+  const pending = node ? [node] : [];
+  while (pending.length) {
+    const current = pending.pop()!;
+    if (current.type === 'identifier') names.add(current.text);
+    else if (current.type === 'parenthesized_expression' || current.type === 'not_null_operator') {
+      const inner = field(current, 'inner');
+      if (inner) pending.push(inner);
+    } else if (current.type === 'tensor_expression' || current.type === 'typed_tuple') {
+      for (const child of current.namedChildren) pending.push(child);
+    }
+  }
+  return names;
+}
+
+function requireMethod(name: string, method: string, scope: Map<string, TolkExpression>, ancestors: Map<string, TolkExpression>[], narrowingOrigins: WeakMap<TolkExpression, TolkExpression>): void {
+  const current = scope.get(name);
+  if (!current || !('type' in current) || !narrowingOrigins.has(current)) return;
+  const origin = narrowingOrigins.get(current)!;
+  const proof = { type: current.type, name: method };
+  const updates: [Map<string, TolkExpression>, TolkExpression][] = [];
+  for (const bindings of [scope, ...ancestors]) {
+    const inherited = bindings.get(name);
+    if (!inherited || !('type' in inherited) || narrowingOrigins.get(inherited) !== origin) continue;
+    const previous = inherited.afterMethods ?? [];
+    const afterMethods = previous.some(p => p.type === proof.type && p.name === proof.name) ? previous : [...previous, proof];
+    if (afterMethods.length > 16 || JSON.stringify(afterMethods).length > 1024) {
+      invalidateBinding(name, scope, ancestors, narrowingOrigins);
+      return;
+    }
+    updates.push([bindings, { ...inherited, afterMethods }]);
+  }
+  // Replace snapshots so later calls cannot alter evidence already persisted for earlier references or returns.
+  for (const [bindings, updated] of updates) {
+    narrowingOrigins.set(updated, origin);
+    bindings.set(name, updated);
+  }
+}
+
+function walkBody(node: SyntaxNode, ctx: ExtractorContext, owner: string, bindings: Map<string, TolkExpression>, returns: TolkExpression[] = [], parents: Map<string, TolkExpression>[] = [], typeParameters: ReadonlySet<string> = new Set(), narrowingOrigins = new WeakMap<TolkExpression, TolkExpression>()): void {
   if (functionTypes.has(node.type)) return;
   const scope = ['block_statement', 'match_expression', 'match_arm', 'catch_clause'].includes(node.type) ? new Map(bindings) : bindings;
   const ancestors = scope === bindings ? parents : [...parents, bindings];
   if (node.type === 'catch_clause') {
     const code = field(node, 'catch_var1'), value = field(node, 'catch_var2');
     if (code) scope.set(code.text, { type: 'int' });
-    if (value) scope.set(value.text, UNKNOWN);
+    if (value) scope.set(value.text, { ...UNKNOWN });
+  }
+  if (node.type === 'match_arm') {
+    const match = node.parent?.parent;
+    const subject = match?.type === 'match_expression' ? field(match, 'expr') : null;
+    const pattern = field(node, 'pattern_type');
+    if (subject?.type === 'identifier' && scope.has(subject.text) && pattern?.type === 'type_identifier' && /^[A-Za-z_]\w*$/.test(pattern.text)) {
+      const previous = scope.get(subject.text);
+      const narrowed = { type: pattern.text };
+      if (previous) narrowingOrigins.set(narrowed, narrowingOrigins.get(previous) ?? previous);
+      scope.set(subject.text, narrowed);
+    }
   }
   if (node.type === 'lambda_expression') {
     const local = new Map(scope);
     for (const param of field(node, 'parameters')?.namedChildren ?? []) {
       const name = field(param, 'name');
-      if (name) local.set(name.text, field(param, 'type') ? { type: text(field(param, 'type')) } : UNKNOWN);
+      if (name) local.set(name.text, field(param, 'type') ? { type: text(field(param, 'type')) } : { ...UNKNOWN });
     }
     const body = field(node, 'body');
-    if (body) walkBody(body, ctx, owner, local, [], [...ancestors, scope], typeParameters);
+    if (body) walkBody(body, ctx, owner, local, [], [...ancestors, scope], typeParameters, narrowingOrigins);
     return;
   }
   if (node.type === 'return_statement') returns.push(eraseTypeParameters(expression(field(node, 'body'), scope), typeParameters));
@@ -84,14 +147,15 @@ function walkBody(node: SyntaxNode, ctx: ExtractorContext, owner: string, bindin
       candidates: ['tolk:' + JSON.stringify(eraseTypeParameters(callee(target, scope), typeParameters))],
     });
   }
-  if (node.type === 'local_vars_declaration') {
-    const lhs = field(node, 'lhs');
-    const value = field(node, 'assigned_val');
-    if (value) walkBody(value, ctx, owner, scope, returns, ancestors, typeParameters);
+  if (node.type === 'var_declaration_lhs' || (node.type === 'assignment' && field(node, 'left')?.type === 'var_declaration_lhs')) {
+    const lhs = (node.type === 'var_declaration_lhs' ? node : field(node, 'left'))?.namedChild(0);
+    const value = node.type === 'assignment' ? field(node, 'right') : null;
+    if (value) walkBody(value, ctx, owner, scope, returns, ancestors, typeParameters, narrowingOrigins);
     const bind = (decl: SyntaxNode): void => {
       if (decl.type === 'var_declaration') {
         const type = field(decl, 'type');
-        scope.set(text(field(decl, 'name')), type ? { type: type.text } : lhs?.type === 'var_declaration' ? expression(value, scope) : UNKNOWN);
+        // A shadow is a new binding even when its initializer names the outer binding.
+        scope.set(text(field(decl, 'name')), type ? { type: type.text } : { ...(lhs?.type === 'var_declaration' ? expression(value, scope) : UNKNOWN) });
       } else for (const child of decl.namedChildren) bind(child);
     };
     if (lhs) bind(lhs);
@@ -99,14 +163,26 @@ function walkBody(node: SyntaxNode, ctx: ExtractorContext, owner: string, bindin
   }
   if (node.type === 'assignment' || node.type === 'set_assignment') {
     // An assigned value may change in a conditional: discard inference rather than guess a later receiver.
-    const left = field(node, 'left');
-    if (left?.type === 'identifier') {
-      const previous = scope.get(left.text);
-      scope.set(left.text, UNKNOWN);
-      for (const parent of ancestors) if (parent.get(left.text) === previous) parent.set(left.text, UNKNOWN);
+    for (const name of lvalueNames(field(node, 'left'))) invalidateBinding(name, scope, ancestors, narrowingOrigins);
+  }
+  for (const child of node.namedChildren) walkBody(child, ctx, owner, scope, returns, ancestors, typeParameters, narrowingOrigins);
+  if (node.type === 'function_call') {
+    let target = field(node, 'callee');
+    while (target?.type === 'generic_instantiation') target = field(target, 'expr');
+    if (target?.type === 'dot_access') {
+      let receiver = field(target, 'obj');
+      while (receiver && (receiver.type === 'parenthesized_expression' || receiver.type === 'not_null_operator')) receiver = field(receiver, 'inner');
+      if (receiver?.type === 'identifier') requireMethod(receiver.text, text(field(target, 'field')), scope, ancestors, narrowingOrigins);
+    }
+    // Explicit mutation may widen a guard, but only after this call's arguments are evaluated.
+    for (const arg of field(node, 'arguments')?.namedChildren ?? []) {
+      if (arg.type !== 'call_argument' || !arg.children.some(child => child.type === 'mutate')) continue;
+      for (const name of lvalueNames(field(arg, 'expr'))) {
+        const current = scope.get(name);
+        if (current && narrowingOrigins.has(current)) invalidateBinding(name, scope, ancestors, narrowingOrigins);
+      }
     }
   }
-  for (const child of node.namedChildren) walkBody(child, ctx, owner, scope, returns, ancestors, typeParameters);
 }
 
 function visitDeclaration(node: SyntaxNode, ctx: ExtractorContext): void {
@@ -144,7 +220,7 @@ function visitDeclaration(node: SyntaxNode, ctx: ExtractorContext): void {
       const paramName = field(param, 'name');
       if (!paramName) continue;
       const type = text(field(param, 'type')) || (paramName.text === 'self' ? receiver : '');
-      bindings.set(paramName.text, type ? { type } : UNKNOWN);
+      bindings.set(paramName.text, type ? { type } : { ...UNKNOWN });
       ctx.createNode('parameter', paramName.text, param, { signature: param.text });
     }
     const returns: TolkExpression[] = [];

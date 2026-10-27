@@ -65,6 +65,17 @@ describe('Tolk extraction', () => {
     expect(result.nodes.filter(n => n.kind === 'constant').map(n => n.name)).toEqual(['DEC', 'HEX', 'BIN']);
   });
 
+  it('parses trailing commas in tensors, tuples and their declarations', async () => {
+    await loadGrammarsForLanguages(['tolk']);
+    const result = extractFromSource('trailing.tolk', [
+      'fun tensors(): (int, int,) { return (1, 2,); }',
+      'fun tuples(): [int, int,] { return [1, 2,]; }',
+      'fun declarations() { val (a, b,) = tensors(); val [c, d,] = tuples(); }',
+    ].join('\n'));
+    expect(result.errors).toEqual([]);
+    expect(result.nodes.filter(n => n.kind === 'function').map(n => n.name)).toEqual(['tensors', 'tuples', 'declarations']);
+  });
+
   it.each(['auto', 'all', 'disabled'])('keeps Tolk on WASM with %s kernel routing', async (mode) => {
     const oldKernel = process.env.CODEGRAPH_KERNEL, oldLanguages = process.env.CODEGRAPH_KERNEL_LANGS;
     try {
@@ -82,12 +93,12 @@ describe('Tolk extraction', () => {
     }
   });
 
-  it('ships the pinned grammar together with its license, provenance and local patch', () => {
-    for (const suffix of ['LICENSE', 'PROVENANCE.md', 'patch']) {
+  it('ships the pinned grammar together with its license and provenance', () => {
+    for (const suffix of ['LICENSE', 'PROVENANCE.md']) {
       const file = `tree-sitter-tolk.${suffix}`;
       expect(fs.readFileSync(path.resolve('dist/extraction/wasm', file))).toEqual(fs.readFileSync(path.resolve('src/extraction/wasm', file)));
     }
     const wasm = fs.readFileSync(path.resolve('dist/extraction/wasm/tree-sitter-tolk.wasm'));
-    expect(createHash('sha256').update(wasm).digest('hex')).toBe('4829ff208e5fa1c45ea2b546b608d331bd3fcc7671692edd6f3a250630f1cb8f');
+    expect(createHash('sha256').update(wasm).digest('hex')).toBe('663a425723b0b71bcb990136149b9cb7be83fee80825fe321b15583ef6ebc921');
   });
 });
