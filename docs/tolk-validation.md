@@ -91,6 +91,8 @@ The old deployed fork remains `/home/ssobolev/.local/opt/codegraph-tolk-6e44463b
 
 Paid agent A/B was not run: the user requires a separately agreed budget, and authenticated Claude CLI was unavailable. Upstream requires Sonnet/high, at least 2 runs/arm, duration/tool/Read/Grep and feedback metrics, CLI-contamination checks and a control repository without regression. A local preparation recipe is retained. No token-saving, agent-speed or zero-Read claim is made.
 
+A source-grounded [A/B protocol and evaluator key](benchmarks/tolk-agent-ab.md) now document the proposed pilot, medium extension and baseline/new JavaScript control. This is preparation, not a benchmark result or spending authorization.
+
 The largest genuinely indexed corpus here has 2,936 files (Acton), a medium tier. Raw 6,891 tracked Acton files do not establish large-index coverage. A real large corpus and its 3 flow probes/A-B remain unverified; none was fabricated by padding. These small/medium deterministic results therefore do not establish all upstream merge gates.
 
 Other limits: generic/composite receiver substitution, unindexed stdlib bodies, dynamic callbacks, arbitrary import systems, TVM/messages, TS↔Tolk ABI bridges and native Rust Tolk extraction. Mapping edits require explicit sync. Fresh indices are required across grammar/fork revisions sharing extraction version 29. No npm publication or upstream PR submission occurred.
