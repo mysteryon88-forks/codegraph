@@ -19,6 +19,7 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixes
 
 - `codegraph_explore` now uses a file named in the query and its direct calls to find the matching method when many contracts or classes share the same method name.
+- Tolk queries that name a file now show its relevant helpers and imports without filling the answer with unrelated contracts or TypeScript wrappers.
 
 - In TypeScript, an awaited call with type arguments like `await fetchApi<User>("/me")` or `await api.get<T>(url)` now links to the function it calls. Before, the call was dropped, so typed fetch wrappers looked like they had no callers. (#2586)
 - In JavaScript and TypeScript, a call or `new` in a parameter's default value, like `function renderWithNote(note = buildNote())`, a destructured `{ size = defaultSize() }` or `constructor(private svc = new Service())`, now counts as the function's own call. Before, it was dropped, so `buildNote` was missing that caller and impact on it came back incomplete. Re-index JavaScript and TypeScript projects after upgrading. Thanks @inth3shadows for the report and the pull request. (#2588)

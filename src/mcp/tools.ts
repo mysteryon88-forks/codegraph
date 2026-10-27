@@ -37,6 +37,7 @@ import {
 import type { PendingFile } from '../sync';
 import type { Node, Edge, SearchResult, Subgraph, NodeKind } from '../types';
 import { isTestFile, normalizeNameToken } from '../search/query-utils';
+import { splitIdentifierSegments } from '../search/identifier-segments';
 import { groupDefinitions, isQualifiedSymbol, lastQualifierPart, matchesSymbol, qualifiedSymbolMatches } from '../graph/symbol-lookup';
 import { goPackageReaderFor } from '../graph/go-package';
 import {
@@ -68,6 +69,7 @@ import { getUpdateNotice } from '../upgrade/update-check';
 import { measurePendingChanges } from './index-freshness';
 import { validateAnswerFiles, type AnswerFile } from './answer-freshness';
 import { ExploreDiagnostics } from './explore-diagnostics';
+import { pinnedTolkScope } from './explore-tolk-scope';
 import {
   EXPLORE_EMISSION_KEY,
   EXPLORE_SESSION_VIEW_ARG,
@@ -3503,7 +3505,7 @@ export class ToolHandler {
    * whose qualifiedName contains another named token (`PmsProductServiceImpl::list`),
    * dropping unrelated `OmsOrderService::list`.
    */
-  private buildFlowFromNamedSymbols(cg: CodeGraph, query: string, resolvedFlow?: NamedSymbolFlow): { text: string; pathNodeIds: Set<string>; namedNodeIds: Set<string>; uniqueNamedNodeIds: Set<string>; spineCallSites: Map<string, number> } {
+  private buildFlowFromNamedSymbols(cg: CodeGraph, query: string, resolvedFlow?: NamedSymbolFlow, allowedNodeIds?: ReadonlySet<string>): { text: string; pathNodeIds: Set<string>; namedNodeIds: Set<string>; uniqueNamedNodeIds: Set<string>; spineCallSites: Map<string, number> } {
     // spineCallSites: for each spine node, the line where it CALLS the next hop —
     // lets the source assembler window an oversize spine method (e.g. n8n's 962-line
     // processRunExecutionData) to the call site instead of dumping the whole body.
@@ -3553,6 +3555,7 @@ export class ToolHandler {
           // RAW edges for the same reason as `hasHeuristicEdge` in named-symbol-flow
           // — a static edge over the same pair hides the synthesized one from getCallers.
           for (const edge of [...cg.getIncomingEdges(n.id), ...cg.getOutgoingEdges(n.id)]) {
+            if (allowedNodeIds && (!allowedNodeIds.has(edge.source) || !allowedNodeIds.has(edge.target))) continue;
             if (edge.provenance !== 'heuristic') continue;
             const otherId = edge.source === n.id ? edge.target : edge.source;
             const key = `${edge.source}>${edge.target}`;
@@ -3639,7 +3642,7 @@ export class ToolHandler {
         // whole chain; (2) the one resolved callable's body may hold the
         // dynamic-dispatch site that EXPLAINS a half-connected flow.
         const synthLines = collectSynthLinks(null);
-        const boundaries = named.size === 0 ? '' : (this.buildDynamicBoundaries(cg, [...named.values()], named) || '');
+        const boundaries = named.size === 0 || allowedNodeIds ? '' : (this.buildDynamicBoundaries(cg, [...named.values()], named) || '');
         if (synthLines.length === 0 && !boundaries) return identityOnly();
         const out: string[] = [];
         if (synthLines.length) out.push(
@@ -3682,7 +3685,7 @@ export class ToolHandler {
             for (const id of ids) { const n = named.get(id); if (n) uncovered.push(n); }
           }
         }
-        if (uncovered.length > 0) {
+        if (uncovered.length > 0 && !allowedNodeIds) {
           const scanList: Node[] = [];
           if (hasMain) scanList.push(best![best!.length - 1]!.node);
           scanList.push(...uncovered.sort((a, b) =>
@@ -3710,7 +3713,7 @@ export class ToolHandler {
           if (ids.some((id) => pathIds.has(id))) continue; // covered by the flow — silent
           polyCands.push({ token: t, family: fam });
         }
-        if (polyCands.length) polyText = this.buildPolymorphicBoundaries(cg, polyCands, named);
+        if (polyCands.length && !allowedNodeIds) polyText = this.buildPolymorphicBoundaries(cg, polyCands, named);
       }
 
       // Supplementary: dynamic-dispatch (synthesized) edges incident to a named
@@ -3979,6 +3982,7 @@ export class ToolHandler {
      * the agent took that as the tool having found the wrong method.
      */
     leadingIds: Iterable<string> = [],
+    allowedNodeIds?: ReadonlySet<string>,
   ): string {
     const ROOT_CAP = 5; // only the symbols the query actually targeted
     const FILE_CAP = 4; // caller files listed per symbol before "+N more"
@@ -4002,7 +4006,7 @@ export class ToolHandler {
       const seen = new Set<string>();
       const uniq: Node[] = [];
       for (const c of callers) {
-        if (c?.node && !seen.has(c.node.id)) { seen.add(c.node.id); uniq.push(c.node); }
+        if (c?.node && (!allowedNodeIds || allowedNodeIds.has(c.node.id)) && !seen.has(c.node.id)) { seen.add(c.node.id); uniq.push(c.node); }
       }
       if (uniq.length === 0) continue; // no blast radius → nothing to flag
 
@@ -4015,7 +4019,7 @@ export class ToolHandler {
       const where = nonTest.length > 0 ? ` in ${shown}${more}` : '';
       const tests = testFiles.length > 0
         ? `; tests: ${testFiles.slice(0, FILE_CAP).map((f) => `\`${f}\``).join(', ')}${testFiles.length > FILE_CAP ? ` +${testFiles.length - FILE_CAP}` : ''}`
-        : this.indirectTestNote(cg, uniq, rel);
+        : allowedNodeIds ? '; no tests found in this dependency scope' : this.indirectTestNote(cg, uniq, rel);
 
       entries.push(
         `- \`${root.name}\` (${rel(root.filePath)}:${root.startLine}) — ${uniq.length} caller${uniq.length === 1 ? '' : 's'}${where}${tests}`,
@@ -4024,7 +4028,7 @@ export class ToolHandler {
     if (entries.length === 0) return '';
 
     return [
-      '**Blast radius — what depends on these (update/verify before editing)**',
+      allowedNodeIds ? '**Callers within this dependency scope**' : '**Blast radius — what depends on these (update/verify before editing)**',
       '',
       ...entries,
       '',
@@ -4341,7 +4345,9 @@ export class ToolHandler {
     // that prevents context bloat, so more nodes just means better coverage
     // across entry points (especially for large files like Svelte components).
     // Matching runs on the path-stripped query; `query` stays for display.
-    const subgraph = await cg.findRelevantContext(matchQuery, {
+    const tolkScope = pinnedTolkScope(cg, pinnedFiles, exploreQueryTokens(matchQuery), lineAnchors);
+    const scopedNodeIds = tolkScope ? new Set(tolkScope.nodes.keys()) : undefined;
+    const subgraph = tolkScope ?? await cg.findRelevantContext(matchQuery, {
       searchLimit: 8,
       traversalDepth: 3,
       maxNodes: 200,
@@ -4353,6 +4359,7 @@ export class ToolHandler {
     // stripped query text matched (which, for a pure-path query, is nothing).
     const PINNED_FILE_NODE_CAP = 300;
     for (const fp of pinnedFiles) {
+      if (tolkScope) break;
       let fileNodes: Node[] = [];
       try { fileNodes = cg.getNodesInFile(fp); } catch { continue; }
       fileNodes
@@ -4455,7 +4462,7 @@ export class ToolHandler {
     const subgraphFiles = new Set<string>();
     for (const n of subgraph.nodes.values()) subgraphFiles.add(n.filePath);
     const GLUE_NODE_CAP = 60;
-    for (const rootId of subgraph.roots) {
+    for (const rootId of tolkScope ? [] : subgraph.roots) {
       if (glueNodeIds.size >= GLUE_NODE_CAP) break;
       let neighbors: Node[] = [];
       try {
@@ -4513,17 +4520,30 @@ export class ToolHandler {
       return owned;
     };
 
-    const resolvedFlow = resolveNamedSymbolFlow(cg, matchQuery, { preferredFiles: pinnedFiles });
+    const resolvedFlow = resolveNamedSymbolFlow(cg, matchQuery, { preferredFiles: pinnedFiles, allowedNodeIds: scopedNodeIds });
+    const scopedFocusIds = new Set<string>();
+    const focusTokens = exploreQueryTokens(matchQuery);
+    const normalizedFocus = new Set(focusTokens.map(normalizeNameToken));
+    if (tolkScope) for (const node of tolkScope.nodes.values()) {
+      if (node.kind === 'import') exactNodeIds.add(node.id);
+      if (node.kind !== 'function' && node.kind !== 'method') continue;
+      // Rank actual reachable definitions by query spelling; token/Flow identity stays exact.
+      if (focusTokens.some(t => matchesSymbol(node, t)) || normalizedFocus.has(normalizeNameToken(node.name))
+        || splitIdentifierSegments(node.name).some(s => normalizedFocus.has(s))) {
+        scopedFocusIds.add(node.id);
+        exactNodeIds.add(node.id);
+      }
+    }
     const pinnedFlowIds = new Set(pinnedFiles.length > 0
       ? resolvedFlow.chains.flatMap(chain => chain.steps.map(step => step.node.id)) : []);
-    const namedSeedIds = new Set<string>();
+    const namedSeedIds = new Set<string>(scopedFocusIds);
     // The subset of named seeds that earns the named-FIRST sort tier. We still
     // SEED every ≤3-def name (so RWR / flow ranking is unchanged), but only the
     // most-substantive def is tiered — a bare name's unrelated namesakes (Go's
     // `NewClient` = real client + test fake + xds pool) must not fill the tier
     // and crowd out the real answer file (grpc's `dialoptions.go`). Corroborated
     // overloads (the query also named the type) all earn it. (#1064)
-    const tierSeedIds = new Set<string>();
+    const tierSeedIds = new Set<string>(scopedFocusIds);
     // Files declaring a TYPE the query named by name — the counter-case guard
     // for the declaration-only penalty (CG-28). Populated in the token loop.
     const namedTypeFiles = new Set<string>();
@@ -4607,7 +4627,9 @@ export class ToolHandler {
         // type-token bias below couldn't pick the harness.rs one. (Same fix as
         // codegraph_node's findSymbolMatches.) Qualified tokens keep findAllSymbols.
         const isQual = /[.\/]|::/.test(t);
-        const raw = isQual ? this.findAllSymbols(cg, t).nodes : cg.getNodesByName(t);
+        const raw = tolkScope
+          ? [...tolkScope.nodes.values()].filter(n => matchesSymbol(n, t))
+          : isQual ? this.findAllSymbols(cg, t).nodes : cg.getNodesByName(t);
         for (const id of resolvedFlow.tokenNodes.get(t) ?? []) {
           if (!pinnedFlowIds.has(id) || raw.some(n => n.id === id)) continue;
           const node = resolvedFlow.named.get(id);
@@ -4641,7 +4663,7 @@ export class ToolHandler {
         // token at a hump boundary or as a prefix.
         // Exact-empty + camel-shaped only (bare words keep the NL-stopword
         // guard below), shortest-first, capped so a hot infix can't flood.
-        if (cands.length === 0 && !isQual && /[a-z][A-Z]/.test(t)) {
+        if (!tolkScope && cands.length === 0 && !isQual && /[a-z][A-Z]/.test(t)) {
           const lcToken = t.toLowerCase();
           cands = cg
             .getNodesByNameSubstring(t, {
@@ -4825,7 +4847,7 @@ export class ToolHandler {
       for (const e of outs) {
         if (!SIG_EDGE.has(e.kind)) continue;
         const tgt = cg.getNode(e.target);
-        if (!tgt || !TYPE_KINDS.has(tgt.kind) || namedSeedIds.has(tgt.id)) continue;
+        if (!tgt || (scopedNodeIds && !scopedNodeIds.has(tgt.id)) || !TYPE_KINDS.has(tgt.kind) || namedSeedIds.has(tgt.id)) continue;
         if (seenChangeSurface.has(tgt.id)) continue;
         seenChangeSurface.add(tgt.id);
         changeSurfaceCandidates.push(tgt);
@@ -4843,7 +4865,7 @@ export class ToolHandler {
       return root !== undefined && isCopybookInclude(root);
     }));
     const isListedSymbol = (n: Node): boolean =>
-      n.kind !== 'export' && (n.kind !== 'import' || namedIncludeIds.has(n.id));
+      n.kind !== 'export' && (n.kind !== 'import' || namedIncludeIds.has(n.id) || !!scopedNodeIds?.has(n.id));
     for (const node of subgraph.nodes.values()) {
       if (!isListedSymbol(node)) continue;
       // SECURITY (#383): never render the on-disk source of a config-leaf
@@ -4946,7 +4968,7 @@ export class ToolHandler {
     let candidateFiles = [...fileGroups.entries()];
     {
       const queryMentionsTests = /\b(test|tests|testing|spec|verify|verifies)\b/i.test(matchQuery);
-      if (!queryMentionsTests) {
+      if (!tolkScope && !queryMentionsTests) {
         // A pinned file is exempt: naming a test file by path IS asking for it.
         const nonLow = candidateFiles.filter(([p]) => !isLowValue(p) || pinnedSet.has(p));
         if (nonLow.length >= 2) {
@@ -4963,10 +4985,11 @@ export class ToolHandler {
       SCORE_FLOOR_ABSOLUTE,
       Math.min(SCORE_FLOOR_MAX, topScore * SCORE_FLOOR_FRACTION_OF_TOP),
     );
-    let relevantFiles = candidateFiles.filter(
+    // The bounded Tolk scope already proves dependency relevance; fuzzy floors discard its leaf helpers.
+    let relevantFiles = tolkScope ? candidateFiles : candidateFiles.filter(
       ([fp, group]) => group.score >= scoreFloor || pinnedSet.has(fp),
     );
-    if (relevantFiles.length < SCORE_FLOOR_KEEP_MIN) {
+    if (!tolkScope && relevantFiles.length < SCORE_FLOOR_KEEP_MIN) {
       // Backfill from what the RELATIVE floor cut, best first, at two strengths:
       //
       //  - THIN (1-2 files survived): only files with real evidence. A file whose
@@ -5111,7 +5134,7 @@ export class ToolHandler {
     // A lone text match on one shared word (LensSwitcher: term=1, g~0) is still
     // dropped, so the budget never fills with incidental files. Guarded so it
     // never prunes below 2.
-    if (maxGraph > 0) {
+    if (!tolkScope && maxGraph > 0) {
       const gated = relevantFiles.filter(([fp]) =>
         pinnedSet.has(fp)
         || (fileGraphScore.get(fp) ?? 0) >= maxGraph * 0.06
@@ -5257,7 +5280,7 @@ export class ToolHandler {
     // Blast radius (always-on, compact): for the entry symbols, who depends on
     // them + which tests cover them — locations only, no source — so the agent
     // knows what to update/verify before editing without a separate call.
-    const blastRadius = this.buildBlastRadiusSection(cg, subgraph, exactNodeIds);
+    const blastRadius = this.buildBlastRadiusSection(cg, subgraph, exactNodeIds, scopedNodeIds);
     if (blastRadius) lines.push(blastRadius);
 
     // Relationship map — show how symbols connect
@@ -5302,7 +5325,7 @@ export class ToolHandler {
     // The Flow section labels each hop with its branch conditions; that read
     // is synchronous, so the grammars it needs are loaded here, once.
     await warmBranchGuardGrammars();
-    const flow = this.buildFlowFromNamedSymbols(cg, matchQuery, resolvedFlow);
+    const flow = this.buildFlowFromNamedSymbols(cg, matchQuery, resolvedFlow, scopedNodeIds);
 
     // The symbols the question is about: exact targets, the named ones, the spine.
     const questionIds = new Set([...exactNodeIds, ...flow.pathNodeIds, ...flow.namedNodeIds]);
@@ -5378,7 +5401,8 @@ export class ToolHandler {
         // answer to the question as asked, and clipping it is what sends the
         // agent to Read — the exact reason the spine gets this treatment.
         spine: group.nodes.some((n) => flow.pathNodeIds.has(n.id) || exactNodeIds.has(n.id))
-          || anchorSpans.has(fp),
+          || anchorSpans.has(fp)
+          || (!!tolkScope && group.nodes.some(n => n.kind === 'function' || n.kind === 'method')),
         pinned: pinnedSet.has(fp),
         named: namedSeedFiles.has(fp),
       })),
@@ -5813,7 +5837,7 @@ export class ToolHandler {
       // Full file index — not just the relevance-gathered `group.nodes`. A trim
       // often drops filler symbols that never scored into the gather set; naming
       // those holes still needs their defs (#1711).
-      const fileIndexNodes = cg.getNodesInFile(filePath);
+      const fileIndexNodes = cg.getNodesInFile(filePath).filter(n => !scopedNodeIds || scopedNodeIds.has(n.id));
 
       // Cross-call dedup (CG-18). `served` is what THIS session already sent the
       // agent for THIS file, and it is empty unless the file still hashes to the
@@ -6494,7 +6518,7 @@ export class ToolHandler {
       // renders something. Skipping outright was the trade the funding pool
       // exists to refuse: a clustered section traded for no section at all.
       let renderedWhole = false;
-      if (fileLines.length <= WHOLE_FILE_MAX_LINES && buysWhole) {
+      if (!tolkScope && fileLines.length <= WHOLE_FILE_MAX_LINES && buysWhole) {
         const body = fileContent.replace(/\n+$/, '');
         const wholeRange: ExploreLineRange = { start: 1, end: body.split('\n').length };
         const fullSection = withLineNumbers ? numberSourceLines(body, 1) : body;
@@ -6620,7 +6644,7 @@ export class ToolHandler {
         definition?: boolean;
       }> = [...rangeNodes.values()]
         // Drop whole-file envelope nodes (containers covering >50% of the file).
-        .filter(n => !(ENVELOPE_KINDS.has(n.kind) && (n.endLine - n.startLine + 1) > fileLines.length * 0.5))
+        .filter(n => !!scopedNodeIds?.has(n.id) || !(ENVELOPE_KINDS.has(n.kind) && (n.endLine - n.startLine + 1) > fileLines.length * 0.5))
         .map(n => {
           let importance = 1;
           if (exactNodeIds.has(n.id)) importance = EXACT_IMPORTANCE;
@@ -6675,7 +6699,7 @@ export class ToolHandler {
         continue;
       }
 
-      const gapThreshold = budget.gapThreshold;
+      const gapThreshold = tolkScope ? 1 : budget.gapThreshold;
       type ExploreRange = typeof ranges[number];
       type ExploreCluster = {
         start: number; end: number; symbols: string[]; score: number;
@@ -6729,7 +6753,7 @@ export class ToolHandler {
       // token cost on small projects. We pick clusters in priority order
       // until the per-file char cap is hit. Truly enormous single clusters
       // get tail-trimmed with a marker.
-      const contextPadding = 3;
+      const contextPadding = tolkScope ? 0 : 3;
       // An oversize spine method (the call path runs THROUGH a god-method — n8n's
       // processRunExecutionData is 962 lines) is windowed to its next-hop CALL site
       // plus the signature head, NOT dumped whole. Without this the method is too big
@@ -7322,10 +7346,19 @@ export class ToolHandler {
         // hold one readable block, so it stays a drop rather than a stutter of
         // fragments the next call's dedup then has to shred around.
         const room = holdBack(cap - projectedChars - GAP_MARKER.length);
-        if (room < EXPLORE_ALLOCATION.MIN_CHARS) continue;
+        // A scoped import is complete in a few lines; the readable-body minimum would discard it.
+        const minimum = tolkScope && rc.c.members.some(m => m.kind === 'import') ? 1 : EXPLORE_ALLOCATION.MIN_CHARS;
+        if (room < minimum) continue;
         const section = renderCluster(rc.c, room, room, incidentalCapFor(p, room));
         const text = sectionText(section.parts);
-        if (text.length === 0) continue;
+        if (text.length === 0) {
+          // A scoped body already sent still owes a back-reference, even beside new imports.
+          if (tolkScope && section.covered.length > 0) {
+            renderedClusters.set(rc.idx, section);
+            chosenIndices.add(rc.idx);
+          }
+          continue;
+        }
         // The never-empty floors inside the windowing may overrun `room` (a
         // 12-line minimum window on a file of very long lines). The first cluster
         // is allowed that overshoot — an empty section is worse — but a later one

@@ -1,0 +1,69 @@
+[
+  {
+    "label": "One response contains marketplace notification chain and imports",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/marketplace/contract.tolk onInternalMessage handleNftOwnershipAssigned checkEnoughGas",
+      "maxFiles": 5
+    },
+    "contains": [
+      "fun onInternalMessage",
+      "fun handleNftOwnershipAssigned",
+      "fun checkEnoughGas",
+      "import \"message_handlers\"",
+      "import \"utils\""
+    ],
+    "absent": [
+      "**`wrappers/",
+      "**`contracts/auctions/",
+      "**`contracts/domain_swap/",
+      "**`contracts/fix_price_sales/"
+    ]
+  },
+  {
+    "label": "Original domain-swap query contains payment branch, actual helper and local import",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/domain_swap/contract.tolk right final payment complete_deal onInternalMessage onExternalMessage",
+      "maxFiles": 5
+    },
+    "contains": [
+      "fun onInternalMessage",
+      "fun onExternalMessage",
+      "fun completeDeal",
+      "import \"utils\"",
+      "STATE_WAITING_FOR_RIGHT",
+      "completeDeal(storage, rightInfo, queryId);",
+      "returnDomains(storage, rightInfo"
+    ],
+    "absent": [
+      "**`wrappers/",
+      "**`contracts/auctions/",
+      "**`contracts/fix_price_sales/",
+      "**`contracts/marketplace/"
+    ]
+  },
+  {
+    "label": "Original sale query contains reserve helper definitions and constants import",
+    "tool": "codegraph_explore",
+    "arguments": {
+      "query": "contracts/fix_price_sales/ton_simple_sale/contract.tolk onExternalMessage reserve storage auto renew",
+      "maxFiles": 5
+    },
+    "contains": [
+      "fun onExternalMessage",
+      "fun getRequiredReserve",
+      "fun saleStorageReserve",
+      "fun autoRenewLockPerIter",
+      "13\timport \"constants\"",
+      "return saleStorageReserve(ONE_YEAR) + nftTransferFee() + autoRenewLockPerIter(autoRenewCooldown)"
+    ],
+    "absent": [
+      "**`wrappers/",
+      "**`contracts/auctions/",
+      "**`contracts/domain_swap/",
+      "**`contracts/marketplace/",
+      "**`contracts/fix_price_sales/jetton"
+    ]
+  }
+]

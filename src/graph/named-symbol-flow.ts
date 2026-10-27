@@ -206,6 +206,8 @@ export interface NamedSymbolFlowOptions {
   maxChains?: number;
   /** Files explicitly named by explore; their named callables disambiguate direct neighbors. */
   preferredFiles?: readonly string[];
+  /** Optional retrieval scope; omitted by the viewer and ordinary explore calls. */
+  allowedNodeIds?: ReadonlySet<string>;
 }
 
 export interface NamedSymbolFlow {
@@ -312,6 +314,9 @@ export function resolveNamedTokens(
     );
 
   const preferredFiles = new Set(directed ? [] : opts.preferredFiles ?? []);
+  const scopedNodes = opts.allowedNodeIds
+    ? [...opts.allowedNodeIds].map(id => cg.getNode(id)).filter((n): n is Node => !!n)
+    : undefined;
   // FTS can omit a pinned caller or its actual callee below its 50-hit cut.
   const exactTokenHits = new Map(preferredFiles.size > 0 ? tokens.map(t => [t,
     cg.getNodesByName(lastQualifierPart(t)).filter(n => matchesSymbol(n, t, goPackageReaderFor(cg))),
@@ -328,8 +333,11 @@ export function resolveNamedTokens(
   const pinRank = (n: Node): number => pinnedIds.has(n.id) ? 2 : connectedIds.has(n.id) ? 1 : 0;
 
   for (const t of tokens) {
-    const hits = findAllSymbols(cg, t).nodes;
+    const hits = scopedNodes
+      ? scopedNodes.filter(n => matchesSymbol(n, t))
+      : findAllSymbols(cg, t).nodes;
     for (const n of exactTokenHits.get(t) ?? []) {
+      if (opts.allowedNodeIds && !opts.allowedNodeIds.has(n.id)) continue;
       if ((pinnedIds.has(n.id) || connectedIds.has(n.id)) && !hits.some(hit => hit.id === n.id)) hits.push(n);
     }
     const cands = hits.filter((n) => FLOW_CALLABLE_KINDS.has(n.kind));
@@ -450,7 +458,8 @@ function walkCalls(
   seed: Node,
   named: ReadonlySet<string>,
   maxHops: number,
-  maxBridge: number
+  maxBridge: number,
+  allowedNodeIds?: ReadonlySet<string>,
 ): { parent: Map<string, WalkStep>; reached: string[] } {
   const parent = new Map<string, WalkStep>();
   parent.set(seed.id, {
@@ -469,6 +478,7 @@ function walkCalls(
     if (id !== seed.id && named.has(id)) reached.push(id);
     if (at.depth >= maxHops - 1) continue;
     for (const c of cg.getCallees(id)) {
+      if (allowedNodeIds && !allowedNodeIds.has(c.node.id)) continue;
       if (!FLOW_EDGE_KINDS.has(c.edge.kind)) continue;
       const isNamed = named.has(c.node.id);
       // A route node is a connector, not a symbol the reader would have named:
@@ -518,7 +528,8 @@ function walkBidirectional(
   cg: CodeGraph,
   seed: Node,
   sinks: ReadonlySet<string>,
-  maxHops: number
+  maxHops: number,
+  allowedNodeIds?: ReadonlySet<string>,
 ): FlowStep[] | null {
   if (sinks.has(seed.id)) return null;
 
@@ -553,6 +564,7 @@ function walkBidirectional(
       const next: Node[] = [];
       for (const node of frontF) {
         for (const c of cg.getCallees(node.id)) {
+          if (allowedNodeIds && !allowedNodeIds.has(c.node.id)) continue;
           if (!FLOW_EDGE_KINDS.has(c.edge.kind) || forward.has(c.node.id)) continue;
           forward.set(c.node.id, { prev: node.id, edge: c.edge, node: c.node });
           next.push(c.node);
@@ -565,6 +577,7 @@ function walkBidirectional(
       const next: Node[] = [];
       for (const node of frontB) {
         for (const c of cg.getCallers(node.id)) {
+          if (allowedNodeIds && !allowedNodeIds.has(c.node.id)) continue;
           if (!FLOW_EDGE_KINDS.has(c.edge.kind) || backward.has(c.node.id)) continue;
           backward.set(c.node.id, { next: node.id, edge: c.edge });
           backNodes.set(c.node.id, c.node);
@@ -652,12 +665,12 @@ export function resolveNamedSymbolFlow(
       for (const id of fromIds) {
         const seed = flow.named.get(id);
         if (!seed) continue;
-        const steps = walkBidirectional(cg, seed, sinks, maxHops);
+        const steps = walkBidirectional(cg, seed, sinks, maxHops, opts.allowedNodeIds);
         if (steps) found.push(steps);
       }
     } else {
       for (const seed of [...flow.named.values()].slice(0, MAX_SEEDS)) {
-        const { parent, reached } = walkCalls(cg, seed, namedIds, maxHops, maxBridge);
+        const { parent, reached } = walkCalls(cg, seed, namedIds, maxHops, maxBridge, opts.allowedNodeIds);
         // Explore's rule: the DEEPEST named sink this seed can reach. Of two as
         // deep, the one whose route passes more named symbols, as in the walk.
         let deepest: WalkStep | null = null;

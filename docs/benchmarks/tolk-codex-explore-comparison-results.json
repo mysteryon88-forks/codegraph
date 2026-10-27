@@ -1,0 +1,1189 @@
+{
+  "date_utc": "2026-10-27",
+  "experiment": "unchanged twelve-session Codex pilot after scoped explore repair",
+  "host": "Ubuntu-24.04 WSL2 Linux x64",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "cli_version": "0.164.0",
+  "model_revision_limit": "JSONL does not expose an immutable resolved backend model revision",
+  "corpus_commit": "187e0589f437fe398e3385f4a434e9755d1b4d87",
+  "source_identity": {
+    "base_commit": "60bbb4488b2e6e9fcaa3151bf8307fabfed844fb",
+    "changed_file_sha256": {
+      "src/mcp/tools.ts": "89c70fe4dd851aa9952ba6544ffd190a5d49b28542d426a0de6dbaf954bf9944",
+      "src/mcp/explore-tolk-scope.ts": "117b06d41d227c1dcf812e5a834e623def222c114f818abc1ad909852d9ea8fb",
+      "src/graph/named-symbol-flow.ts": "6153c85b0b94ec861e80de214977ba78598c54e619e4ee0059ebd9bf81cd5d01",
+      "__tests__/tolk-explore.test.ts": "a17d33b46c31f10a0f586ac65acdf4d7ec8f56650ffbc06e6908351af1857fcd"
+    },
+    "note": "The base has the same runtime/build inputs as79cb5f4d; exact candidate is base plus the recorded overlays.",
+    "base_runtime_equal_to_commit": "79cb5f4d99d37b97bbc5b66202bcbe14d8b5a711"
+  },
+  "bundle": {
+    "archive": "release/codegraph-tolk-explore-linux-x64.tar.gz",
+    "sha256": "dcb4b75fdbf3675a9ce1c65bfbb8b0e74d208a93442de2f06b55aba4913e9208",
+    "bytes": 61161475,
+    "grammar_sha256": "663a425723b0b71bcb990136149b9cb7be83fee80825fe321b15583ef6ebc921",
+    "node": "24.22.1",
+    "dist_manifest_sha256": "76c4bb7f10e77ad863a9d2f25ad65ad5c30f0343b666a90e0b3290f2cada057a",
+    "developer_dist_hidden_during_acceptance": true
+  },
+  "baseline": {
+    "report": "tolk-codex-pilot.md",
+    "data": "tolk-codex-pilot-results.json",
+    "data_sha256": "3f3e0a5d3c99539e42b1ba9fbdd22e634167dddf165feef38797b56ada64b998",
+    "summary": {
+      "A": {
+        "completed": 6,
+        "score": 28,
+        "max_score": 30,
+        "full_score_answers": 4,
+        "median_seconds_all_completed": 31.994,
+        "median_tool_items": 4.5,
+        "read_commands": 16,
+        "search_commands": 4,
+        "listing_commands": 6,
+        "mcp_adopting_sessions": 0,
+        "input_tokens": 398387,
+        "cached_input_tokens": 255744,
+        "output_tokens": 5485
+      },
+      "B": {
+        "completed": 6,
+        "score": 28,
+        "max_score": 30,
+        "full_score_answers": 4,
+        "median_seconds_all_completed": 32.435,
+        "median_tool_items": 5.0,
+        "read_commands": 20,
+        "search_commands": 4,
+        "listing_commands": 6,
+        "mcp_adopting_sessions": 2,
+        "input_tokens": 463269,
+        "cached_input_tokens": 309504,
+        "output_tokens": 6200
+      }
+    },
+    "median_paired_correct_ratio": 0.9976295813812066,
+    "protected_files_verified": 145
+  },
+  "launches": 12,
+  "completed_answers": 12,
+  "infrastructure_invalid_launches": 0,
+  "summary": {
+    "A": {
+      "completed": 6,
+      "score": 28,
+      "max_score": 30,
+      "full_score_answers": 4,
+      "median_seconds_all_completed": 34.596000000000004,
+      "median_tool_items": 5.5,
+      "read_commands": 21,
+      "search_commands": 6,
+      "listing_commands": 7,
+      "mcp_adopting_sessions": 0,
+      "input_tokens": 431664,
+      "cached_input_tokens": 302976,
+      "output_tokens": 5976
+    },
+    "B": {
+      "completed": 6,
+      "score": 28,
+      "max_score": 30,
+      "full_score_answers": 4,
+      "median_seconds_all_completed": 34.257,
+      "median_tool_items": 5.0,
+      "read_commands": 23,
+      "search_commands": 5,
+      "listing_commands": 7,
+      "mcp_adopting_sessions": 0,
+      "input_tokens": 465290,
+      "cached_input_tokens": 321920,
+      "output_tokens": 5718
+    }
+  },
+  "pairs": [
+    {
+      "task": "W1",
+      "repeat": 1,
+      "paired_correct": true,
+      "without_seconds": 36.675,
+      "with_seconds": 30.467,
+      "ratio_with_over_without": 0.8307293796864349
+    },
+    {
+      "task": "W1",
+      "repeat": 2,
+      "paired_correct": true,
+      "without_seconds": 32.095,
+      "with_seconds": 39.412,
+      "ratio_with_over_without": 1.2279794360492289
+    },
+    {
+      "task": "W2",
+      "repeat": 1,
+      "paired_correct": true,
+      "without_seconds": 35.273,
+      "with_seconds": 34.531,
+      "ratio_with_over_without": 0.9789640801746377
+    },
+    {
+      "task": "W2",
+      "repeat": 2,
+      "paired_correct": true,
+      "without_seconds": 25.619,
+      "with_seconds": 33.877,
+      "ratio_with_over_without": 1.322338889105742
+    },
+    {
+      "task": "W3",
+      "repeat": 1,
+      "paired_correct": false,
+      "without_seconds": 33.919,
+      "with_seconds": 33.983,
+      "ratio_with_over_without": null
+    },
+    {
+      "task": "W3",
+      "repeat": 2,
+      "paired_correct": false,
+      "without_seconds": 44.754,
+      "with_seconds": 39.996,
+      "ratio_with_over_without": null
+    }
+  ],
+  "median_paired_correct_ratio": 1.1034717581119333,
+  "attempts": [
+    {
+      "label": "W1-r1-A",
+      "status": "completed",
+      "seconds": 36.675,
+      "tool_items": 6,
+      "read_commands": 3,
+      "search_commands": 1,
+      "listing_commands": 2,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 73960,
+        "cached_input_tokens": 52608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 922,
+        "reasoning_output_tokens": 108
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "70f2fc4ccd128af0cef9305dc318fc4c4c6fa3be26ddcb597d4c088281a51782",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 6
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g AGENTS.md -g contract.tolk -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"' contracts\"",
+        "/bin/bash -lc 'ls -d .codegraph AGENTS.md contracts/AGENTS.md contracts/marketplace/AGENTS.md contracts/imports/AGENTS.md 2>/dev/null'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/utils.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/message_handlers.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/contract.tolk'",
+        "/bin/bash -lc \"rg -n 'OP_OWNERSHIP_ASSIGNED|fun transformSliceToContinuation|fun getGasConsumedAtTheMoment|EXC_OUT_OF_GAS|TONS_MIN_EXCESS' contracts/imports contracts/marketplace\""
+      ],
+      "grading": {
+        "id": "answer-11",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct local call chain/imports; no invented edge over execution or messaging boundary."
+        ],
+        "answer_sha256": "7bc8823d463f4af2bd01c27f3d74818fc7e1a473c2ba331a3b8d19095e8889a4"
+      },
+      "answer_sha256": "9f2494c10cafcf8681fc3adfc19819a5a9d96be285beba6b8d003712e81fe103"
+    },
+    {
+      "label": "W1-r1-B",
+      "status": "completed",
+      "seconds": 30.467,
+      "tool_items": 4,
+      "read_commands": 3,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 79796,
+        "cached_input_tokens": 54272,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 771,
+        "reasoning_output_tokens": 20
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "70f2fc4ccd128af0cef9305dc318fc4c4c6fa3be26ddcb597d4c088281a51782",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 4
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd && rg --files -g AGENTS.md -g contract.tolk -g '*.tolk' -g '.codegraph'\"",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/message_handlers.tolk'",
+        "/bin/bash -lc \"rg -n 'checkEnoughGas|executeDeployWithNftTransfer|transformSliceToContinuation|parseDeployInfo|updateDomainDnsRecords|OP_OWNERSHIP_ASSIGNED' contracts/marketplace/utils.tolk contracts/imports/utils.tolk contracts/imports/constants.tolk && nl -ba contracts/marketplace/utils.tolk | head -n 240 && nl -ba contracts/imports/utils.tolk | head -n 200\""
+      ],
+      "grading": {
+        "id": "answer-02",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct marketplace dispatch, local import chain, gas helper and runtime boundaries."
+        ],
+        "answer_sha256": "dbd0259287ac59fa579cdb0a18f83f45a56d951f9bd1e6f669a513d1b7a2ba5b"
+      },
+      "answer_sha256": "38ca175818b0cde60f5b127ade7387d747140a7a2d74fb12df3406d284470c72"
+    },
+    {
+      "label": "W1-r2-A",
+      "status": "completed",
+      "seconds": 32.095,
+      "tool_items": 7,
+      "read_commands": 5,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 76148,
+        "cached_input_tokens": 58880,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 971,
+        "reasoning_output_tokens": 73
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "70f2fc4ccd128af0cef9305dc318fc4c4c6fa3be26ddcb597d4c088281a51782",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 7
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g 'contract.tolk' -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/message_handlers.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/utils.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/contract.tolk'",
+        "/bin/bash -lc \"rg -n 'OP_OWNERSHIP_ASSIGNED|fun getGasConsumedAtTheMoment|fun transformSliceToContinuation|struct DeployInfo' contracts/imports contracts/marketplace\"",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/types.tolk | head -n 85'",
+        "/bin/bash -lc 'nl -ba contracts/imports/gas.tolk'"
+      ],
+      "grading": {
+        "id": "answer-06",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct local chain/imports, stored deployment code and dynamic EXECUTE boundary."
+        ],
+        "answer_sha256": "357cd2c8e1ae4662d970203e4a97efc1c072ae6f83b8328cb80ac665c11a8b3f"
+      },
+      "answer_sha256": "780f26c9c4d0f1176dd546282a085d15020479259ce5d5e0b11f51692ce0eff9"
+    },
+    {
+      "label": "W1-r2-B",
+      "status": "completed",
+      "seconds": 39.412,
+      "tool_items": 3,
+      "read_commands": 2,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 77747,
+        "cached_input_tokens": 51200,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 987,
+        "reasoning_output_tokens": 271
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "70f2fc4ccd128af0cef9305dc318fc4c4c6fa3be26ddcb597d4c088281a51782",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 3
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g 'contract.tolk' -g '*.tolk' contracts/marketplace\"",
+        "/bin/bash -lc 'nl -ba contracts/marketplace/contract.tolk\nnl -ba contracts/marketplace/message_handlers.tolk\nnl -ba contracts/marketplace/utils.tolk'",
+        "/bin/bash -lc \"rg -n 'OP_OWNERSHIP_ASSIGNED|fun (getGasConsumedAtTheMoment|transformSliceToContinuation)|EXC_OUT_OF_GAS|TONS_MIN_EXCESS' contracts/imports contracts/marketplace/constants.tolk\nnl -ba contracts/imports/gas.tolk | head -n 65\""
+      ],
+      "grading": {
+        "id": "answer-09",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct marketplace handler/helper, import availability and recipient separation."
+        ],
+        "answer_sha256": "fe5593afd8c71b6dfa0f19eec90c1aa7d51a11ee2dc779ff5cded1b6800a9773"
+      },
+      "answer_sha256": "82ecd5ff81b5f0bcca5f3e4d2acdae6e34a65374bebbb0fda8d5a39e785c16b2"
+    },
+    {
+      "label": "W2-r1-A",
+      "status": "completed",
+      "seconds": 35.273,
+      "tool_items": 3,
+      "read_commands": 2,
+      "search_commands": 0,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 47334,
+        "cached_input_tokens": 28288,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 886,
+        "reasoning_output_tokens": 243
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "04ea8b7b99a8446a9ce13506f8f4f5e6375993ade6a2a2863bcf757f4b32c4b0",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 3
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g '*.tolk' -g '.codegraph' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/utils.tolk; nl -ba contracts/domain_swap/storage.tolk; nl -ba contracts/domain_swap/messages.tolk; nl -ba contracts/domain_swap/constants.tolk'"
+      ],
+      "grading": {
+        "id": "answer-01",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct completion branch, helper/import and external cancellation citations."
+        ],
+        "answer_sha256": "28b1f9e91e399a460ef977020150220c4276ed7b5c5c14827c89d0f1478b4b8f"
+      },
+      "answer_sha256": "271c512af4471f78db59ffa8674aec159fa840c8080184fb206d82280ab082db"
+    },
+    {
+      "label": "W2-r1-B",
+      "status": "completed",
+      "seconds": 34.531,
+      "tool_items": 6,
+      "read_commands": 4,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 67482,
+        "cached_input_tokens": 55424,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 716,
+        "reasoning_output_tokens": 65
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "04ea8b7b99a8446a9ce13506f8f4f5e6375993ade6a2a2863bcf757f4b32c4b0",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 6
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g '*.tolk' -g '*config*' -g '\"'!node_modules'\"' -g '\"'!vendor'\"' -g '\"'!'\"\\\\.codegraph/**'\"",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/utils.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/messages.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/storage.tolk'",
+        "/bin/bash -lc \"rg -n -A 12 -B 2 'fun loadOpAndQueryId' contracts/imports/utils.tolk\""
+      ],
+      "grading": {
+        "id": "answer-12",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct conditional payment completion, local import and external cancellation."
+        ],
+        "answer_sha256": "29e42da7aca043a031324286333fe6c58446d3c01c531bfb144d6a1a6a3c7a8b"
+      },
+      "answer_sha256": "1a118c35208c0104f3a9df8509325d6b27b74776cb4b083c6d80f2c2429fa82d"
+    },
+    {
+      "label": "W2-r2-A",
+      "status": "completed",
+      "seconds": 25.619,
+      "tool_items": 5,
+      "read_commands": 3,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 69782,
+        "cached_input_tokens": 47104,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 694,
+        "reasoning_output_tokens": 52
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "04ea8b7b99a8446a9ce13506f8f4f5e6375993ade6a2a2863bcf757f4b32c4b0",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 5
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd && rg --files -g AGENTS.md -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/storage.tolk && nl -ba contracts/domain_swap/constants.tolk && nl -ba contracts/domain_swap/messages.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/utils.tolk'",
+        "/bin/bash -lc \"rg -n 'fun completeDeal|completeDeal\\\\(|fun loadOpAndQueryId|STATE_COMPLETED' contracts/domain_swap contracts/imports/utils.tolk contracts/imports/constants.tolk\""
+      ],
+      "grading": {
+        "id": "answer-05",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct right-payment conditions, completion helper/import and expiry cancellation."
+        ],
+        "answer_sha256": "53d96e8aef8408aeca1be69df2feaf214247dcf0cc9851546d62f44d2fa1131f"
+      },
+      "answer_sha256": "e77453525c7bb93f615a113b8b441e616b977421855b80d9128f5cf94c339126"
+    },
+    {
+      "label": "W2-r2-B",
+      "status": "completed",
+      "seconds": 33.877,
+      "tool_items": 4,
+      "read_commands": 3,
+      "search_commands": 0,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 48272,
+        "cached_input_tokens": 26368,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 920,
+        "reasoning_output_tokens": 236
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "04ea8b7b99a8446a9ce13506f8f4f5e6375993ade6a2a2863bcf757f4b32c4b0",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 4
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g '*domain_swap*' -g '*.tolk' -g '.codegraph'\"",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/storage.tolk; nl -ba contracts/domain_swap/messages.tolk; nl -ba contracts/domain_swap/constants.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/domain_swap/utils.tolk'"
+      ],
+      "grading": {
+        "id": "answer-03",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Conditional internal completion and distinct external cancellation are correctly cited."
+        ],
+        "answer_sha256": "61df882a79b4483aa89c5749bae6ee61c213f6423eedb3b0a8794eed1357c8dd"
+      },
+      "answer_sha256": "2c78ce0ba5ea6ed4269df9860a58a6d86e95ea1d8f20b7722dbc939377a07512"
+    },
+    {
+      "label": "W3-r1-A",
+      "status": "completed",
+      "seconds": 33.919,
+      "tool_items": 5,
+      "read_commands": 4,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 93046,
+        "cached_input_tokens": 68608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1030,
+        "reasoning_output_tokens": 33
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "a091f4392aa2a20b286759e73b26181e661e8d9e9813812dab5c8f95e643037a",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 5
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g 'contract.tolk' -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/constants.tolk && nl -ba contracts/imports/gas.tolk'",
+        "/bin/bash -lc \"nl -ba contracts/fix_price_sales/ton_simple_sale/storage.tolk && rg -n 'fun loadOpAndQueryId|ONE_YEAR|OP_TRIGGER_AUTORENEW|struct AutoRenewData|saleStorageReserve|autoRenewLockPerIter' contracts/imports contracts/fix_price_sales/constants.tolk\"",
+        "/bin/bash -lc \"sed -n '168,182{=;p;}' contracts/imports/utils.tolk && sed -n '129,137{=;p;}' contracts/imports/constants.tolk\""
+      ],
+      "grading": {
+        "id": "answer-10",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_error": false,
+        "missing": [
+          "Fact 5: local import \"constants\" supplies the reserve helpers."
+        ],
+        "citation_notes": [
+          "Correct reserve calls, declaring files, storage dimensions and renewal fee components."
+        ],
+        "answer_sha256": "918c44110ab6e0434dfa09a6b78c6a038edca87178e4b403b25cf55a4918263a"
+      },
+      "answer_sha256": "0af224b5cba50252282c5adbc1a9101355a94ba217a55062a2b1178d92ef1a7f"
+    },
+    {
+      "label": "W3-r1-B",
+      "status": "completed",
+      "seconds": 33.983,
+      "tool_items": 9,
+      "read_commands": 6,
+      "search_commands": 1,
+      "listing_commands": 2,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 92582,
+        "cached_input_tokens": 57472,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1137,
+        "reasoning_output_tokens": 70
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "a091f4392aa2a20b286759e73b26181e661e8d9e9813812dab5c8f95e643037a",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 9
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g 'contract.tolk' -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"' contracts/fix_price_sales\"",
+        "/bin/bash -lc \"rg --files -g AGENTS.md -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/constants.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/constants.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/imports/gas.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/storage.tolk'",
+        "/bin/bash -lc \"rg -n 'ONE_YEAR|ONE_DAY|ONE_HOUR|OP_TRIGGER_AUTORENEW|fun loadOpAndQueryId' contracts/imports/constants.tolk contracts/imports/utils.tolk contracts/fix_price_sales/ton_simple_sale/messages.tolk contracts/fix_price_sales/messages.tolk\"",
+        "/bin/bash -lc \"nl -ba contracts/imports/utils.tolk | sed -n '165,185p'\""
+      ],
+      "grading": {
+        "id": "answer-07",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_error": false,
+        "missing": [
+          "Fact 5: local import \"constants\" supplies the reserve helpers."
+        ],
+        "citation_notes": [
+          "Correct entrypoint, local reserve computation, helper declarations and runtime boundaries."
+        ],
+        "answer_sha256": "490412317d28edab9a65475fedae5653592c11814288fd7e807c3a19c4a05fdc"
+      },
+      "answer_sha256": "566f4a4bdc28197435cf750d90e35f780d1a72dcefb53cb69283a4d7b6df8b1a"
+    },
+    {
+      "label": "W3-r2-A",
+      "status": "completed",
+      "seconds": 44.754,
+      "tool_items": 7,
+      "read_commands": 4,
+      "search_commands": 2,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 71394,
+        "cached_input_tokens": 47488,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1473,
+        "reasoning_output_tokens": 327
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": null,
+      "prompt_sha256": "a091f4392aa2a20b286759e73b26181e661e8d9e9813812dab5c8f95e643037a",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 7
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g '*contract.tolk' -g '*.tolk' -g '\"'!node_modules'\"' -g '\"'!vendor'\"'\"",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/storage.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/constants.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/imports/gas.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/contract.tolk'",
+        "/bin/bash -lc \"rg -n -A 16 -B 3 'fun loadOpAndQueryId' contracts/imports/utils.tolk\"",
+        "/bin/bash -lc \"rg -n 'loadOpAndQueryId|ONE_YEAR|ONE_DAY|ONE_HOUR|WORKCHAIN|OP_TRIGGER_AUTORENEW|OP_CANCEL_DEAL' contracts/imports/utils.tolk contracts/imports/constants.tolk contracts/fix_price_sales/constants.tolk contracts/fix_price_sales/ton_simple_sale/messages.tolk\""
+      ],
+      "grading": {
+        "id": "answer-04",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_error": false,
+        "missing": [
+          "Fact 5: local import \"constants\" supplies the reserve helpers."
+        ],
+        "citation_notes": [
+          "Correct reserve path/formulas. constants.tolk:16 anchors dimensions; declaration at20 and call in cited helper."
+        ],
+        "answer_sha256": "24ae18a09e8ff727c30093afdcc9a2581f1204ba3274269f9fd917b7f3f41465"
+      },
+      "answer_sha256": "f0846997320cb5174fd98ad26c136fbff81ae83800882ba9e2ab350af58aeae8"
+    },
+    {
+      "label": "W3-r2-B",
+      "status": "completed",
+      "seconds": 39.996,
+      "tool_items": 7,
+      "read_commands": 5,
+      "search_commands": 1,
+      "listing_commands": 1,
+      "mcp_tools": [],
+      "mcp_errors": 0,
+      "after_explore": [],
+      "usage": {
+        "input_tokens": 99411,
+        "cached_input_tokens": 77184,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1187,
+        "reasoning_output_tokens": 87
+      },
+      "source_unchanged": true,
+      "tracked_clean": true,
+      "cleanup": "term",
+      "prompt_sha256": "a091f4392aa2a20b286759e73b26181e661e8d9e9813812dab5c8f95e643037a",
+      "source_digest": "bbba3159ba3530be10923bf70685be066ccc541f74f775d3da3167b388b032d5",
+      "item_types": {
+        "agent_message": 2,
+        "command_execution": 7
+      },
+      "commands": [
+        "/bin/bash -lc \"pwd; rg --files -g 'AGENTS.md' -g 'contract.tolk' -g '*.tolk' -g '*.fc' -g '*.func' -g '*.ts' -g '*.md'\"",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/storage.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/constants.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/fix_price_sales/ton_simple_sale/contract.tolk'",
+        "/bin/bash -lc 'nl -ba contracts/imports/gas.tolk'",
+        "/bin/bash -lc \"rg -n 'ONE_YEAR|ONE_DAY|ONE_HOUR|OP_TRIGGER_AUTORENEW|OP_CANCEL_DEAL|loadOpAndQueryId' contracts/imports/constants.tolk contracts/imports/utils.tolk contracts/fix_price_sales/messages.tolk contracts/fix_price_sales/constants.tolk contracts/fix_price_sales/ton_simple_sale/messages.tolk\"",
+        "/bin/bash -lc \"nl -ba contracts/imports/utils.tolk | sed -n '165,200p';\""
+      ],
+      "grading": {
+        "id": "answer-08",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_error": false,
+        "missing": [
+          "Fact 5: local import \"constants\" supplies the reserve helpers."
+        ],
+        "citation_notes": [
+          "Correct helper identities. constants.tolk:16 anchors dimensions; declaration at20 and call in cited helper."
+        ],
+        "answer_sha256": "cb15d9f1898bd558444cf8b9ea861b8e056dcfd6122b6938c0b3d6cf10f49f71"
+      },
+      "answer_sha256": "b20dd51895d24b02d2a5283d9fc991bf1dbf801b3df7d9f0ad758330a9f9665f"
+    }
+  ],
+  "grading": {
+    "schema_version": 1,
+    "report_id": "grading-1",
+    "task_id": "task-01-skeptic",
+    "grading_mode": "independent_model_blind",
+    "reviewer": "/root/pr_critic",
+    "key_sha256": "523384706764fdb25ff3e37397763a6c24a15736eb195fe8a2815d0ac5712a81",
+    "grades": [
+      {
+        "id": "answer-01",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct completion branch, helper/import and external cancellation citations."
+        ],
+        "answer_sha256": "28b1f9e91e399a460ef977020150220c4276ed7b5c5c14827c89d0f1478b4b8f"
+      },
+      {
+        "id": "answer-02",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct marketplace dispatch, local import chain, gas helper and runtime boundaries."
+        ],
+        "answer_sha256": "dbd0259287ac59fa579cdb0a18f83f45a56d951f9bd1e6f669a513d1b7a2ba5b"
+      },
+      {
+        "id": "answer-03",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Conditional internal completion and distinct external cancellation are correctly cited."
+        ],
+        "answer_sha256": "61df882a79b4483aa89c5749bae6ee61c213f6423eedb3b0a8794eed1357c8dd"
+      },
+      {
+        "id": "answer-04",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_error": false,
+        "missing": [
+          "Fact 5: local import \"constants\" supplies the reserve helpers."
+        ],
+        "citation_notes": [
+          "Correct reserve path/formulas. constants.tolk:16 anchors dimensions; declaration at20 and call in cited helper."
+        ],
+        "answer_sha256": "24ae18a09e8ff727c30093afdcc9a2581f1204ba3274269f9fd917b7f3f41465"
+      },
+      {
+        "id": "answer-05",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct right-payment conditions, completion helper/import and expiry cancellation."
+        ],
+        "answer_sha256": "53d96e8aef8408aeca1be69df2feaf214247dcf0cc9851546d62f44d2fa1131f"
+      },
+      {
+        "id": "answer-06",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct local chain/imports, stored deployment code and dynamic EXECUTE boundary."
+        ],
+        "answer_sha256": "357cd2c8e1ae4662d970203e4a97efc1c072ae6f83b8328cb80ac665c11a8b3f"
+      },
+      {
+        "id": "answer-07",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_error": false,
+        "missing": [
+          "Fact 5: local import \"constants\" supplies the reserve helpers."
+        ],
+        "citation_notes": [
+          "Correct entrypoint, local reserve computation, helper declarations and runtime boundaries."
+        ],
+        "answer_sha256": "490412317d28edab9a65475fedae5653592c11814288fd7e807c3a19c4a05fdc"
+      },
+      {
+        "id": "answer-08",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_error": false,
+        "missing": [
+          "Fact 5: local import \"constants\" supplies the reserve helpers."
+        ],
+        "citation_notes": [
+          "Correct helper identities. constants.tolk:16 anchors dimensions; declaration at20 and call in cited helper."
+        ],
+        "answer_sha256": "cb15d9f1898bd558444cf8b9ea861b8e056dcfd6122b6938c0b3d6cf10f49f71"
+      },
+      {
+        "id": "answer-09",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct marketplace handler/helper, import availability and recipient separation."
+        ],
+        "answer_sha256": "fe5593afd8c71b6dfa0f19eec90c1aa7d51a11ee2dc779ff5cded1b6800a9773"
+      },
+      {
+        "id": "answer-10",
+        "task": "W3",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "score": 4,
+        "critical_error": false,
+        "missing": [
+          "Fact 5: local import \"constants\" supplies the reserve helpers."
+        ],
+        "citation_notes": [
+          "Correct reserve calls, declaring files, storage dimensions and renewal fee components."
+        ],
+        "answer_sha256": "918c44110ab6e0434dfa09a6b78c6a038edca87178e4b403b25cf55a4918263a"
+      },
+      {
+        "id": "answer-11",
+        "task": "W1",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct local call chain/imports; no invented edge over execution or messaging boundary."
+        ],
+        "answer_sha256": "7bc8823d463f4af2bd01c27f3d74818fc7e1a473c2ba331a3b8d19095e8889a4"
+      },
+      {
+        "id": "answer-12",
+        "task": "W2",
+        "facts": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "score": 5,
+        "critical_error": false,
+        "missing": [],
+        "citation_notes": [
+          "Correct conditional payment completion, local import and external cancellation."
+        ],
+        "answer_sha256": "29e42da7aca043a031324286333fe6c58446d3c01c531bfb144d6a1a6a3c7a8b"
+      }
+    ],
+    "material_wrong_source_claims": [],
+    "total_score": 56,
+    "maximum_score": 60,
+    "scope_limit": "No arm map, timing, result or case files opened. Model grading, not human review."
+  },
+  "grading_hash_scope": "Grader hashes cover task-prefixed anonymous files; per-attempt answer_sha256 covers the original answer. Prefix/raw binding verified.",
+  "deterministic_probes": [
+    {
+      "task": "W1",
+      "query": "contracts/marketplace/contract.tolk onInternalMessage handleNftOwnershipAssigned checkEnoughGas",
+      "old_chars": 24945,
+      "new_chars": 19683,
+      "required_and_forbidden_checks": "PASS"
+    },
+    {
+      "task": "W2",
+      "query": "contracts/domain_swap/contract.tolk right final payment complete_deal onInternalMessage onExternalMessage",
+      "old_chars": 24428,
+      "new_chars": 19518,
+      "required_and_forbidden_checks": "PASS"
+    },
+    {
+      "task": "W3",
+      "query": "contracts/fix_price_sales/ton_simple_sale/contract.tolk onExternalMessage reserve storage auto renew",
+      "old_chars": 21182,
+      "new_chars": 9395,
+      "required_and_forbidden_checks": "PASS"
+    }
+  ],
+  "tests": {
+    "full": {
+      "passed": 8627,
+      "failed": 3,
+      "skipped": 401,
+      "passed_files": 752,
+      "failed_files": 3,
+      "skipped_files": 17,
+      "exit_code": 1,
+      "failure": "Three default5000ms test timeouts: Laravel route mounts, Python nested-def assignment, React HOC callees.",
+      "same_selected_tests_baseline": {
+        "passed": 3,
+        "failed": 0
+      },
+      "same_selected_tests_candidate": {
+        "passed": 3,
+        "failed": 0
+      },
+      "cause": "Unrelated CPU-heavy processes observed; load explanation is an inference, no full baseline failure reproduced."
+    },
+    "tolk_suites": [
+      {
+        "file": "tolk-call-proof.test.ts",
+        "status": "passed",
+        "passed": 12
+      },
+      {
+        "file": "tolk-config-containment.test.ts",
+        "status": "passed",
+        "passed": 1
+      },
+      {
+        "file": "tolk-explore.test.ts",
+        "status": "passed",
+        "passed": 10
+      },
+      {
+        "file": "tolk-extraction.test.ts",
+        "status": "passed",
+        "passed": 9
+      },
+      {
+        "file": "tolk-resolution.test.ts",
+        "status": "passed",
+        "passed": 30
+      },
+      {
+        "file": "tolk-sync.test.ts",
+        "status": "passed",
+        "passed": 4
+      },
+      {
+        "file": "tolk-verifier.test.ts",
+        "status": "passed",
+        "passed": 3
+      }
+    ],
+    "latest_windows_focused": {
+      "files": 8,
+      "passed": 103
+    },
+    "build": "PASS",
+    "standalone_actual_mcp": "PASS initialize/tools-list/three-query cases and exit0"
+  },
+  "codex_host_inventory": {
+    "method": "mcpServerStatus/list",
+    "cli": "0.164.0",
+    "tools": [
+      "codegraph_explore"
+    ],
+    "tools_error": null,
+    "inference_turns": 0,
+    "scope": "Separate post-run app-server diagnostic with an empty CODEX_HOME and same MCP entry; does not reconstruct the12 past model tool inventories.",
+    "secondary_node_exposed": false,
+    "diagnostic_notes": "Initial exec-only flags rejected by app-server. Corrected config isolation returned explore only; the initial two-tool assertion failed. Raw attempts retained. Parent-only environment did not establish node availability in this client."
+  },
+  "audits": {
+    "same_prompts_and_source": true,
+    "cli_binary_hashes": {
+      "cli-wrapper": "61b0194f3bb6534439c8d26a3ed57d0805f84b884588b761795323eeb92fcf70",
+      "cli-native": "b93f6811d3f653f0fb83be4050d857fb9abbb111dfa2ce160563327daff7f306"
+    },
+    "source_unchanged": true,
+    "cli_library_database_bypass": false,
+    "outside_source_reads": false,
+    "project_scripts_or_network_commands": false,
+    "recorded_pids_stopped": true,
+    "windows_bridge_helpers_active": 0,
+    "baseline_files_unchanged": 145
+  },
+  "auth": {
+    "mode": "ChatGPT subscription, API overrides removed",
+    "usage_percent_before_models": 83,
+    "usage_percent_after_models_and_grading": 85,
+    "credits_balance_before_and_after": "38078.0748820000",
+    "scope": "Shared account includes root/reviewer and unrelated activity; no credit purchases or API fallback."
+  },
+  "raw_evidence": ".tmp-tolk/explore-repair/evidence (ignored public-source excerpts); original .tmp-tolk/codex-pilot/evidence preserved",
+  "limitations": [
+    "No MCP calls in any new B session: the pilot cannot measure the repaired explore output in agent use.",
+    "All four W3 answers omit local import constants under the frozen rubric.",
+    "Full suite remains non-green; isolated timeout cases pass both builds.",
+    "Unpinned and mixed-language explore queries retain baseline behavior.",
+    "No medium/large or existing-language agent control pack, human grading or upstream Sonnet policy run.",
+    "Live installation/settings/index unchanged; private MasterCTF was not rechecked in this repair."
+  ],
+  "protocol_commit": "037f989293fd6874f3b7613df7a66046d97b7d1a",
+  "frozen_key_sha256": "523384706764fdb25ff3e37397763a6c24a15736eb195fe8a2815d0ac5712a81"
+}
