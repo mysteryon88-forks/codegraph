@@ -5,7 +5,7 @@ Date: 2026-10-27. This supersedes the initial `6e44463b` acceptance for the amen
 ## Identity and environment
 
 - Immutable upstream base: `69af19ace270f2e940444d514de6dde971df12df`, package `1.6.2`. Remote main was checked again during this amendment and still matched. The original implementation was `6e44463b84f5ef0dfcbe36cab177c5e122dd3110`; package version alone does not identify either build.
-- Windows x64 focused tests; actual WSL2 Ubuntu 24.04 Linux x64 acceptance. Linux Node `/home/ssobolev/.nvm/versions/node/v24.22.1/bin/node`, version `24.22.1`, built-in `node:sqlite`. Builds and corpus copies are on Linux ext4. The bundle carries its own Linux Node of the same version.
+- Windows x64 focused tests; actual WSL2 Ubuntu 24.04 Linux x64 acceptance. Linux Node 24.22.1 with built-in `node:sqlite`. Builds and corpus copies are on Linux ext4. The bundle carries its own Linux Node of the same version.
 - Official grammar: [Acton](https://github.com/ton-blockchain/acton/tree/b8407f0e628860311d391eff85d003ec9c2cfb2c/crates/tree-sitter-tolk), commit `b8407f0e628860311d391eff85d003ec9c2cfb2c`, MIT, no local patches. Its package still says `0.4.5`, despite different syntax/AST coverage. Tested compiler: Tolk 1.5.0.
 - WASM SHA-256: `663a425723b0b71bcb990136149b9cb7be83fee80825fe321b15583ef6ebc921`. Tree-sitter CLI 0.26.3, ABI15, Emscripten 4.0.16. A task-local SDK at commit `526ceebf902920582fc6979fcb65c50f1648aaeb` enabled repeated native builds and the complete rebuild recipe without starting Docker or changing global tooling. See [provenance](../src/extraction/wasm/tree-sitter-tolk.PROVENANCE.md).
 - All 525 nominated application/build inputs were verified against the Linux overlay, normalizing text line endings. Manifest SHA-256: `a09b0cff06011740355a5300bba043c7fd175ef69e7e1e546733cd1c930d9851`. The manifest accompanies the archive and identifies application inputs independently of later documentation edits.
@@ -40,9 +40,9 @@ Expectations were prepared independently from pinned source before graph output.
 | [Acton](https://github.com/ton-blockchain/acton), master | `b8407f0e628860311d391eff85d003ec9c2cfb2c`; Acton 1.2.1, bundled Tolk 1.5.0, compiler `9334027d63528da1a78b2efbe898bc586d4e6cec` |181→178|2,936|3 intentional compilation-error fixtures|0|
 | [TON](https://github.com/ton-blockchain/ton), master | `857b8a57a178e6ae0fe7fa86e7d81c5233de8560`; Tolk 1.5.0 |681→120|1,692|561 intentional invalid compiler fixtures|0|
 | [TG Wallet](https://github.com/ton-blockchain/tg-wallet-contract), master | `1a29ae5d90e03c3d585d3e42e6ecef691d727a3c`; Acton 1.2.0, separate compiler pin unspecified |18→18|19|none|0|
-| MasterCTF private working snapshot | base `2beed2936ef85c6001e152a6230f0e5a86c9acf4` plus working files; manifest `0524f89a549bfd7a5d5c1843fa7e222dec767adf26112b037a789ad4149384d0`; local Tolk 1.5.0 evidence |138→138|239|none|0|
+| private local Tolk snapshot | local Tolk 1.5.0 toolchain metadata |138→138|239|none|0|
 
-Acton/TON exclusions were specified from source before indexing in disposable copies' `codegraph.json`, with configurations in expectation provenance. They are not waived parser errors. `@stdlib` stays external; TON's comment-based compiler-test `@custom-folder` mapping is outside Acton mapping coverage. The private snapshot was not recompiled; its compiler identity comes from local toolchain metadata. The current private snapshot differs from the earlier 94-file snapshot; totals are not a before/after performance or coverage comparison.
+Acton/TON exclusions were specified from source before indexing in disposable copies' `codegraph.json`, with configurations in expectation provenance. They are not waived parser errors. `@stdlib` stays external; TON's comment-based compiler-test `@custom-folder` mapping is outside Acton mapping coverage. The private local Tolk snapshot was not recompiled; its compiler identity comes from local toolchain metadata. It differs from the earlier 94-file snapshot; totals are not a before/after performance or coverage comparison.
 
 | Corpus | Symbols | Expected calls | Local imports | Forbidden pairs | Actual MCP |
 |---|---:|---:|---:|---:|---|
@@ -51,9 +51,9 @@ Acton/TON exclusions were specified from source before indexing in disposable co
 | Acton |14 PASS|11/11|11/11|6 absent|11 checks PASS, 3 numbered flows and 3 incoming trails|
 | TON |17 PASS|14/14|4/4|5 absent|12 checks PASS, 3 numbered flows and shortcut-branch incoming evidence|
 | TG Wallet |11 PASS|**9/10, partial**|10/10|6 absent|10 checks pass; third numbered flow fails at the same unsupported generic-dependent hop|
-| MasterCTF |12 PASS|11/11|4/4|2 absent|10 checks PASS: exact file/entrypoint source, 3 queries and 3 incoming trails|
+| private local Tolk snapshot |12 PASS|11/11|4/4|2 absent|10 checks PASS: source/entrypoint checks, 3 queries and 3 incoming trails|
 
-Acton contracts also passed all 31 receiver-qualified call-site assertions from the original independent oracle. Counter explore returns `Storage.load` from `counter/contracts/types.tolk`. MasterCTF acceptance returns `contracts/core/MasterCTF.tolk:26`, actual `onInternalMessage` source and all 11 user-supplied targets, without TS-wrapper or foreign-entrypoint calls. A TVM entrypoint need not have static incoming calls; message delivery is outside this model.
+Acton contracts also passed all 31 receiver-qualified call-site assertions from the original independent oracle. Counter explore returns `Storage.load` from `counter/contracts/types.tolk`. Private local Tolk snapshot acceptance returns all 11 expected targets; detailed source and edge evidence remains in the existing private corpus reports. A TVM entrypoint need not have static incoming calls; message delivery is outside this model.
 
 Counts below are diagnostics, not correctness proofs. Specific endpoints and forbidden targets are checked above. Unresolved references retain diagnostics rather than arbitrary same-name links.
 
@@ -64,7 +64,7 @@ Counts below are diagnostics, not correctness proofs. Specific endpoints and for
 | Acton |1,373/4,390|228/396|72.33|
 | TON |2,222/8,389|5/31|63.14|
 | TG Wallet |420/1,152|48/48|2.65|
-| MasterCTF |1,758/4,798|412/345|24.23|
+| private local Tolk snapshot |1,758/4,798|412/345|24.23|
 
 Times are local observations, not agent benchmarks. Complete found/indexed inventories, exclusions, parse diagnostics, returned source, references and PID/exit receipts remain locally in `.tmp-tolk/pr-readiness/acceptance/`. Reproduce public cases with [committed expectations](../scripts/tolk-expectations) and the [explicit-build verifier](../scripts/verify-tolk.mjs).
 
@@ -72,20 +72,20 @@ Times are local observations, not agent benchmarks. Complete found/indexed inven
 
 - TG Wallet's strict verifier still exits1: `parseArrayAndSend` invokes `validateAndSend` on `s.loadAny<MessageToSend>()` output. Generic stdlib return substitution is outside declared receiver coverage. Two match-dependent missing calls are fixed; the generic expectation remains. The third MCP flow also fails, with normal server exit 0. This corpus is partial, not PASS.
 - An initial stronger TON oracle required `onExternalMessage→cleanupRegistry→getLastKeyBlockSeqno` as three Flow nodes, although source/graph also has the direct first→last edge. Unchanged upstream BFS keeps one shortest route per reached node, then selects a deepest retained destination; two-node Flow headings are omitted. Independent review classified the oracle as overstrict. All three edge assertions remain; a node trail checks both callers, and three other already-frozen chains without that shortcut pass numbered checks. Failed oracle/receipt retained. Named mode does not guarantee the globally longest route or every named intermediate.
-- Initial private oracle construction omitted generic parameters in two signature prefixes and assumed a caller would occur within a capped incoming trail. Actual source/graph were correct. Headers now come directly from the pinned AST; additional MCP checks use three source-known leaf targets. All 11 original call assertions remain and first receipts are retained. `codegraph_node` trails cap each direction at 12; absence from that prefix does not prove an absent edge (the shared private helper has 44 callers).
+- The private local Tolk snapshot's initial oracle was corrected against source and graph evidence. All 11 original call assertions remain; detailed oracle evidence stays in the existing private corpus reports. `codegraph_node` trails cap each direction at 12; absence from that prefix does not prove an absent edge.
 - Historical full runs on the initial implementation and immutable base had timing-dependent daemon/writer-lock/PPID failures; every observed failure was reproduced on the base. An intermediate amendment full run passed 8,592 tests but predates later repairs and is not final evidence. The final full result is separate above.
 
 ## Extracted archive and MCP
 
 `release/codegraph-tolk-pr-linux-x64.tar.gz`, 61,164,430 bytes, Linux x64/Node 24.22.1. Archive SHA-256: `dab7de527ee8f967cb645b8023bd400daed8d6c355bc33a817463f969952307f`. Built with `bash scripts/build-bundle.sh linux-x64 v24.22.1`; the downloaded Node archive matched Node.js SHASUMS256. Adjacent files carry checksum, build-input manifest and receipt. This local archive is not published to npm or GitHub Releases.
 
-The archive was extracted outside source. Grammar/license/provenance hashes matched, the obsolete patch was absent, schema/viewer existed, and bundled Node reported Linux/x64 with `node:sqlite`. During acceptance the Linux development checkout was unavailable; verifier/client scripts were copied to a separate kit. The bundled launcher/Node created independent fresh indices for Webdom, full Acton contracts and MasterCTF. All CLI/verifier/MCP checks passed, including 31 qualified Acton call sites. The Linux native watcher replaced an exact `.tolk` symbol after an edit. The checkout was restored.
+The archive was extracted outside source. Grammar/license/provenance hashes matched, the obsolete patch was absent, schema/viewer existed, and bundled Node reported Linux/x64 with `node:sqlite`. During acceptance the Linux development checkout was unavailable; verifier/client scripts were copied to a separate kit. The bundled launcher/Node created independent fresh indices for Webdom, full Acton contracts and the private local Tolk snapshot. All CLI/verifier/MCP checks passed, including 31 qualified Acton call sites. The Linux native watcher replaced an exact `.tolk` symbol after an edit. The checkout was restored.
 
 For all three copies, source and bundle had equal indexed Tolk sets, selected symbol/source records, resolved/unresolved references, diagnostics and failures after removing only node `updatedAt` timestamps. Independent fresh-index sync tests compare normalized nodes/edges separately.
 
 The actual client checks initialize/tools-list, source and graph-backed trails/flows. Query-echoed paths alone are not flow proof. Every process uses the selected index, absolute executable and fresh PID. Update checks, shared daemons, query pools and prompt hooks are disabled for isolation. Graceful SIGTERM must exit 0; a forced stop fails acceptance. All final positive servers exited0, as did the intentionally failing TG flow's server.
 
-The old deployed fork remains `/home/ssobolev/.local/opt/codegraph-tolk-6e44463b/bin/codegraph`, index `.codegraph-tolk-6e44463b`, with the earlier upstream bundle also preserved. The previous 61,152,514-byte archive remains separate, hash `6e68deccd7531546856af701c7390c3cd85a68771fe08e330936cad3bde16087`. This amendment does not activate a replacement MCP configuration. See [connection and rollback instructions](tolk-support.md).
+Exact previous launcher, index and configuration details are retained in the private rollback record. This amendment does not activate a replacement MCP configuration. See [connection and rollback instructions](tolk-support.md).
 
 ## Remaining merge gates
 

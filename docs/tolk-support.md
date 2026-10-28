@@ -93,7 +93,7 @@ tar -xzf /absolute/codegraph-linux-x64.tar.gz -C "$install_dir" --strip-componen
 "$install_dir/bin/codegraph" --version
 CODEGRAPH_DIR=.codegraph-tolk CODEGRAPH_NO_PROMPT_HOOK=1 "$install_dir/bin/codegraph" init /absolute/project --yes
 CODEGRAPH_DIR=.codegraph-tolk "$install_dir/bin/codegraph" files --path /absolute/project --pattern '**/*.tolk' --json
-CODEGRAPH_DIR=.codegraph-tolk "$install_dir/bin/codegraph" node --path /absolute/project --file contracts/core/MasterCTF.tolk
+CODEGRAPH_DIR=.codegraph-tolk "$install_dir/bin/codegraph" node --path /absolute/project --file contracts/first_contract.tolk
 ```
 
 Use a fresh install directory if that path already contains another build. The archive digest is distributed in the adjacent checksum file. A version response alone is not acceptance: repeat the named graph verifier against `--build "$install_dir/lib/dist"` using the bundle's `node`.
@@ -110,13 +110,13 @@ args = ["serve", "--mcp", "--path", "/absolute/project"]
 env = { CODEGRAPH_DIR = ".codegraph-tolk", CODEGRAPH_MCP_TOOLS = "explore,node", CODEGRAPH_NO_UPDATE_CHECK = "1", CODEGRAPH_NO_DAEMON = "1", CODEGRAPH_QUERY_POOL_SIZE = "0" }
 ```
 
-For the Windows Codex app launching the WSL build, use `wsl.exe` and pass environment through Linux `env`:
+For the Windows Codex app launching the WSL build, use `wsl.exe` and pass environment through Linux `env`. Replace `YOUR_WSL_DISTRO`, `YOUR_LINUX_USER` and the project path with values from your own WSL installation before saving; the TOML strings are literal:
 
 ```toml
 [mcp_servers.codegraph]
 enabled = true
 command = "wsl.exe"
-args = ["-d", "Ubuntu-24.04", "--", "env", "CODEGRAPH_DIR=.codegraph-tolk", "CODEGRAPH_MCP_TOOLS=explore,node", "CODEGRAPH_NO_UPDATE_CHECK=1", "CODEGRAPH_NO_DAEMON=1", "CODEGRAPH_QUERY_POOL_SIZE=0", "/home/ssobolev/.local/opt/codegraph-tolk/bin/codegraph", "serve", "--mcp", "--path", "/absolute/linux/project"]
+args = ["-d", "YOUR_WSL_DISTRO", "--", "env", "CODEGRAPH_DIR=.codegraph-tolk", "CODEGRAPH_MCP_TOOLS=explore,node", "CODEGRAPH_NO_UPDATE_CHECK=1", "CODEGRAPH_NO_DAEMON=1", "CODEGRAPH_QUERY_POOL_SIZE=0", "/home/YOUR_LINUX_USER/.local/opt/codegraph-tolk/bin/codegraph", "serve", "--mcp", "--path", "/home/YOUR_LINUX_USER/path/to/project"]
 ```
 
 The selected upstream exposes only `codegraph_explore` by default; `CODEGRAPH_MCP_TOOLS=explore,node` also lists `codegraph_node`. No app connector or unrelated MCP server is needed. Restart the MCP client/chat after changing its configuration. Keep the index path identical to the one used by `init`. The validation report records a real JSON-RPC client checking initialize, tools/list, explore, file/symbol node reads and clean process shutdown via SIGTERM.
@@ -141,6 +141,6 @@ The client explicitly disables network update checks, daemon sharing and prompt 
 
 The task's tests preserved the installed CLI, agent configuration and existing indices. A fresh index is required to gain Tolk coverage. Extraction version 29 covers the original language addition; this grammar/bugfix revision does not increment it under upstream's pure-bugfix policy. An index made by the earlier fork can therefore report the same extraction version while still containing old parse diagnostics or extraction. Use a new `CODEGRAPH_DIR` and a fresh index when switching grammar builds; repeating `indexAll` against an existing directory is not an independent rebuild. Validate the new index before opting into the new absolute MCP command. No global replacement is required.
 
-Before switching, save the active MCP configuration, exact executable path and version. In this checked environment the previously deployed Tolk fork is `/home/ssobolev/.local/opt/codegraph-tolk-6e44463b/bin/codegraph`, with index `.codegraph-tolk-6e44463b`; the earlier upstream bundle `/home/ssobolev/.codegraph/bundles/linux-x64-1.6.2/bin/codegraph` also remains available. Private configuration snapshots and hashes are retained locally, not published. To roll back, restore the previous MCP entry and its previous `CODEGRAPH_DIR` value, then restart the client. The old executables and indices remain available; this PR validation does not switch the active deployment.
+Before switching, record the active MCP entry, exact launcher path and version, and index directory (`CODEGRAPH_DIR`). Keep a private copy of the old configuration outside the repository. To roll back, restore the saved MCP entry and prior `CODEGRAPH_DIR`, then restart the client. Keep the old launcher and index directory until the new build has been validated.
 
-Keep this work on `codex/tolk-support`. To update: fetch upstream, rebase the branch onto the selected full upstream SHA, resolve language-registry and extraction-version conflicts, rebuild the pinned grammar if its inputs changed, and rerun focused/full tests, real-corpus expectations and extracted-bundle/MCP checks. Do not infer compatibility from matching package versions.
+To update, fetch upstream and rebase the working branch onto the selected full upstream SHA. Resolve language-registry and extraction-version conflicts, rebuild the pinned grammar if its inputs changed, and rerun focused/full tests, real-corpus expectations and extracted-bundle/MCP checks. Do not infer compatibility from matching package versions.
