@@ -70,6 +70,7 @@ import { measurePendingChanges } from './index-freshness';
 import { validateAnswerFiles, type AnswerFile } from './answer-freshness';
 import { ExploreDiagnostics } from './explore-diagnostics';
 import { pinnedTolkScope } from './explore-tolk-scope';
+import { namedTolkArmRanges } from './explore-tolk-ranges';
 import {
   EXPLORE_EMISSION_KEY,
   EXPLORE_SESSION_VIEW_ARG,
@@ -5402,7 +5403,8 @@ export class ToolHandler {
         // agent to Read — the exact reason the spine gets this treatment.
         spine: group.nodes.some((n) => flow.pathNodeIds.has(n.id) || exactNodeIds.has(n.id))
           || anchorSpans.has(fp)
-          || (!!tolkScope && group.nodes.some(n => n.kind === 'function' || n.kind === 'method')),
+          // Scoped owner types are source evidence even without a semantic type edge.
+          || (!!tolkScope && group.nodes.some(n => ['function', 'method', 'struct', 'union', 'enum', 'type_alias'].includes(n.kind))),
         pinned: pinnedSet.has(fp),
         named: namedSeedFiles.has(fp),
       })),
@@ -6690,6 +6692,17 @@ export class ToolHandler {
         if (span.start > fileLines.length) continue;
         const end = Math.min(span.end, fileLines.length);
         ranges.push({ start: span.start, end, name: `lines ${span.start}-${end}`, kind: 'range', importance: EXACT_IMPORTANCE, spine: false });
+      }
+
+      if (tolkScope && pinnedSet.has(filePath) && !lineAnchors.some(a => a.file === filePath)) {
+        const largeCallables = [...rangeNodes.values()].filter(n => (n.kind === 'function' || n.kind === 'method')
+          && renderedSpanCost(n.startLine, n.endLine) > allowance);
+        for (const evidence of await namedTolkArmRanges(fileContent, largeCallables, focusTokens)) {
+          ranges.push({ ...evidence.arm, name: evidence.name, kind: 'range', importance: EXACT_IMPORTANCE + 1, spine: false });
+          for (const context of evidence.context) {
+            ranges.push({ ...context, name: evidence.name, kind: 'range', importance: EXACT_IMPORTANCE, spine: false });
+          }
+        }
       }
 
       ranges.sort((a, b) => a.start - b.start);

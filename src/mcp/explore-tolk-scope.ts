@@ -25,6 +25,26 @@ export function pinnedTolkScope(
   const queue: Array<{ node: Node; depth: number }> = [];
   const depths = new Map<string, number>();
   const callerContexts = new Map<string, Node>();
+  const typeCandidates = new Map<string, { local: Node[]; imported: Node[] }>();
+  const typesForFile = (fp: string) => {
+    const cached = typeCandidates.get(fp);
+    if (cached) return cached;
+    const all = files.get(fp) ?? cg.getNodesInFile(fp);
+    const imported = new Map<string, Node>();
+    const importedFiles = new Set<string>();
+    for (const imp of all.filter(n => n.kind === 'import')) for (const edge of cg.getOutgoingEdges(imp.id)) {
+      if (edge.kind !== 'imports') continue;
+      const target = cg.getNode(edge.target);
+      if (target?.language !== 'tolk' || importedFiles.has(target.filePath)) continue;
+      importedFiles.add(target.filePath);
+      for (const node of cg.getNodesInFile(target.filePath)) {
+        if (node.language === 'tolk' && TYPES.has(node.kind)) imported.set(node.id, node);
+      }
+    }
+    const candidates = { local: all.filter(n => TYPES.has(n.kind)), imported: [...imported.values()] };
+    typeCandidates.set(fp, candidates);
+    return candidates;
+  };
   const rootsPerFile = Math.floor(200 / pins.length);
   const admit = (node: Node, depth: number) => {
     if ((depths.get(node.id) ?? Infinity) <= depth || (!nodes.has(node.id) && nodes.size >= 200)) return;
@@ -56,18 +76,8 @@ export function pinnedTolkScope(
       : declarations.filter(n => tokens.some(t => matches(n, t)) || anchored.includes(n));
     const selected = focused.length > 0 ? focused : declarations;
     // Named message types are source context even when parameter types have no graph edge.
-    const typeContext = new Map(declarations.filter(n => TYPES.has(n.kind) && tokens.some(t => matchesSymbol(n, t)))
-      .map(n => [n.id, n]));
-    const importedFiles = new Set<string>();
-    for (const imp of all.filter(n => tokens.length > 0 && n.kind === 'import')) for (const edge of cg.getOutgoingEdges(imp.id)) {
-      if (edge.kind !== 'imports') continue;
-      const target = cg.getNode(edge.target);
-      if (target?.language !== 'tolk' || importedFiles.has(target.filePath)) continue;
-      importedFiles.add(target.filePath);
-      for (const node of cg.getNodesInFile(target.filePath)) {
-        if (TYPES.has(node.kind) && tokens.some(t => matchesSymbol(node, t))) typeContext.set(node.id, node);
-      }
-    }
+    const types = tokens.length > 0 ? typesForFile(fp) : { local: [], imported: [] };
+    const typeContext = [...types.local, ...types.imported].filter(n => tokens.some(t => matchesSymbol(n, t)));
     const callers = new Map<string, Node>();
     if (spans.length === 0 && namedCallables.length > 0
       && namedCallables.every(n => n.decorators?.some(d => d.startsWith('tolk:receiver:')))) {
@@ -78,7 +88,7 @@ export function pinnedTolkScope(
         if (caller?.filePath === fp && caller.language === 'tolk' && isCallable(caller)) callers.set(caller.id, caller);
       }
     }
-    const candidates = new Map([...selected, ...typeContext.values()].map(n => [n.id, n]));
+    const candidates = new Map([...selected, ...typeContext].map(n => [n.id, n]));
     const primaryRoots = [...candidates.values()].slice(0, rootsPerFile);
     for (const node of primaryRoots) {
       admit(node, 0);
@@ -95,12 +105,20 @@ export function pinnedTolkScope(
       if (depth >= 3) continue;
       // Tolk records receiver identity in metadata rather than a type edge.
       const ownerNames = [node.decorators?.find(d => d.startsWith('tolk:receiver:'))?.slice('tolk:receiver:'.length), node.returnType];
+      const outgoing = cg.getOutgoingEdges(node.id);
+      if (isCallable(node)) for (const edge of outgoing) {
+        if (edge.kind !== 'contains') continue;
+        const parameter = cg.getNode(edge.target);
+        if (parameter?.kind === 'parameter') ownerNames.push(/^(?:mutate\s+)?[A-Za-z_]\w*\s*:\s*([A-Za-z_]\w*)$/.exec(parameter.signature ?? '')?.[1]);
+      }
       for (const name of new Set(ownerNames)) {
         if (node.language !== 'tolk' || !name || !/^[A-Za-z_]\w*$/.test(name) || node.typeParameters?.includes(name)) continue;
-        const owners = cg.getNodesInFile(node.filePath).filter(n => TYPES.has(n.kind) && n.name === name);
+        const types = typesForFile(node.filePath);
+        const local = types.local.filter(n => n.name === name);
+        const owners = local.length > 0 ? local : types.imported.filter(n => n.name === name);
         if (owners.length === 1) admit(owners[0]!, depth + 1);
       }
-      for (const edge of cg.getOutgoingEdges(node.id)) {
+      for (const edge of outgoing) {
         if (!DEPENDENCIES.has(edge.kind) && !(edge.kind === 'contains' && TYPES.has(node.kind))) continue;
         const target = cg.getNode(edge.target);
         if (target && isDeclaration(target)) admit(target, depth + 1);

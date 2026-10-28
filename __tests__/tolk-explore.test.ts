@@ -7,6 +7,9 @@ import { exploreQueryTokens, ToolHandler } from '../src/mcp/tools';
 import { resolveNamedTokens, resolveNamedSymbolFlow } from '../src/graph/named-symbol-flow';
 import { ExploreSessionState } from '../src/mcp/explore-session-state';
 import { pinnedTolkScope } from '../src/mcp/explore-tolk-scope';
+import { namedTolkArmRanges } from '../src/mcp/explore-tolk-ranges';
+import { MAX_PARSE_BYTES } from '../src/graph/branch-guards';
+import { getParser, loadGrammarsForLanguages } from '../src/extraction/grammars';
 
 let dir: string;
 let cg: CodeGraph;
@@ -172,12 +175,199 @@ it('includes exact named direct-import types without inventing edges or admittin
   expect([...scope.nodes.values()].every(n => !n.filePath.startsWith('unimported/'))).toBe(true);
   const handler = cg.getNodesInFile('game/main.tolk').find(n => n.name === 'onInternalMessage')!;
   expect(scope.edges.some(e => e.source === handler.id && e.target === message.id)).toBe(false);
-  for (const token of ['HiddenMessage', 'UnknownMessage', 'add_points']) {
+  for (const token of ['HiddenMessage', 'UnknownMessage']) {
     const missing = pinnedTolkScope(cg, ['game/main.tolk'], [token, 'storage', 'score'], [])!;
     expect([...missing.nodes.values()].some(n => n.filePath === 'game/messages.tolk' && n.kind === 'struct')).toBe(false);
     expect([...missing.nodes.values()].some(n => n.filePath === 'game/transitive.tolk')).toBe(false);
     expect([...missing.nodes.values()].some(n => n.filePath.startsWith('unimported/'))).toBe(false);
   }
+  const normalized = pinnedTolkScope(cg, ['game/main.tolk'], ['add_points', 'storage', 'score'], [])!;
+  expect(normalized.nodes.has(handler.id)).toBe(true);
+  expect([...normalized.nodes.values()].some(n => n.kind === 'method' && n.name === 'addPoints')).toBe(true);
+  expect([...normalized.nodes.values()].filter(n => n.kind === 'struct' && n.name === 'AddPoints'))
+    .toEqual([expect.objectContaining({ filePath: 'game/messages.tolk' })]);
+  expect([...normalized.nodes.values()].some(n => n.kind === 'struct' && n.name === 'add_points')).toBe(false);
+  expect([...normalized.nodes.values()].some(n => n.filePath === 'game/transitive.tolk' || n.filePath.startsWith('unimported/'))).toBe(false);
+  expect(normalized.edges.some(e => e.source === handler.id && e.target === message.id)).toBe(false);
+});
+
+it('keeps unique directly imported receiver, return and simple parameter types without guessing ambiguous or composite owners', async () => {
+  await indexMessageContract([], {
+    'owners/main.tolk': [
+      'import "data"', 'import "other"',
+      'struct Local { own: int }',
+      'fun Ledger.update(self) {}',
+      'fun inspectState<T>(value: Ledger, local: Local, clash: Clash, hidden: Hidden, nested: [Container], maybe: Maybe?, generic: T): Outcome {}',
+    ].join('\n'),
+    'owners/data.tolk': 'import "transitive"\nstruct Ledger { count: int }\nstruct Outcome { ok: bool }\nstruct Clash { first: int }\nstruct Container { count: int }\nstruct Maybe { count: int }\nstruct T { count: int }\nstruct Local { wrong: int }',
+    'owners/other.tolk': 'struct Clash { second: int }',
+    'owners/transitive.tolk': 'struct Hidden { wrong: int }',
+    'unimported/owners.tolk': 'struct Ledger { wrong: int }\nstruct Outcome { wrong: int }',
+  });
+  for (const token of ['Ledger.update', 'inspectState']) {
+    const scope = pinnedTolkScope(cg, ['owners/main.tolk'], [token], [])!;
+    const types = [...scope.nodes.values()].filter(n => n.kind === 'struct');
+    expect(types).toContainEqual(expect.objectContaining({ name: 'Ledger', filePath: 'owners/data.tolk' }));
+    if (token === 'inspectState') {
+      expect(types).toContainEqual(expect.objectContaining({ name: 'Local', filePath: 'owners/main.tolk' }));
+      expect(types).toContainEqual(expect.objectContaining({ name: 'Outcome', filePath: 'owners/data.tolk' }));
+    }
+    for (const name of ['Clash', 'Hidden', 'Container', 'Maybe', 'T']) expect(types.some(n => n.name === name)).toBe(false);
+    expect(types.some(n => n.filePath.startsWith('unimported/'))).toBe(false);
+    expect([...scope.nodes.values()].some(n => n.kind === 'import' && n.name === 'data')).toBe(true);
+  }
+});
+
+async function indexLargeMessageHandler(newline: string) {
+  const source = [
+    '// Привет 🌍', 'import "data"', 'import "messages"', 'import "helpers"',
+    'fun Storage.load(): Storage { return Storage.fromCell(contract.getData()); }',
+    'fun Storage.save(self) { contract.setData(self.toCell()); }',
+    'fun onInternalMessage(message: Payload) {',
+    '  var storage = Storage.load();', '  match (message) {',
+    '    FirstMessage => {',
+    ...Array.from({ length: 140 }, () => '      // Earlier message accounting and checks occupy the source allocation before the requested branch.'),
+    '      storage.count += 1;', '    }',
+    '    ClaimBonus => {',
+    '      val entry = loadEntry(message.key);',
+    '      assert(entry.owner == message.sender) throw 701;',
+    '      if (!entry.active) { throw 702; }',
+    '      val label = "Бонус 🌍";',
+    '      val points = entry.score + message.extra;',
+    '      recordBonus(points);', '    }',
+    '    LastMessage => {',
+    ...Array.from({ length: 140 }, () => '      // Later message accounting and checks are unrelated to the requested middle branch.'),
+    '      storage.count += 2;', '    }', '  }', '  storage.save();', '}',
+  ].join(newline);
+  await indexMessageContract([], {
+    'large/main.tolk': source,
+    'large/data.tolk': 'struct Storage { count: int }\nstruct Entry { owner: int, active: bool, score: int }',
+    'large/messages.tolk': 'struct FirstMessage {}\nstruct ClaimBonus { key: int, sender: int, extra: int }\nstruct LastMessage {}\ntype Payload = FirstMessage | ClaimBonus | LastMessage;',
+    'large/helpers.tolk': 'import "data"\nfun loadEntry(key: int): Entry { return Entry { owner: key, active: true, score: 41 }; }\nfun recordBonus(points: int) {}',
+  });
+  return source.split(/\r?\n/);
+}
+
+it.each(['\n', '\r\n'])('retains a named middle message arm and handler completion within existing budgets (%j)', async newline => {
+  const source = await indexLargeMessageHandler(newline);
+  const result = await new ToolHandler(cg).execute('codegraph_explore', {
+    query: 'large/main.tolk onInternalMessage ClaimBonus storage score', maxFiles: 5,
+  });
+  const out = result.content?.[0]?.text ?? '';
+  for (const text of [
+    'fun onInternalMessage(message: Payload) {', '    ClaimBonus => {',
+    '      val entry = loadEntry(message.key);', '      assert(entry.owner == message.sender) throw 701;',
+    '      if (!entry.active) { throw 702; }', '      val label = "Бонус 🌍";',
+    '      val points = entry.score + message.extra;', '      recordBonus(points);', '  storage.save();',
+  ]) expect(out).toContain(`${source.indexOf(text) + 1}\t${text}`);
+  expect(out).toContain('2\timport "data"');
+  expect(out).toContain('struct Storage { count: int }');
+  expect(out).toContain('fun loadEntry(key: int): Entry');
+  expect(out).not.toContain('other/main.tolk');
+  expect(out).not.toContain('wrappers/Game.ts');
+  expect(out.length).toBeLessThan(19500);
+  const capped = await new ToolHandler(cg).execute('codegraph_explore', {
+    query: 'large/main.tolk onInternalMessage ClaimBonus storage score', maxFiles: 1,
+  });
+  const cappedOut = capped.content?.[0]?.text ?? '';
+  expect([...cappedOut.matchAll(/^\*\*`[^`]+`/gm)]).toHaveLength(1);
+  expect(cappedOut).toContain('153\t    ClaimBonus => {');
+  expect(cappedOut).not.toContain('**`large/data.tolk`');
+  expect(cappedOut).not.toContain('**`large/helpers.tolk`');
+  expect(cappedOut.length).toBeLessThan(19500);
+});
+
+it('derives ranges only from literal AST message arms inside the selected callable', async () => {
+  const source = [
+    'fun onInternalMessage(msg: Payload) {',
+    '  // FakeBranch => { claim(); }',
+    '  val text = "FakeBranch => { claim(); }";',
+    '  match (msg) {',
+    '    GoodBranch => { val label = "Бонус 🌍"; }',
+    '    else => {}', '  }', '}',
+    'fun unrelated(msg: Payload) { match (msg) { OutsideBranch => {} else => {} } }',
+  ].join('\r\n');
+  const selected = [{ name: 'onInternalMessage', startLine: 1, endLine: 8 }];
+  const ranges = await namedTolkArmRanges(source, selected, ['GoodBranch']);
+  expect(ranges).toHaveLength(1);
+  expect(ranges[0]!.arm).toEqual({ start: 5, end: 5 });
+  expect(source.split(/\r?\n/).slice(ranges[0]!.arm.start - 1, ranges[0]!.arm.end).join('\n')).toContain('GoodBranch =>');
+  for (const token of ['FakeBranch', 'OutsideBranch', 'goodBranch', 'UnknownBranch']) {
+    expect(await namedTolkArmRanges(source, selected, [token])).toEqual([]);
+  }
+  expect(await namedTolkArmRanges(source, [{ ...selected[0]!, endLine: 9 }], ['GoodBranch'])).toEqual([]);
+});
+
+it('returns no inferred arm for missing, malformed or over-budget source', async () => {
+  const source = 'fun onInternalMessage(msg: Payload) {\n match (msg) { GoodBranch => {} else => {} }\n}';
+  const selected = [{ name: 'onInternalMessage', startLine: 1, endLine: 3 }];
+  expect(await namedTolkArmRanges(source, selected, ['GoodBranch'])).toHaveLength(1);
+  for (const invalid of ['', source.slice(0, -1), source.replace('msg: Payload)', 'msg: Payload'), `${source}\n//${'x'.repeat(MAX_PARSE_BYTES)}`]) {
+    expect(await namedTolkArmRanges(invalid, selected, ['GoodBranch'])).toEqual([]);
+  }
+});
+
+it('starts named arm parsing from its own source after a cached parser cancellation', async () => {
+  await loadGrammarsForLanguages(['tolk']);
+  const parser = getParser('tolk')!;
+  const source = 'fun onInternalMessage(msg: Payload) {\n match (msg) { GoodBranch => {} else => {} }\n}';
+  const selected = [{ name: 'onInternalMessage', startLine: 1, endLine: 3 }];
+  let interrupted: ReturnType<typeof parser.parse> = null;
+  try {
+    parser.reset();
+    interrupted = parser.parse('fun abandoned(msg: Payload) { match (msg) { AbandonedBranch => {} else => {} } }\n'.repeat(20000), null, {
+      progressCallback: () => true,
+    });
+    expect(interrupted).toBeNull();
+    const evidence = await namedTolkArmRanges(source, selected, ['GoodBranch']);
+    expect(evidence).toEqual([{ name: 'GoodBranch', arm: { start: 2, end: 2 }, context: [{ start: 1, end: 3 }, { start: 1, end: 3 }] }]);
+  } finally {
+    interrupted?.delete();
+    parser.reset();
+  }
+});
+
+it('rejects an arm owned by a nested lambda but keeps nested ordinary control blocks', async () => {
+  await loadGrammarsForLanguages(['tolk']);
+  const source = [
+    'fun onInternalMessage(msg: Payload) {',
+    '  val cb = fun(nested: Payload) { match (nested) { NestedBranch => { throw 711; } else => {} } };',
+    '  if (1 > 0) {',
+    '    match (msg) { PlainBranch => { throw 712; } else => {} }',
+    '  }', '}',
+  ].join('\n');
+  const parser = getParser('tolk')!;
+  const tree = parser.parse(source)!;
+  try {
+    expect(tree.rootNode.hasError).toBe(false);
+    expect(tree.rootNode.descendantsOfType('lambda_expression')).toHaveLength(1);
+  } finally {
+    tree.delete();
+    parser.reset();
+  }
+  const selected = [{ name: 'onInternalMessage', startLine: 1, endLine: 6 }];
+  expect(await namedTolkArmRanges(source, selected, ['NestedBranch'])).toEqual([]);
+  const evidence = await namedTolkArmRanges(source, selected, ['PlainBranch']);
+  expect(evidence).toHaveLength(1);
+  expect(evidence[0]!.arm).toEqual({ start: 4, end: 4 });
+});
+
+it('preserves large-handler dedup, explicit line focus and freshness when adding arm ranges', async () => {
+  const source = await indexLargeMessageHandler('\n');
+  vi.stubEnv('CODEGRAPH_EXPLORE_DEDUP', '1');
+  const handler = new ToolHandler(cg), session = new ExploreSessionState();
+  const query = 'large/main.tolk onInternalMessage ClaimBonus storage score';
+  await handler.execute('codegraph_explore', { query, maxFiles: 5 }, session);
+  const again = await handler.execute('codegraph_explore', { query, maxFiles: 5 }, session);
+  expect(again.content?.[0]?.text).toContain('Already sent earlier in this conversation');
+  expect(again.content?.[0]?.text).not.toContain('153\t    ClaimBonus => {');
+  const line = await handler.execute('codegraph_explore', { query: 'large/main.tolk:10-12 ClaimBonus', maxFiles: 1 });
+  expect(line.content?.[0]?.text).toContain('10\t    FirstMessage => {');
+  expect(line.content?.[0]?.text).not.toContain('153\t    ClaimBonus => {');
+  fs.writeFileSync(path.join(dir, 'large/main.tolk'), source.join('\n') + '\n// Changed after indexing.');
+  const stale = await new ToolHandler(cg).execute('codegraph_explore', { query, maxFiles: 1 });
+  expect(stale.content?.[0]?.text).toContain('changed on disk after the last index sync');
+  expect(stale.content?.[0]?.text).not.toContain('153\t    ClaimBonus => {');
 });
 
 it.each(['tolk', 'ts'])('renders the named %s callee connected to the path-pinned caller among repeated contract methods', async (ext) => {
