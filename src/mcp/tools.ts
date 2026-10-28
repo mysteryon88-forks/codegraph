@@ -4926,6 +4926,29 @@ export class ToolHandler {
       ...[...subgraph.nodes.values()].map((n) => n.filePath),
     ]);
     const isGeneratedCandidate = cg.generatedFilePredicate(penaltyCandidates);
+    const weakGeneratedTolkFiles = new Set<string>();
+    const explicitlyNamedTolkFiles = new Set<string>(pinnedFiles);
+    if (tolkScope) for (const [fp, group] of fileGroups) {
+      if (pinnedSet.has(fp)) continue;
+      const tokenParts = focusTokens.map(t => t.split(/::|[./]/).map(normalizeNameToken));
+      const pathParts = new Set(fp.split('/').flatMap(part => [
+        normalizeNameToken(part), normalizeNameToken(part.replace(/\.[^.]+$/, '')),
+      ]));
+      const explicitlyNamed = cg.getNodesInFile(fp).some(n => {
+        const name = normalizeNameToken(n.name);
+        const qualified = n.qualifiedName.split(/::|[./]/).map(normalizeNameToken).join('::');
+        return tokenParts.some(parts => {
+          if (parts[parts.length - 1] !== name) return false;
+          return parts.length === 1 || parts.some((_, split) => {
+            const suffix = parts.slice(split).join('::');
+            return parts.slice(0, split).every(part => pathParts.has(part))
+              && (qualified === suffix || qualified.endsWith(`::${suffix}`));
+          });
+        });
+      });
+      if (explicitlyNamed) explicitlyNamedTolkFiles.add(fp);
+      else if (isGeneratedCandidate(fp) && group.nodes.some(n => scopedFocusIds.has(n.id))) weakGeneratedTolkFiles.add(fp);
+    }
     // Second bounded probe over the same set: files declaring nothing but types
     // that nothing in the index depends on (CG-28). A query that NAMED one of
     // those types is asking about the declaration, so its file is exempt and
@@ -5363,6 +5386,53 @@ export class ToolHandler {
       return [...new Set(focus)].slice(0, MAX_BODY_FOCUS_LINES);
     };
 
+    // Score-proportional byte allocation (CG-12). Every file's share of the
+    // envelope is reserved HERE, before a single byte renders, so the render loop
+    // spends a reservation instead of racing for whatever the files above it left.
+    const allocation = allocateExploreBudget(
+      sortedFiles.map(([fp, group]) => ({
+        path: fp,
+        score: group.score,
+        // A pinned file's bytes are worth full price by definition — the agent
+        // asked for the file itself, generated/test or not.
+        worth: pinnedSet.has(fp) ? 1 : rankPenalty(fp),
+        // A file holding an EXACT target is funded like a spine file: it is the
+        // answer to the question as asked, and clipping it is what sends the
+        // agent to Read — the exact reason the spine gets this treatment.
+        spine: group.nodes.some((n) => flow.pathNodeIds.has(n.id) || exactNodeIds.has(n.id))
+          || anchorSpans.has(fp)
+          // Scoped owner types are source evidence even without a semantic type edge.
+          || (!!tolkScope && group.nodes.some(n => ['function', 'method', 'struct', 'union', 'enum', 'type_alias'].includes(n.kind))),
+        pinned: pinnedSet.has(fp),
+        named: namedSeedFiles.has(fp),
+      })),
+      budget,
+      maxFiles,
+    );
+    let displacedTolkDonor: string | undefined;
+    if (tolkScope && weakGeneratedTolkFiles.size > 0) {
+      const donorIndex = sortedFiles.reduce((last, [fp], i) =>
+        allocation.allowances.has(fp) && weakGeneratedTolkFiles.has(fp) ? i : last, -1);
+      if (donorIndex >= 0) {
+        const recipientIndex = sortedFiles.findIndex(([fp, group], i) =>
+          !allocation.allowances.has(fp) && !weakGeneratedTolkFiles.has(fp)
+          && group.nodes.some(n => ['struct', 'union', 'enum', 'type_alias'].includes(n.kind))
+          && !sortedFiles.slice(donorIndex + 1, i).some(([file]) =>
+            !allocation.allowances.has(file) && explicitlyNamedTolkFiles.has(file)));
+        if (recipientIndex >= 0) {
+          const donor = sortedFiles[donorIndex]![0], recipient = sortedFiles[recipientIndex]![0];
+          // One source slot and its bytes change owners; every other selected file keeps its grant and order.
+          const allowance = allocation.allowances.get(donor)!;
+          allocation.allowances.delete(donor);
+          allocation.allowances.set(recipient, allowance);
+          allocation.cliffed = allocation.cliffed.filter(fp => fp !== recipient);
+          allocation.cliffed.unshift(donor);
+          displacedTolkDonor = donor;
+          [sortedFiles[donorIndex], sortedFiles[recipientIndex]] = [sortedFiles[recipientIndex]!, sortedFiles[donorIndex]!];
+        }
+      }
+    }
+
     // Snapshot every ranked candidate's scoring inputs, in final sort order, so
     // the diagnostic can show what each file's share of the envelope was BOUGHT
     // with (score, graph mass, term hits, flags) — not just what it cost.
@@ -5395,30 +5465,6 @@ export class ToolHandler {
         });
       });
     }
-
-    // Score-proportional byte allocation (CG-12). Every file's share of the
-    // envelope is reserved HERE, before a single byte renders, so the render loop
-    // spends a reservation instead of racing for whatever the files above it left.
-    const allocation = allocateExploreBudget(
-      sortedFiles.map(([fp, group]) => ({
-        path: fp,
-        score: group.score,
-        // A pinned file's bytes are worth full price by definition — the agent
-        // asked for the file itself, generated/test or not.
-        worth: pinnedSet.has(fp) ? 1 : rankPenalty(fp),
-        // A file holding an EXACT target is funded like a spine file: it is the
-        // answer to the question as asked, and clipping it is what sends the
-        // agent to Read — the exact reason the spine gets this treatment.
-        spine: group.nodes.some((n) => flow.pathNodeIds.has(n.id) || exactNodeIds.has(n.id))
-          || anchorSpans.has(fp)
-          // Scoped owner types are source evidence even without a semantic type edge.
-          || (!!tolkScope && group.nodes.some(n => ['function', 'method', 'struct', 'union', 'enum', 'type_alias'].includes(n.kind))),
-        pinned: pinnedSet.has(fp),
-        named: namedSeedFiles.has(fp),
-      })),
-      budget,
-      maxFiles,
-    );
     diag?.setAllocation(allocation.allowances, allocation.cliffed, allocation.cliffAt, allocation.pool);
     // Cliffed files ship as pointers — path, symbols, line numbers — so the agent
     // can name one in a follow-up explore. Rendered below with the other
@@ -7720,6 +7766,9 @@ export class ToolHandler {
         .filter(([fp, group]) => group.score < scoreFloor && !rankedPaths.has(fp))
         .sort((a, b) => b[1].score - a[1].score);
       const remainingFiles = [...remainingRelevant, ...peripheralFiles];
+      // The traded-away body must stay nameable even when the omitted tail exceeds the pointer limit.
+      const donorPointer = remainingFiles.findIndex(([fp]) => fp === displacedTolkDonor);
+      if (donorPointer > 0) remainingFiles.unshift(...remainingFiles.splice(donorPointer, 1));
       for (const [filePath, group] of remainingFiles.slice(0, POINTER_MAX_FILES)) {
         pointerEntries.push(pointerLineFor(filePath, group.nodes));
       }
