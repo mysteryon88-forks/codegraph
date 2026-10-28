@@ -3,13 +3,182 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { CodeGraph } from '../src';
-import { ToolHandler } from '../src/mcp/tools';
+import { exploreQueryTokens, ToolHandler } from '../src/mcp/tools';
 import { resolveNamedTokens, resolveNamedSymbolFlow } from '../src/graph/named-symbol-flow';
 import { ExploreSessionState } from '../src/mcp/explore-session-state';
+import { pinnedTolkScope } from '../src/mcp/explore-tolk-scope';
 
 let dir: string;
 let cg: CodeGraph;
 afterEach(() => { cg?.close(); if (dir) fs.rmSync(dir, { recursive: true, force: true }); vi.unstubAllEnvs(); });
+
+async function indexMessageContract(extraMain: string[] = [], extraFiles: Record<string, string> = {}) {
+  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'codegraph-tolk-message-'));
+  const files: Record<string, string> = {
+    'game/main.tolk': [
+      'import "types"', 'import "helpers"', 'import "messages"',
+      'contract PointsGame { storage: Storage }',
+      'get fun score(): int { return 7; }',
+      ...Array.from({ length: 220 }, () => '// Contract documentation separates unrelated declarations.'),
+      'fun onInternalMessage(message: AddPoints) {',
+      '  var storage = Storage.load();',
+      '  if (message.score > 0) {',
+      '    storage.addPoints(message.score);',
+      '    storage.save();', '  }', '}',
+      ...Array.from({ length: 220 }, () => '// Receiver implementation has its own source location.'),
+      'fun Storage.addPoints(mutate self, score: int) {',
+      '  if (score > 100) { throw 71234; }',
+      '  self.count += bonusFor(score);', '}',
+      ...extraMain,
+    ].join('\n'),
+    'game/types.tolk': [
+      'struct Storage { count: int }',
+      'fun Storage.load(): Storage { return Storage { count: 23 }; }',
+      'fun Storage.save(self) { contract.setData(self.toCell()); }',
+    ].join('\n'),
+    'game/helpers.tolk': 'fun bonusFor(value: int): int { return value + 101; }',
+    'game/messages.tolk': 'struct AddPoints { score: int }',
+    'other/main.tolk': 'import "../game/types"\nfun onInternalMessage(storage: Storage) { storage.save(); }\nfun Storage.addPoints(self, score: int) { throw 81234; }',
+    'wrappers/Game.ts': 'export function addPoints(score: number) { return score + 91234; }',
+    ...extraFiles,
+  };
+  for (const [file, source] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    fs.writeFileSync(path.join(dir, file), source);
+  }
+  cg = CodeGraph.initSync(dir); await cg.indexAll(); cg.resolveReferences();
+  expect(cg.getFiles().flatMap(f => f.errors ?? [])).toEqual([]);
+}
+
+it('selects a message receiver and its containing handler before incidental storage and score matches', async () => {
+  await indexMessageContract();
+  const query = 'game/main.tolk Explain AddPoints handling storage changes score validation';
+  const handler = cg.getNodesInFile('game/main.tolk').find(n => n.name === 'onInternalMessage')!;
+  const receiver = cg.getNodesInFile('game/main.tolk').find(n => n.name === 'addPoints')!;
+  expect(cg.getCallees(handler.id).map(c => c.node.id)).toContain(receiver.id);
+  const scope = pinnedTolkScope(cg, ['game/main.tolk'], exploreQueryTokens('Explain AddPoints handling storage changes score validation'), [])!;
+  expect(scope.nodes.has(handler.id)).toBe(true);
+  expect(scope.nodes.has(receiver.id)).toBe(true);
+  const result = await new ToolHandler(cg).execute('codegraph_explore', { query, maxFiles: 5 });
+  const out = result.content?.[0]?.text ?? '';
+  expect(result.isError).not.toBe(true);
+  expect(out).toContain('226\tfun onInternalMessage(message: AddPoints) {');
+  expect(out).toContain('if (message.score > 0) {');
+  expect(out).toContain('storage.addPoints(message.score);');
+  expect(out).toContain('storage.save();');
+  expect(out).toContain('453\tfun Storage.addPoints(mutate self, score: int) {');
+  expect(out).toContain('if (score > 100) { throw 71234; }');
+  expect(out).toContain('self.count += bonusFor(score);');
+  expect(out).toContain('fun bonusFor(value: int): int { return value + 101; }');
+  expect(out).toContain('struct Storage { count: int }');
+  expect(out).toContain('struct AddPoints { score: int }');
+  for (const [line, name] of [[1, 'types'], [2, 'helpers'], [3, 'messages']]) expect(out).toContain(`${line}\timport "${name}"`);
+  for (const forbidden of ['other/main.tolk', 'wrappers/Game.ts', '81234', '91234']) expect(out).not.toContain(forbidden);
+  expect(out.length).toBeLessThan(19000);
+});
+
+it('preserves getter and line focus and qualifies receiver callers within the pinned file', async () => {
+  await indexMessageContract([
+    'struct OtherStorage { count: int }',
+    'fun OtherStorage.addPoints(mutate self, score: int) { self.count += 999; }',
+    'fun otherHandler(value: OtherStorage) { value.addPoints(1); }',
+    'fun directCaller(value: Storage) { value.addPoints(2); }',
+    'fun indirectCaller(value: Storage) { directCaller(value); }',
+    'fun unresolvedCaller() { missing.addPoints(3); }',
+  ]);
+  const main = cg.getNodesInFile('game/main.tolk');
+  const handler = main.find(n => n.name === 'onInternalMessage')!;
+  const getter = main.find(n => n.decorators?.includes('tolk:getter'))!;
+  const scopeFor = (query: string, anchors: Parameters<typeof pinnedTolkScope>[3] = []) =>
+    pinnedTolkScope(cg, ['game/main.tolk'], exploreQueryTokens(query), anchors)!;
+  const getterScope = scopeFor('score');
+  expect(getterScope.nodes.has(getter.id)).toBe(true);
+  expect(getterScope.nodes.has(handler.id)).toBe(false);
+  const lineScope = scopeFor('Storage.addPoints', [{ file: 'game/main.tolk', start: 453, end: 456 }]);
+  expect(lineScope.nodes.has(handler.id)).toBe(false);
+  expect([...lineScope.nodes.values()].some(n => n.name === 'directCaller')).toBe(false);
+  const entryScope = scopeFor('onInternalMessage storage score');
+  expect(entryScope.nodes.has(handler.id)).toBe(true);
+  expect([...entryScope.nodes.values()].some(n => n.name === 'directCaller')).toBe(false);
+  const receiverScope = scopeFor('Storage.addPoints');
+  expect(receiverScope.nodes.has(handler.id)).toBe(true);
+  expect([...receiverScope.nodes.values()].some(n => n.name === 'directCaller')).toBe(true);
+  expect([...receiverScope.nodes.values()].some(n => n.decorators?.includes('tolk:receiver:OtherStorage'))).toBe(false);
+  for (const name of ['otherHandler', 'indirectCaller', 'unresolvedCaller']) {
+    expect([...receiverScope.nodes.values()].some(n => n.name === name)).toBe(false);
+  }
+  expect([...receiverScope.nodes.values()].every(n => n.filePath.startsWith('game/'))).toBe(true);
+});
+
+it('does not infer a receiver from message words found only in comments or strings', async () => {
+  await indexMessageContract([
+    '// MissingPoints must not stand in for the real receiver.',
+    'fun textOnly(): slice { return "MissingPoints"; }',
+  ]);
+  const handler = cg.getNodesInFile('game/main.tolk').find(n => n.name === 'onInternalMessage')!;
+  const scope = pinnedTolkScope(cg, ['game/main.tolk'], ['MissingPoints', 'storage', 'score'], [])!;
+  expect(scope.nodes.has(handler.id)).toBe(false);
+  expect([...scope.nodes.values()].some(n => n.name === 'addPoints' && n.kind === 'method')).toBe(false);
+  expect([...scope.nodes.values()].some(n => n.name === 'textOnly')).toBe(false);
+});
+
+it('keeps the selected receiver and its forward dependencies ahead of callers under the existing node cap', async () => {
+  await indexMessageContract(Array.from({ length: 205 }, (_, i) =>
+    `fun caller${i}(value: Storage) { value.addPoints(1); }`));
+  const receiver = cg.getNodesInFile('game/main.tolk').find(n => n.name === 'addPoints')!;
+  const scope = pinnedTolkScope(cg, ['game/main.tolk'], ['Storage.addPoints'], [])!;
+  expect(scope.nodes.has(receiver.id)).toBe(true);
+  const helper = cg.getNodesInFile('game/helpers.tolk').find(n => n.name === 'bonusFor')!;
+  expect(scope.nodes.has(helper.id)).toBe(true);
+  expect(scope.edges).toContainEqual(expect.objectContaining({ source: receiver.id, target: helper.id, kind: 'calls' }));
+  const result = await new ToolHandler(cg).execute('codegraph_explore', { query: 'game/main.tolk Storage.addPoints', maxFiles: 5 });
+  const out = result.content?.[0]?.text ?? '';
+  expect(out).toContain('**`game/helpers.tolk`');
+  expect(out).toContain('fun bonusFor(value: int): int { return value + 101; }');
+  expect(scope.nodes.size).toBeLessThanOrEqual(200);
+  expect(scope.roots.length).toBeLessThanOrEqual(200);
+});
+
+it('expands deferred callers through shared dependencies at their shorter depth without exceeding depth three', async () => {
+  await indexMessageContract([
+    'fun directCaller(value: Storage) { value.addPoints(1); sharedWork(1); }',
+  ], {
+    'game/helpers.tolk': [
+      'fun bonusFor(value: int): int { return middleStep(value); }',
+      'fun middleStep(value: int): int { return sharedWork(value); }',
+      'fun sharedWork(value: int): int { return tailWork(value); }',
+      'fun tailWork(value: int): int { return depthLimit(value); }',
+      'fun depthLimit(value: int): int { return beyondScope(value); }',
+      'fun beyondScope(value: int): int { return value; }',
+    ].join('\n'),
+  });
+  const scope = pinnedTolkScope(cg, ['game/main.tolk'], ['Storage.addPoints'], [])!;
+  const names = [...scope.nodes.values()].map(n => n.name);
+  expect(names).toContain('directCaller');
+  expect(names).toContain('tailWork');
+  expect(names).toContain('depthLimit');
+  expect(names).not.toContain('beyondScope');
+});
+
+it('includes exact named direct-import types without inventing edges or admitting transitive and unimported namesakes', async () => {
+  await indexMessageContract([], {
+    'game/messages.tolk': 'import "transitive"\nstruct AddPoints { score: int }',
+    'game/transitive.tolk': 'struct HiddenMessage { value: int }',
+    'unimported/messages.tolk': 'struct AddPoints { wrong: int }\nstruct UnknownMessage { wrong: int }',
+  });
+  const scope = pinnedTolkScope(cg, ['game/main.tolk'], ['AddPoints', 'storage', 'score'], [])!;
+  const message = [...scope.nodes.values()].find(n => n.kind === 'struct' && n.name === 'AddPoints')!;
+  expect(message.filePath).toBe('game/messages.tolk');
+  expect([...scope.nodes.values()].every(n => !n.filePath.startsWith('unimported/'))).toBe(true);
+  const handler = cg.getNodesInFile('game/main.tolk').find(n => n.name === 'onInternalMessage')!;
+  expect(scope.edges.some(e => e.source === handler.id && e.target === message.id)).toBe(false);
+  for (const token of ['HiddenMessage', 'UnknownMessage', 'add_points']) {
+    const missing = pinnedTolkScope(cg, ['game/main.tolk'], [token, 'storage', 'score'], [])!;
+    expect([...missing.nodes.values()].some(n => n.filePath === 'game/messages.tolk' && n.kind === 'struct')).toBe(false);
+    expect([...missing.nodes.values()].some(n => n.filePath === 'game/transitive.tolk')).toBe(false);
+    expect([...missing.nodes.values()].some(n => n.filePath.startsWith('unimported/'))).toBe(false);
+  }
+});
 
 it.each(['tolk', 'ts'])('renders the named %s callee connected to the path-pinned caller among repeated contract methods', async (ext) => {
   dir = fs.mkdtempSync(path.join(os.tmpdir(), 'codegraph-tolk-explore-'));
