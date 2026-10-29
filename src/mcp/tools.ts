@@ -71,6 +71,7 @@ import { validateAnswerFiles, type AnswerFile } from './answer-freshness';
 import { ExploreDiagnostics } from './explore-diagnostics';
 import { pinnedTolkScope } from './explore-tolk-scope';
 import { namedTolkArmRanges } from './explore-tolk-ranges';
+import { readFreshTolkSource, referencedTolkContext } from './explore-tolk-context';
 import {
   EXPLORE_EMISSION_KEY,
   EXPLORE_SESSION_VIEW_ARG,
@@ -89,6 +90,7 @@ import {
   formatBackReference,
   mergeRanges,
   servedRangesForFile,
+  subtractRange,
   symbolsInSpans,
 } from './explore-dedup';
 
@@ -5601,6 +5603,8 @@ export class ToolHandler {
     // (`elidedWantedSpans`), not from the trim sites. Drives the completeness
     // note: "complete" is claimed only for sections that are.
     const trimmedFiles = new Map<string, ExploreWantedSpan[]>();
+    const tolkContextSections = new Map<string, (nodes: readonly Node[]) => void>();
+    const backReferenceNote = ' (Files marked **"Already sent earlier in this conversation"** are not repeated: their source came back on an earlier codegraph_explore call in THIS conversation and the file has not changed since, so that copy is exact and current — scroll back for it rather than re-fetching or Reading.)';
     // Files that changed on disk after their last index sync (#1474). Their
     // indexed line ranges are untrustworthy, so sliced renders (adaptive /
     // skeleton / clusters) are OFF for them: a small drifted file still ships
@@ -6008,6 +6012,7 @@ export class ToolHandler {
           backReferencedFiles.push(filePath);
         }
         if (body.length > 0) {
+          const bodyAt = lines.length + 1;
           lines.push('```' + lang, body, '```', '');
           // ```lang \n body \n ``` \n '' \n — exact, same as the header above.
           totalChars += body.length + lang.length + 11;
@@ -6018,6 +6023,53 @@ export class ToolHandler {
           noteEmitted(filePath, [...ranges, ...opts.covered], body.length, fingerprint);
           renderedFilePaths.push(filePath);
           filesIncluded++;
+          if (tolkScope && lineAnchors.length === 0) tolkContextSections.set(filePath, nodes => {
+            let added = 0, pointer = '';
+            const optionalCovered: ExploreLineRange[] = [];
+            const wanted: ExploreWantedSpan[] = [];
+            for (const node of [...nodes].sort((a, b) => a.startLine - b.startLine)) {
+              wanted.push({ name: node.name, kind: node.kind, start: node.startLine, end: node.endLine,
+                qualifiedName: node.qualifiedName, importance: 0, spine: false });
+              const range = { start: node.startLine, end: node.endLine };
+              const held = mergeRanges(emittedByFile.get(filePath)?.ranges ?? []);
+              if (held.some(r => r.start <= range.start && r.end >= range.end)) continue;
+              // Optional context never alters clustering or borrows another file's core allowance.
+              const parts = dedupeSpans(subtractRange(range, held).map(r => ({ range: r, text: renderSpan(r) })));
+              const text = parts.parts.map(p => p.text).join(GAP_MARKER);
+              const cost = text.length > 0 ? GAP_MARKER.length + text.length : 0;
+              const nextCovered = mergeRanges([...optionalCovered, ...parts.covered]);
+              const nextPointer = nextCovered.length > 0
+                ? formatBackReference(filePath, nextCovered, symbolsInSpans(nodes, nextCovered), { partial: true }) : '';
+              if (body.length + added + cost > Math.min(allowance, fundedHeadroom)
+                  || totalChars + added + cost + nextPointer.length + (nextPointer ? 2 : 0)
+                    + (nextPointer && backReferencedFiles.length === 0 ? backReferenceNote.length : 0)
+                    > Math.min(budget.maxOutputChars, renderCeiling)) continue;
+              if (cost > 0) lines[bodyAt] += GAP_MARKER + text;
+              added += cost;
+              noteEmitted(filePath, [...parts.parts.map(p => p.range), ...parts.covered], cost, fingerprint);
+              optionalCovered.push(...parts.covered);
+              pointer = nextPointer;
+            }
+            if (pointer) {
+              lines[at] += '\n\n' + pointer;
+              if (backReferencedFiles.length === 0) totalChars += backReferenceNote.length;
+              backReferencedFiles.push(filePath);
+            }
+            const missing = elidedWantedSpans(wanted, emittedByFile.get(filePath)?.ranges ?? []);
+            if (missing.length > 0) {
+              trimmedFiles.set(filePath, [...(trimmedFiles.get(filePath) ?? []), ...missing]);
+              anyFileTrimmed = true;
+              const note = formatGapMarker(filePath, missing.map(n => ({ name: n.name, kind: n.kind, startLine: n.start })));
+              if (body.length + added + note.length <= Math.min(allowance, fundedHeadroom)
+                  && totalChars + added + (pointer ? pointer.length + 2 : 0) + note.length
+                    <= Math.min(budget.maxOutputChars, renderCeiling)) {
+                lines[bodyAt] += note; added += note.length;
+                noteEmitted(filePath, [], note.length, fingerprint);
+              }
+            }
+            totalChars += added + (pointer ? pointer.length + 2 : 0); sourceSpent += added; newSourceChars += added;
+            diag?.recordRender(filePath, opts.mode, body.length + added, opts.clipped || missing.length > 0 || opts.covered.length > 0);
+          });
           return;
         }
         // Fully held. The section is the pointer; the slot and the bytes go to a
@@ -7694,12 +7746,22 @@ export class ToolHandler {
       }
     }
 
+    if (tolkContextSections.size > 0) {
+      totalChars = Math.max(totalChars, flow.text.length + lines.join('\n').length
+        + (backReferencedFiles.length > 0 ? backReferenceNote.length : 0));
+      const context = await referencedTolkContext(cg, emittedByFile, (file, maxBytes) => {
+        const record = cg.getFile(file);
+        return record ? readFreshTolkSource(projectRoot, file, maxBytes, record.contentHash) : undefined;
+      });
+      for (const [file, nodes] of context) tolkContextSections.get(file)?.(nodes);
+    }
+
     // The back-reference convention, stated once where the verbatim guarantee is
     // (#1474 does the same for drift). Without it a pointer reads as an
     // apology for missing source rather than as an index into source the agent
     // already has.
     if (backReferencedFiles.length > 0) {
-      lines[verbatimHeaderIdx] += ` (Files marked **"Already sent earlier in this conversation"** are not repeated: their source came back on an earlier codegraph_explore call in THIS conversation and the file has not changed since, so that copy is exact and current — scroll back for it rather than re-fetching or Reading.)`;
+      lines[verbatimHeaderIdx] += backReferenceNote;
     }
 
     // Drift epilogue (#1474). The "verbatim / do not Read" guarantee above

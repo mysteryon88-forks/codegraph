@@ -2,18 +2,307 @@ import { afterEach, expect, it, vi } from 'vitest';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { createHash } from 'crypto';
 import { CodeGraph } from '../src';
 import { exploreQueryTokens, ToolHandler } from '../src/mcp/tools';
 import { resolveNamedTokens, resolveNamedSymbolFlow } from '../src/graph/named-symbol-flow';
 import { ExploreSessionState } from '../src/mcp/explore-session-state';
 import { pinnedTolkScope } from '../src/mcp/explore-tolk-scope';
 import { namedTolkArmRanges } from '../src/mcp/explore-tolk-ranges';
+import { referencedTolkContext } from '../src/mcp/explore-tolk-context';
+import * as tolkContext from '../src/mcp/explore-tolk-context';
 import { MAX_PARSE_BYTES } from '../src/graph/branch-guards';
 import { getParser, loadGrammarsForLanguages } from '../src/extraction/grammars';
 
 let dir: string;
 let cg: CodeGraph;
 afterEach(() => { cg?.close(); if (dir) fs.rmSync(dir, { recursive: true, force: true }); vi.unstubAllEnvs(); });
+
+async function indexReferencedContext(extraFiles: Record<string, string> = {}, mainExtra = '') {
+  const gap = Array.from({ length: 80 }, () => '// Unrelated declarations stay outside the selected ranges.');
+  const messages = [
+    'struct ApplySolve { value: int }',
+    'struct Receipt { outcome: ReceiptOutcome }',
+    'fun allocateMarker() {}',
+    ...gap,
+    'enum ReceiptOutcome {', '  Accepted = 1,', '  Rejected = 2', '}',
+    ...gap,
+    'struct SubmitTask { answer: int, hidden: NestedOnly }',
+    ...gap,
+    'type PlayerStatisticsMessage = ApplySolve | Receipt;',
+    'type FactoryMessage = SubmitTask | OtherMessage;',
+    ...gap,
+    'struct NestedOnly { secret: int }',
+    'struct OtherMessage { unrelated: int }',
+    'struct TextOnly { forbidden: int }',
+  ].join('\n');
+  await indexMessageContract([], {
+    'ref/main.tolk': [
+      'import "messages"',
+      'contract Demo { incomingMessages: FactoryMessage }',
+      'fun run(message: ApplySolve, receipt: Receipt) {',
+      '  allocateMarker();',
+      '  val next = SubmitTask { answer: 1 };',
+      '  // TextOnly is documentation, not a type reference.',
+      '  val text = "TextOnly";', '}', mainExtra,
+    ].join('\n'),
+    'ref/messages.tolk': messages,
+    'elsewhere/messages.tolk': 'enum ReceiptOutcome { Wrong = 997 }\nstruct SubmitTask { wrong: int }',
+    'ref/wrapper.ts': 'export type ReceiptOutcome = { forbidden: 998 };',
+    ...extraFiles,
+  });
+  return fs.readFileSync(path.join(dir, 'ref/messages.tolk'), 'utf8').split('\n');
+}
+
+it.each(['ReceiptOutcome', 'SubmitTask', 'PlayerStatisticsMessage', 'FactoryMessage'])(
+  'adds complete referenced %s source in an already allocated Tolk file without graph changes', async name => {
+    const source = await indexReferencedContext();
+    const before = cg.getFiles().flatMap(f => cg.getNodesInFile(f.path)).flatMap(n => cg.getOutgoingEdges(n.id));
+    const scope = pinnedTolkScope(cg, ['ref/main.tolk'], [], [])!;
+    expect([...scope.nodes.values()].some(n => n.name === name && n.kind !== 'field')).toBe(false);
+    const result = await new ToolHandler(cg).execute('codegraph_explore', { query: 'ref/main.tolk', maxFiles: 2 });
+    const out = result.content?.[0]?.text ?? '';
+    const declaration = cg.getNodesInFile('ref/messages.tolk').find(n => n.name === name)!;
+    for (let line = declaration.startLine; line <= declaration.endLine; line++) {
+      expect(out).toContain(`${line}\t${source[line - 1]}`);
+    }
+    for (const forbidden of ['elsewhere/messages.tolk', 'ref/wrapper.ts', 'struct NestedOnly', 'struct OtherMessage', 'struct TextOnly']) {
+      expect(out).not.toContain(forbidden);
+    }
+    expect(cg.getFiles().flatMap(f => cg.getNodesInFile(f.path)).flatMap(n => cg.getOutgoingEdges(n.id))).toEqual(before);
+    expect([...out.matchAll(/^\*\*`[^`]+`/gm)]).toHaveLength(2);
+    expect(out.length).toBeLessThan(19000);
+  },
+);
+
+async function referencedContext(emitted = new Map([
+  ['ref/main.tolk', { ranges: [{ start: 1, end: 8 }] }],
+  ['ref/messages.tolk', { ranges: [{ start: 1, end: 3 }] }],
+])) {
+  return referencedTolkContext(cg, emitted, (file, maxBytes) => {
+    try {
+      if (fs.statSync(path.join(dir, file)).size > maxBytes) return undefined;
+      const source = fs.readFileSync(path.join(dir, file), 'utf8');
+      return createHash('sha256').update(source).digest('hex') === cg.getFile(file)?.contentHash ? source : undefined;
+    } catch { return undefined; }
+  });
+}
+
+it('resolves referenced types locally before imports and refuses ambiguous imports and transitive visibility', async () => {
+  await indexReferencedContext({
+    'ref/competitor.tolk': 'struct SubmitTask { wrong: int }',
+    'ref/transitive.tolk': 'struct HiddenType { forbidden: int }',
+    'ref/bridge.tolk': 'import "transitive"',
+  }, 'import "competitor"\nimport "bridge"\nenum ReceiptOutcome { Local = 701 }\nfun hidden() { val v = HiddenType { forbidden: 1 }; }');
+  const context = await referencedContext(new Map([
+    ['ref/main.tolk', { ranges: [{ start: 1, end: 13 }] }],
+    ['ref/messages.tolk', { ranges: [{ start: 1, end: 3 }] }],
+    ['ref/competitor.tolk', { ranges: [] }],
+    ['ref/transitive.tolk', { ranges: [] }],
+  ]));
+  const admitted = [...context.values()].flat();
+  expect(admitted.some(n => n.name === 'SubmitTask')).toBe(false);
+  expect(admitted.some(n => n.name === 'HiddenType')).toBe(false);
+  // The field in messages still resolves its own local enum independently.
+  expect(admitted).toContainEqual(expect.objectContaining({ name: 'ReceiptOutcome', filePath: 'ref/messages.tolk' }));
+  const localSource = fs.readFileSync(path.join(dir, 'ref/main.tolk'), 'utf8').replace('val next = SubmitTask', 'val next = ReceiptOutcome');
+  fs.writeFileSync(path.join(dir, 'ref/main.tolk'), localSource);
+  await cg.indexAll(); cg.resolveReferences();
+  const local = [...(await referencedContext()).values()].flat().filter(n => n.name === 'ReceiptOutcome');
+  expect(local).toContainEqual(expect.objectContaining({ filePath: 'ref/main.tolk' }));
+});
+
+it.each(['fresh', 'stale', 'missing', 'over-cap'])(
+  'checks the complete visible alias inventory including a non-allocated %s competitor', async state => {
+    const cappedFiles = state === 'over-cap'
+      ? Object.fromEntries(Array.from({ length: 64 }, (_, i) => [`ref/extra${i}.tolk`, `struct Extra${i} {}`])) : {};
+    await indexReferencedContext({
+      'ref/competitor.tolk': 'import "messages"\ntype RivalMessage = ApplySolve | Receipt;',
+      ...cappedFiles,
+    }, ['import "competitor"', ...Object.keys(cappedFiles).map(file => `import "${path.basename(file, '.tolk')}"`)].join('\n'));
+    if (state === 'stale') fs.appendFileSync(path.join(dir, 'ref/competitor.tolk'), '\n// Changed since indexing.');
+    if (state === 'missing') fs.unlinkSync(path.join(dir, 'ref/competitor.tolk'));
+    const admitted = [...(await referencedContext()).values()].flat();
+    expect(admitted.some(n => n.name === 'PlayerStatisticsMessage')).toBe(false);
+    expect(admitted.some(n => n.filePath === 'ref/competitor.tolk')).toBe(false);
+    expect(admitted).toContainEqual(expect.objectContaining({ name: 'ReceiptOutcome' }));
+  },
+);
+
+it('rejects generic shadows, comments, strings and dot receivers as referenced types', async () => {
+  await indexReferencedContext();
+  const mainPath = path.join(dir, 'ref/main.tolk'), messagesPath = path.join(dir, 'ref/messages.tolk');
+  fs.writeFileSync(mainPath, fs.readFileSync(mainPath, 'utf8')
+    .replace('fun run(', 'fun run<SubmitTask>(').replace('val text = "TextOnly";', 'val text = "TextOnly"; TextOnly.fromSlice();'));
+  fs.writeFileSync(messagesPath, fs.readFileSync(messagesPath, 'utf8')
+    .replace('struct Receipt {', 'struct Receipt<ReceiptOutcome> {'));
+  await cg.indexAll(); cg.resolveReferences();
+  const admitted = [...(await referencedContext()).values()].flat();
+  for (const name of ['SubmitTask', 'ReceiptOutcome', 'TextOnly']) expect(admitted.some(n => n.name === name)).toBe(false);
+  expect(admitted.some(n => n.name === 'PlayerStatisticsMessage')).toBe(true);
+});
+
+it('resolves an alias member in its definition file rather than matching a same-spelled imported variant', async () => {
+  await indexReferencedContext({
+    'ref/competitor.tolk': 'struct ApplySolve { wrong: int }\nstruct Foreign {}\ntype RivalMessage = ApplySolve | Foreign;',
+  }, 'import "competitor"\nstruct ApplySolve { local: int }');
+  const mainPath = path.join(dir, 'ref/main.tolk');
+  fs.writeFileSync(mainPath, fs.readFileSync(mainPath, 'utf8').replace(', receipt: Receipt', ''));
+  await cg.indexAll(); cg.resolveReferences();
+  const admitted = [...(await referencedContext(new Map([
+    ['ref/main.tolk', { ranges: [{ start: 1, end: 8 }] }],
+    ['ref/messages.tolk', { ranges: [] }],
+  ]))).values()].flat();
+  expect(admitted).toContainEqual(expect.objectContaining({ name: 'ApplySolve', filePath: 'ref/main.tolk' }));
+  expect(admitted.some(n => n.name === 'PlayerStatisticsMessage')).toBe(false);
+  expect(admitted.some(n => n.name === 'RivalMessage')).toBe(false);
+  expect(admitted.some(n => n.filePath === 'ref/competitor.tolk')).toBe(false);
+});
+
+it.each(['stale', 'malformed'])( 'refuses referenced context from %s selected source', async state => {
+  await indexReferencedContext();
+  fs.appendFileSync(path.join(dir, 'ref/main.tolk'), state === 'malformed' ? '\nfun broken( {' : '\n// Drift.');
+  if (state === 'malformed') { await cg.indexAll(); cg.resolveReferences(); }
+  const emitted = new Map([['ref/main.tolk', { ranges: [{ start: 1, end: 8 }] }], ['ref/messages.tolk', { ranges: [] }]]);
+  expect([...(await referencedContext(emitted)).values()].flat()).toEqual([]);
+});
+
+it('does not allocate new files or change explicit line output when adding referenced context', async () => {
+  await indexReferencedContext();
+  const one = await new ToolHandler(cg).execute('codegraph_explore', { query: 'ref/main.tolk', maxFiles: 1 });
+  expect(one.content?.[0]?.text).not.toContain('**`ref/messages.tolk`');
+  expect(one.content?.[0]?.text).not.toContain('enum ReceiptOutcome');
+  const anchored = await new ToolHandler(cg).execute('codegraph_explore', { query: 'ref/main.tolk:3-8', maxFiles: 2 });
+  const out = anchored.content?.[0]?.text ?? '';
+  for (const name of ['enum ReceiptOutcome', 'struct SubmitTask', 'type PlayerStatisticsMessage', 'type FactoryMessage']) expect(out).not.toContain(name);
+  expect(out).toContain('3\tfun run(message: ApplySolve, receipt: Receipt) {');
+  expect(out).toContain('8\t}');
+});
+
+it('records optional source in session dedup without claiming unseen declarations', async () => {
+  await indexReferencedContext();
+  const file = path.join(dir, 'ref/messages.tolk');
+  fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace('  Rejected = 2',
+    [...Array.from({ length: 5 }, (_, i) => `  Deferred${i} = ${i + 10},`), '  Rejected = 2'].join('\n')));
+  await cg.indexAll(); cg.resolveReferences();
+  const source = fs.readFileSync(file, 'utf8').split('\n');
+  vi.stubEnv('CODEGRAPH_EXPLORE_DEDUP', '1');
+  const handler = new ToolHandler(cg), session = new ExploreSessionState();
+  await handler.execute('codegraph_explore', { query: 'ref/main.tolk', maxFiles: 2 }, session);
+  const emission = session.forProject(dir)!.calls[0]!.files.find(f => f.path === 'ref/messages.tolk')!;
+  const enumLine = source.indexOf('enum ReceiptOutcome {') + 1;
+  expect(emission.ranges.some(r => r.start <= enumLine && r.end >= enumLine + 3)).toBe(true);
+  const forbiddenLine = source.indexOf('struct NestedOnly { secret: int }') + 1;
+  expect(emission.ranges.some(r => r.start <= forbiddenLine && r.end >= forbiddenLine)).toBe(false);
+  // Fresh explicitly requested source prevents the existing no-new-source restore from re-serving a file.
+  const again = await handler.execute('codegraph_explore', { query: 'ref/main.tolk ref/messages.tolk:310-320', maxFiles: 2 }, session);
+  expect(again.content?.[0]?.text).not.toContain(`${enumLine}\tenum ReceiptOutcome {`);
+  expect(again.content?.[0]?.text).toContain('L84-92');
+});
+
+it('preserves every core source row when adjacent optional context cannot fit the remaining file budget', async () => {
+  await indexReferencedContext({
+    'ref/messages.tolk': [
+      'struct ApplySolve { value: int }',
+      'struct Receipt { outcome: ReceiptOutcome }',
+      'fun allocateMarker() { throw 12345; }',
+      'enum ReceiptOutcome {',
+      ...Array.from({ length: 300 }, (_, i) => `  Outcome${i} = ${i}, // This detailed enum is optional source context, never a reason to clip the selected core.`),
+      '}',
+      'type PlayerStatisticsMessage = ApplySolve | Receipt;',
+    ].join('\n'),
+  });
+  const spy = vi.spyOn(tolkContext, 'referencedTolkContext').mockResolvedValue(new Map());
+  let baseline: string;
+  try {
+    baseline = (await new ToolHandler(cg).execute('codegraph_explore', { query: 'ref/main.tolk', maxFiles: 2 })).content?.[0]?.text ?? '';
+  } finally { spy.mockRestore(); }
+  const out = (await new ToolHandler(cg).execute('codegraph_explore', { query: 'ref/main.tolk', maxFiles: 2 })).content?.[0]?.text ?? '';
+  const rows = (text: string) => text.split('\n').filter(line => /^\d+\t/.test(line));
+  for (const row of rows(baseline)) expect(rows(out)).toContain(row);
+  expect(out).toContain('3\tfun allocateMarker() { throw 12345; }');
+  expect(out).not.toContain('4\tenum ReceiptOutcome {');
+  expect(out).not.toContain('Outcome299 =');
+  expect(out).toContain('Some file sections were trimmed for size.');
+  expect(out).toContain('gap: ReceiptOutcome (ref/messages.tolk:4)');
+  expect(out.length).toBeLessThan(19000);
+});
+
+it.each(['no competitor', 'competitor', 'changed'])(
+  'inventories a fresh generated import with %s without adding generated payload', async state => {
+    const generated = [
+      '// @generated by the test fixture',
+      'import "../messages"',
+      'struct GeneratedPayload { secret: int }',
+      'fun generatedMarker() {',
+      '  val text = "type FakeAlias = ApplySolve | Receipt;";',
+      '  // type FakeComment = ApplySolve | Receipt;',
+      '  val payload = TextOnly { forbidden: 1 };', '}',
+      'fun generatedAsm(): int asm "type FakeAsm = ApplySolve | Receipt;";',
+      ...(state === 'competitor' ? ['type GeneratedRival = ApplySolve | Receipt;'] : []),
+    ].join('\n');
+    await indexReferencedContext({ 'ref/gen/Protocol.code.tolk': generated },
+      'import "gen/Protocol.code"\nfun usesGenerated() { val payload = GeneratedPayload { secret: 1 }; }');
+    expect(cg.generatedFilePredicate(['ref/gen/Protocol.code.tolk'])('ref/gen/Protocol.code.tolk')).toBe(true);
+    if (state === 'changed') fs.appendFileSync(path.join(dir, 'ref/gen/Protocol.code.tolk'), '\n// New generated revision.');
+    const emitted = new Map([
+      ['ref/main.tolk', { ranges: [{ start: 1, end: 10 }] }],
+      ['ref/messages.tolk', { ranges: [{ start: 1, end: 3 }] }],
+      ['ref/gen/Protocol.code.tolk', { ranges: [{ start: 4, end: 9 }] }],
+    ]);
+    const context = await referencedContext(emitted), admitted = [...context.values()].flat();
+    expect(admitted.some(n => n.name === 'PlayerStatisticsMessage')).toBe(state === 'no competitor');
+    expect(context.has('ref/gen/Protocol.code.tolk')).toBe(false);
+    expect(admitted.some(n => n.name === 'TextOnly')).toBe(false);
+    const explicit = await new ToolHandler(cg).execute('codegraph_explore', {
+      query: 'ref/gen/Protocol.code.tolk:4-8', maxFiles: 1,
+    });
+    if (state !== 'changed') {
+      expect(explicit.content?.[0]?.text).toContain('4\tfun generatedMarker() {');
+      expect(explicit.content?.[0]?.text).toContain('7\t  val payload = TextOnly { forbidden: 1 };');
+    }
+  },
+);
+
+it('refuses oversized inventory before reading its source', async () => {
+  await indexReferencedContext();
+  const getFile = cg.getFile.bind(cg);
+  const spy = vi.spyOn(cg, 'getFile').mockImplementation(file => {
+    const record = getFile(file);
+    return file === 'ref/messages.tolk' && record ? { ...record, size: MAX_PARSE_BYTES + 1 } : record;
+  });
+  const read = vi.fn((file: string) => fs.readFileSync(path.join(dir, file), 'utf8'));
+  try {
+    await referencedTolkContext(cg, new Map([['ref/messages.tolk', { ranges: [{ start: 1, end: 3 }] }]]), read);
+    expect(read).not.toHaveBeenCalled();
+  } finally { spy.mockRestore(); }
+});
+
+it('stops the whole referenced-context pass when its deadline expires', async () => {
+  await indexReferencedContext();
+  let tick = 0;
+  const clock = vi.spyOn(Date, 'now').mockImplementation(() => tick += 1000);
+  try { expect([...(await referencedContext()).values()].flat()).toEqual([]); }
+  finally { clock.mockRestore(); }
+});
+
+it('uses an exact selected match variant for simple union context without matching its spelling in other files', async () => {
+  await indexReferencedContext();
+  const file = path.join(dir, 'ref/main.tolk');
+  fs.writeFileSync(file, [
+    'import "messages"',
+    'fun run(message: slice) {',
+    '  allocateMarker();',
+    '  match (message) { ApplySolve => {} else => {} }', '}',
+  ].join('\n'));
+  await cg.indexAll(); cg.resolveReferences();
+  const out = (await new ToolHandler(cg).execute('codegraph_explore', {
+    query: 'ref/main.tolk run ApplySolve', maxFiles: 2,
+  })).content?.[0]?.text ?? '';
+  expect(out).toContain('4\t  match (message) { ApplySolve => {} else => {} }');
+  expect(out).toContain('249\ttype PlayerStatisticsMessage = ApplySolve | Receipt;');
+  expect(out).not.toContain('elsewhere/messages.tolk');
+});
 
 async function indexMessageContract(extraMain: string[] = [], extraFiles: Record<string, string> = {}) {
   dir = fs.mkdtempSync(path.join(os.tmpdir(), 'codegraph-tolk-message-'));
